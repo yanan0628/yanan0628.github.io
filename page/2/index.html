@@ -638,248 +638,6 @@
             
               
                 
-                <a class="post-title-link" href="/2016/06/02/(6.3).缓存-redis/" itemprop="url">
-                  redis
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-06-02T10:52:03+08:00" content="2016-06-02">
-              2016-06-02
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/分布式/" itemprop="url" rel="index">
-                    <span itemprop="name">分布式</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/分布式/缓存/" itemprop="url" rel="index">
-                    <span itemprop="name">缓存</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="redis初识"><a href="#redis初识" class="headerlink" title="redis初识"></a>redis初识</h2><h3 id="八大特性"><a href="#八大特性" class="headerlink" title="八大特性"></a>八大特性</h3><blockquote>
-<p>特点:</p>
-</blockquote>
-<ul>
-<li>速度快(c语言编写;数据存储全内存)</li>
-<li>持久化(断电后不丢失数据,对数据的更新将异步地保存到磁盘上)</li>
-<li>支持多种语言（java/php/ruby/lua/nodejs…）</li>
-<li>支持多种数据结构(string/hash/list/set/zset)</li>
-<li>功能丰富(除支持5种数据结构，还支持事务、流水线、发布订阅等)</li>
-<li>“简单”(redis代码精简代码只有几万行；不依赖外部库资源)</li>
-<li>主从复制(数据备份)</li>
-<li>高可用、分布式（支持redis-sentinel高可用、redis-cluster分布式架构）</li>
-</ul>
-<blockquote>
-<p>访问介质开销：</p>
-</blockquote>
-<p><img src="http://i3.itc.cn/20160617/aac_181f16ac_2f7a_1a2a_fc4c_c7047525a146_3.png" alt=""></p>
-<h3 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h3><p><img src="http://i0.itc.cn/20160617/aac_181f16ac_2f7a_1a2a_fc4c_c7047525a146_1.png" alt=""></p>
-<ul>
-<li>String(字符串)</li>
-</ul>
-<p>1).结构：<br><img src="http://i0.itc.cn/20160616/aac_d1bd8f2f_0e3f_f448_3a84_4d70ce62c237_2.png" alt=""></p>
-<p>2).场景：缓存/计数器/分布式锁(单线程执行，QPS最大能达到10w+) </p>
-<p>3).api命令：</p>
-<pre><code>get/set/del (缓存)
-Incr/decr/Incrby/decrby(计数，加+-1/+-n)
-set/setnx/setxx
-mset/mget （批量读取）
-getset/append/strlen/Incrbyfloat/getrange/setrange（其他字符串操作）
-</code></pre><ul>
-<li>Hash(哈希)</li>
-</ul>
-<p>1).结构:<br><img src="http://i0.itc.cn/20160616/aac_838af662_24ad_42d8_6410_7810a64b2ded_5.png" alt=""></p>
-<p>2).场景:缓存</p>
-<p>3).api命令：</p>
-<pre><code>hget/hset/hgetall/hdel(单条操作)
-hexists/hlen（存在/长度）
-hmget/hmset(批量设置/获取KV)
-hgetall/hvals/hkeys(批量获取键值)
-</code></pre><p><img src="http://i1.itc.cn/20160616/aac_838af662_24ad_42d8_6410_7810a64b2ded_4.png" alt=""></p>
-<ul>
-<li>List(列表)</li>
-</ul>
-<p>1).结构<br><img src="http://i0.itc.cn/20160616/aac_838af662_24ad_42d8_6410_7810a64b2ded_3.png" alt=""></p>
-<p>2).场景:</p>
-<p>3).api:</p>
-<p><img src="http://i1.itc.cn/20160616/aac_838af662_24ad_42d8_6410_7810a64b2ded_2.png" alt=""></p>
-<ul>
-<li>Set(集合)</li>
-<li>ZSet(有序集合)</li>
-</ul>
-<h3 id="redis命令-配置"><a href="#redis命令-配置" class="headerlink" title="redis命令/配置"></a>redis命令/配置</h3><blockquote>
-<p>下载和安装</p>
-</blockquote>
-<pre><code>1. http://download.redis.io/releases/redis-3.0.5.tar.gz
-2. tar xzf redis-3.0.5.tar.gz
-3. cd redis-3.0.5
-4. make
-5. make install
-</code></pre><blockquote>
-<p>redis相关命令</p>
-</blockquote>
-<pre><code>服务器按配置启动：redis-server confdir
-客户端连接：redis-cli -h ip -p port
-查看服务端所有参数配置：cat redis.conf | grep -v &quot;#&quot; | grep -v &quot;^$&quot; | wc -l
-</code></pre><blockquote>
-<p>redis-cli返回值种类</p>
-</blockquote>
-<pre><code>状态回复：ping --&gt; pong
-错误回复：wrongtype operation against
-整数回复：(integer)1
-字符串回复：&quot;world&quot;
-多行字符串回复：&quot;hello&quot; &quot;world&quot;
-空值回复：&quot;nil&quot;
-</code></pre><blockquote>
-<p>redis-server配置：</p>
-</blockquote>
-<pre><code>daemonize：是否是守护进程(no|yes)
-port：Redis对外端口号
-logfile：Redis系统日志
-pidfile：保存进程号的文件
-</code></pre><p>object类型<br><img src="http://i1.itc.cn/20160616/aac_838af662_24ad_42d8_6410_7810a64b2ded_1.png" alt=""></p>
-<h3 id="aof-rdb持久化"><a href="#aof-rdb持久化" class="headerlink" title="aof/rdb持久化"></a>aof/rdb持久化</h3><h2 id="redis客户端使用"><a href="#redis客户端使用" class="headerlink" title="redis客户端使用"></a>redis客户端使用</h2><blockquote>
-<p>jedis客户端</p>
-</blockquote>
-<h2 id="redis高可用、分布式架构"><a href="#redis高可用、分布式架构" class="headerlink" title="redis高可用、分布式架构"></a>redis高可用、分布式架构</h2><h3 id="redis-sentiler架构"><a href="#redis-sentiler架构" class="headerlink" title="redis-sentiler架构"></a>redis-sentiler架构</h3><p><img src="http://i0.itc.cn/20160616/aac_d723e707_cc35_ac96_003d_54bf115f5dfd_1.png" alt=""></p>
-<blockquote>
-<p>集群特点</p>
-</blockquote>
-<ul>
-<li>1)节点自动发现</li>
-<li>2):slave-&gt;master 选举,集群容错</li>
-<li>3):Hot resharding:在线分片</li>
-<li>4):进群管理:cluster xxx</li>
-<li>5):基于配置(nodes-port.conf)的集群管理</li>
-<li>6):ASK 转向/MOVED 转向机制.</li>
-</ul>
-<blockquote>
-<p>Redis Sentinel故障转移</p>
-</blockquote>
-<p><img src="http://i0.itc.cn/20160616/aac_d723e707_cc35_ac96_003d_54bf115f5dfd_2.png" alt=""></p>
-<h3 id="redis-cluster架构"><a href="#redis-cluster架构" class="headerlink" title="redis-cluster架构"></a>redis-cluster架构</h3><p><img src="http://i0.itc.cn/20160617/aac_181f16ac_2f7a_1a2a_fc4c_c7047525a146_5.png" alt="redis-cluster架构"></p>
-<p><code>无中心化</code>智能管理:（每个主节点都知道其他节点信息）</p>
-<p><img src="http://i2.itc.cn/20160616/aac_d723e707_cc35_ac96_003d_54bf115f5dfd_3.png" alt=""></p>
-<p>架构细节:</p>
-<pre><code>(1)所有的redis节点彼此互联(PING-PONG机制),内部使用二进制协议优化传输速度和带宽.
-(2)节点的fail是通过集群中超过半数的节点检测失效时才生效.
-(3)客户端与redis节点直连,不需要中间proxy层.客户端不需要连接集群所有节点,连接集群中任何一个可用节点即可
-(4)redis-cluster把所有的物理节点映射到16383个slot上,cluster 负责维护node&lt;-&gt;slot&lt;-&gt;value
-</code></pre><p><code>槽指派</code>：(分16384个槽，用于数据)</p>
-<p><img src="http://i1.itc.cn/20160616/aac_2ab7ff75_f2ac_f662_5af5_f71b41c66f33_1.png" alt=""></p>
-<h2 id="codis架构"><a href="#codis架构" class="headerlink" title="codis架构"></a>codis架构</h2><p>##参考</p>
-<pre><code>redis常用命令 http://doc.redisfans.com/
-redis官网：http://redis.io/
-redis学习文档：
-redis学习视频：http://my.tv.sohu.com/pl/9102138/index.shtml
-相关文章：
-    [Redis 集群方案介绍](http://mp.weixin.qq.com/s?__biz=MzA3MzYwNjQ3NA==&amp;mid=2651296671&amp;idx=1&amp;sn=366de50a6787963517ff6e096c9d1643&amp;scene=2&amp;srcid=0601j5sEtcRyw9TtehhXW0Ix&amp;from=timeline&amp;isappinstalled=0#wechat_redirect)
-</code></pre>
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2016/06/02/(6.1).多线程-源码分析/" itemprop="url">
                   多线程源码分析
                 </a>
@@ -1984,6 +1742,248 @@ protected T initialValue() { }  //懒加载
             
               
                 
+                <a class="post-title-link" href="/2016/06/02/(6.3).缓存-redis/" itemprop="url">
+                  redis
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-06-02T10:52:03+08:00" content="2016-06-02">
+              2016-06-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/分布式/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/分布式/缓存/" itemprop="url" rel="index">
+                    <span itemprop="name">缓存</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="redis初识"><a href="#redis初识" class="headerlink" title="redis初识"></a>redis初识</h2><h3 id="八大特性"><a href="#八大特性" class="headerlink" title="八大特性"></a>八大特性</h3><blockquote>
+<p>特点:</p>
+</blockquote>
+<ul>
+<li>速度快(c语言编写;数据存储全内存)</li>
+<li>持久化(断电后不丢失数据,对数据的更新将异步地保存到磁盘上)</li>
+<li>支持多种语言（java/php/ruby/lua/nodejs…）</li>
+<li>支持多种数据结构(string/hash/list/set/zset)</li>
+<li>功能丰富(除支持5种数据结构，还支持事务、流水线、发布订阅等)</li>
+<li>“简单”(redis代码精简代码只有几万行；不依赖外部库资源)</li>
+<li>主从复制(数据备份)</li>
+<li>高可用、分布式（支持redis-sentinel高可用、redis-cluster分布式架构）</li>
+</ul>
+<blockquote>
+<p>访问介质开销：</p>
+</blockquote>
+<p><img src="http://i3.itc.cn/20160617/aac_181f16ac_2f7a_1a2a_fc4c_c7047525a146_3.png" alt=""></p>
+<h3 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h3><p><img src="http://i0.itc.cn/20160617/aac_181f16ac_2f7a_1a2a_fc4c_c7047525a146_1.png" alt=""></p>
+<ul>
+<li>String(字符串)</li>
+</ul>
+<p>1).结构：<br><img src="http://i0.itc.cn/20160616/aac_d1bd8f2f_0e3f_f448_3a84_4d70ce62c237_2.png" alt=""></p>
+<p>2).场景：缓存/计数器/分布式锁(单线程执行，QPS最大能达到10w+) </p>
+<p>3).api命令：</p>
+<pre><code>get/set/del (缓存)
+Incr/decr/Incrby/decrby(计数，加+-1/+-n)
+set/setnx/setxx
+mset/mget （批量读取）
+getset/append/strlen/Incrbyfloat/getrange/setrange（其他字符串操作）
+</code></pre><ul>
+<li>Hash(哈希)</li>
+</ul>
+<p>1).结构:<br><img src="http://i0.itc.cn/20160616/aac_838af662_24ad_42d8_6410_7810a64b2ded_5.png" alt=""></p>
+<p>2).场景:缓存</p>
+<p>3).api命令：</p>
+<pre><code>hget/hset/hgetall/hdel(单条操作)
+hexists/hlen（存在/长度）
+hmget/hmset(批量设置/获取KV)
+hgetall/hvals/hkeys(批量获取键值)
+</code></pre><p><img src="http://i1.itc.cn/20160616/aac_838af662_24ad_42d8_6410_7810a64b2ded_4.png" alt=""></p>
+<ul>
+<li>List(列表)</li>
+</ul>
+<p>1).结构<br><img src="http://i0.itc.cn/20160616/aac_838af662_24ad_42d8_6410_7810a64b2ded_3.png" alt=""></p>
+<p>2).场景:</p>
+<p>3).api:</p>
+<p><img src="http://i1.itc.cn/20160616/aac_838af662_24ad_42d8_6410_7810a64b2ded_2.png" alt=""></p>
+<ul>
+<li>Set(集合)</li>
+<li>ZSet(有序集合)</li>
+</ul>
+<h3 id="redis命令-配置"><a href="#redis命令-配置" class="headerlink" title="redis命令/配置"></a>redis命令/配置</h3><blockquote>
+<p>下载和安装</p>
+</blockquote>
+<pre><code>1. http://download.redis.io/releases/redis-3.0.5.tar.gz
+2. tar xzf redis-3.0.5.tar.gz
+3. cd redis-3.0.5
+4. make
+5. make install
+</code></pre><blockquote>
+<p>redis相关命令</p>
+</blockquote>
+<pre><code>服务器按配置启动：redis-server confdir
+客户端连接：redis-cli -h ip -p port
+查看服务端所有参数配置：cat redis.conf | grep -v &quot;#&quot; | grep -v &quot;^$&quot; | wc -l
+</code></pre><blockquote>
+<p>redis-cli返回值种类</p>
+</blockquote>
+<pre><code>状态回复：ping --&gt; pong
+错误回复：wrongtype operation against
+整数回复：(integer)1
+字符串回复：&quot;world&quot;
+多行字符串回复：&quot;hello&quot; &quot;world&quot;
+空值回复：&quot;nil&quot;
+</code></pre><blockquote>
+<p>redis-server配置：</p>
+</blockquote>
+<pre><code>daemonize：是否是守护进程(no|yes)
+port：Redis对外端口号
+logfile：Redis系统日志
+pidfile：保存进程号的文件
+</code></pre><p>object类型<br><img src="http://i1.itc.cn/20160616/aac_838af662_24ad_42d8_6410_7810a64b2ded_1.png" alt=""></p>
+<h3 id="aof-rdb持久化"><a href="#aof-rdb持久化" class="headerlink" title="aof/rdb持久化"></a>aof/rdb持久化</h3><h2 id="redis客户端使用"><a href="#redis客户端使用" class="headerlink" title="redis客户端使用"></a>redis客户端使用</h2><blockquote>
+<p>jedis客户端</p>
+</blockquote>
+<h2 id="redis高可用、分布式架构"><a href="#redis高可用、分布式架构" class="headerlink" title="redis高可用、分布式架构"></a>redis高可用、分布式架构</h2><h3 id="redis-sentiler架构"><a href="#redis-sentiler架构" class="headerlink" title="redis-sentiler架构"></a>redis-sentiler架构</h3><p><img src="http://i0.itc.cn/20160616/aac_d723e707_cc35_ac96_003d_54bf115f5dfd_1.png" alt=""></p>
+<blockquote>
+<p>集群特点</p>
+</blockquote>
+<ul>
+<li>1)节点自动发现</li>
+<li>2):slave-&gt;master 选举,集群容错</li>
+<li>3):Hot resharding:在线分片</li>
+<li>4):进群管理:cluster xxx</li>
+<li>5):基于配置(nodes-port.conf)的集群管理</li>
+<li>6):ASK 转向/MOVED 转向机制.</li>
+</ul>
+<blockquote>
+<p>Redis Sentinel故障转移</p>
+</blockquote>
+<p><img src="http://i0.itc.cn/20160616/aac_d723e707_cc35_ac96_003d_54bf115f5dfd_2.png" alt=""></p>
+<h3 id="redis-cluster架构"><a href="#redis-cluster架构" class="headerlink" title="redis-cluster架构"></a>redis-cluster架构</h3><p><img src="http://i0.itc.cn/20160617/aac_181f16ac_2f7a_1a2a_fc4c_c7047525a146_5.png" alt="redis-cluster架构"></p>
+<p><code>无中心化</code>智能管理:（每个主节点都知道其他节点信息）</p>
+<p><img src="http://i2.itc.cn/20160616/aac_d723e707_cc35_ac96_003d_54bf115f5dfd_3.png" alt=""></p>
+<p>架构细节:</p>
+<pre><code>(1)所有的redis节点彼此互联(PING-PONG机制),内部使用二进制协议优化传输速度和带宽.
+(2)节点的fail是通过集群中超过半数的节点检测失效时才生效.
+(3)客户端与redis节点直连,不需要中间proxy层.客户端不需要连接集群所有节点,连接集群中任何一个可用节点即可
+(4)redis-cluster把所有的物理节点映射到16383个slot上,cluster 负责维护node&lt;-&gt;slot&lt;-&gt;value
+</code></pre><p><code>槽指派</code>：(分16384个槽，用于数据)</p>
+<p><img src="http://i1.itc.cn/20160616/aac_2ab7ff75_f2ac_f662_5af5_f71b41c66f33_1.png" alt=""></p>
+<h2 id="codis架构"><a href="#codis架构" class="headerlink" title="codis架构"></a>codis架构</h2><p>##参考</p>
+<pre><code>redis常用命令 http://doc.redisfans.com/
+redis官网：http://redis.io/
+redis学习文档：
+redis学习视频：http://my.tv.sohu.com/pl/9102138/index.shtml
+相关文章：
+    [Redis 集群方案介绍](http://mp.weixin.qq.com/s?__biz=MzA3MzYwNjQ3NA==&amp;mid=2651296671&amp;idx=1&amp;sn=366de50a6787963517ff6e096c9d1643&amp;scene=2&amp;srcid=0601j5sEtcRyw9TtehhXW0Ix&amp;from=timeline&amp;isappinstalled=0#wechat_redirect)
+</code></pre>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/06/02/(6.1).多线程-并发编程/" itemprop="url">
                   并发编程
                 </a>
@@ -2824,7 +2824,7 @@ UTF-8：UTF-8便于不同的计算机之间使用网络传输不同语言和编�
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-count">23</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -2833,7 +2833,7 @@ UTF-8：UTF-8便于不同的计算机之间使用网络传输不同语言和编�
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">48</span>
+                <span class="site-state-item-count">49</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

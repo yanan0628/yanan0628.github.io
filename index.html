@@ -267,128 +267,6 @@
             
               
                 
-                <a class="post-title-link" href="/2017/08/22/9.2).redis工具使用/" itemprop="url">
-                  未命名
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-08-22T15:53:44+08:00" content="2017-08-22">
-              2017-08-22
-            </time>
-          </span>
-
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="redis工具使用"><a href="#redis工具使用" class="headerlink" title="redis工具使用"></a>redis工具使用</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line">环境准备:（注:不同redis版本可能会有差异）</div><div class="line"></div><div class="line">1.redis-server -v</div><div class="line">Redis server v=3.0.7 sha=00000000:0 malloc=jemalloc-3.6.0 bits=64 build=fde71d6d37f8bceb</div><div class="line"></div><div class="line">2.python -V </div><div class="line">Python 2.7.3</div><div class="line">下载：wget https://www.python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2</div><div class="line">(下载:wget http://index.tv.sohuno.com/software/Python-2.7.3.tar.bz2)</div><div class="line">which python:查看python安装目录</div><div class="line">/usr/local/bin/python</div><div class="line"></div><div class="line">[@fl bin]# python -V</div><div class="line">Python 3.4.1</div><div class="line">[@fl bin]# cd /usr/bin</div><div class="line">[@fl bin]# ll | grep python</div><div class="line">-rwxr-xr-x    1 root root      10920 May 16  2012 abrt-action-analyze-python</div><div class="line">lrwxrwxrwx    1 root root         24 Aug 22 16:19 python -&gt; /usr/local/bin/python2.7</div><div class="line">lrwxrwxrwx.   1 root root          6 Sep 26  2014 python2 -&gt; python</div><div class="line">-rwxr-xr-x    2 root root       9032 May  2  2012 python2.6</div><div class="line">-rwxr-xr-x    2 root root       9032 May  2  2012 python2.6.6</div><div class="line">[@fl bin]# which python</div><div class="line">/usr/local/bin/python</div><div class="line">[@fl bin]# cd /usr/local/bin/</div><div class="line">[@fl bin]# ll | grep python</div><div class="line">lrwxrwxrwx 1 root root      24 Feb 22  2016 python -&gt; /usr/local/bin/python3.4</div><div class="line">lrwxrwxrwx 1 root root       9 Feb 13  2016 python2 -&gt; python2.7</div><div class="line">-rwxr-xr-x 1 root root 6162257 Feb 13  2016 python2.7</div><div class="line">-rwxr-xr-x 1 root root    1624 Feb 13  2016 python2.7-config</div><div class="line">lrwxrwxrwx 1 root root      16 Feb 13  2016 python2-config -&gt; python2.7-config</div><div class="line">lrwxrwxrwx 1 root root       9 Feb 22  2016 python3 -&gt; python3.4</div><div class="line">-rwxr-xr-x 2 root root 8773578 Feb 22  2016 python3.4</div><div class="line">lrwxrwxrwx 1 root root      17 Feb 22  2016 python3.4-config -&gt; python3.4m-config</div><div class="line">-rwxr-xr-x 2 root root 8773578 Feb 22  2016 python3.4m</div><div class="line">-rwxr-xr-x 1 root root    3049 Feb 22  2016 python3.4m-config</div><div class="line">lrwxrwxrwx 1 root root      16 Feb 22  2016 python3-config -&gt; python3.4-config</div><div class="line">lrwxrwxrwx 1 root root      14 Feb 13  2016 python-config -&gt; python2-config</div><div class="line">[@fl bin]# rm -f python</div><div class="line">[@fl bin]# ln -s /usr/local/bin/python2.7</div><div class="line">python2.7         python2.7-config</div><div class="line">[@fl bin]# ln -s /usr/local/bin/python2.7 python</div><div class="line">[@fl bin]# python -V</div><div class="line">Python 2.7.3</div><div class="line"></div><div class="line">3.python redis安装 rediscluster安装</div><div class="line"></div><div class="line">wget https://github.com/andymccurdy/redis-py/archive/2.10.5.zip</div><div class="line">wget https://github.com/Grokzen/redis-py-cluster/releases/download/1.3.4/redis-py-cluster-1.3.4.tar.gz</div><div class="line"></div><div class="line">python setup.py install</div><div class="line"></div><div class="line">4. 导入包</div><div class="line"></div><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div></pre></td></tr></table></figure>
-<h2 id="python工具使用"><a href="#python工具使用" class="headerlink" title="python工具使用"></a>python工具使用</h2><hr>
-<p>扫描scan key</p>
-<hr>
-<ul>
-<li>单机</li>
-</ul>
-<p>格式:python scankey.py ip port pattern password</p>
-<p>python scankey.py 10.16.14.182 6380 hash<em> “”<br>python scankey.py 10.16.14.182 6380 hash</em> “123”</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div><div class="line"></div><div class="line">def findInstancePatternKeys(host, port, pattern, password):</div><div class="line">    client = redis.StrictRedis(host=host, port=port, password=password)</div><div class="line">    pipeline = client.pipeline(transaction=False)</div><div class="line">    cursor = 0</div><div class="line">    print &quot;====================check &#123;host&#125;:&#123;port&#125;&quot;.format(host=host,port=port)</div><div class="line">    while True:</div><div class="line">        currentCursor, keys = client.scan(cursor=cursor, match=pattern, count=100)</div><div class="line">        if len(keys) &gt; 0:</div><div class="line">            for key in keys:</div><div class="line">              print &quot;key=&#123;key&#125;&quot;.format(key=key)</div><div class="line">            pipeline.execute()</div><div class="line">        cursor = currentCursor</div><div class="line">        if cursor == 0:</div><div class="line">            break</div><div class="line"></div><div class="line">findInstancePatternKeys(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4])</div></pre></td></tr></table></figure>
-<ul>
-<li>集群</li>
-</ul>
-<p>格式:python scankey.py ip port pattern password</p>
-<p>python cluster-scankey.py 10.16.14.182 6380 hash<em> “”<br>python cluster-scankey.py 10.16.14.182 6380 hash</em> “123”</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div><div class="line"></div><div class="line">def findClusterPatternKey(startupNodes, pattern,password):</div><div class="line">    clusterClient = rediscluster.StrictRedisCluster(startup_nodes=startupNodes,password=password, decode_responses=True)</div><div class="line">    clusterInfos = clusterClient.cluster_nodes()</div><div class="line">    for clusternode in clusterInfos:</div><div class="line">        slots = clusternode[&quot;slots&quot;]</div><div class="line">        # only check master</div><div class="line">        if len(slots) &gt; 0:</div><div class="line">            print &quot;========= check &#123;host&#125;:&#123;port&#125;&quot;.format(host=clusternode[&quot;host&quot;],port=clusternode[&quot;port&quot;])</div><div class="line">            findInstancePatternKeys(clusternode[&quot;host&quot;], clusternode[&quot;port&quot;], pattern, password)</div><div class="line"></div><div class="line">def findInstancePatternKeys(host, port, pattern, password):</div><div class="line">    client = redis.StrictRedis(host=host, port=port, password=password)</div><div class="line">    pipeline = client.pipeline(transaction=False)</div><div class="line">    cursor = 0</div><div class="line">    while True:</div><div class="line">        currentCursor, keys = client.scan(cursor=cursor, match=pattern, count=100)</div><div class="line">        if len(keys) &gt; 0:</div><div class="line">            for key in keys:</div><div class="line">                print &quot;key=&#123;key&#125;&quot;.format(key=key)</div><div class="line">            pipeline.execute()</div><div class="line">        cursor = currentCursor</div><div class="line">        if cursor == 0:</div><div class="line">            break</div><div class="line"></div><div class="line">startupNodes = [&#123;&quot;host&quot;:sys.argv[1],&quot;port&quot;:int(sys.argv[2])&#125;]</div><div class="line">findClusterPatternKey(startupNodes, sys.argv[3],sys.argv[4])</div></pre></td></tr></table></figure>
-<hr>
-<p>扫描 idle key</p>
-<hr>
-<ul>
-<li>单机</li>
-</ul>
-<p>格式:python scankey.py ip port idleDay password</p>
-<p>python scankey.py 10.16.14.182 6380 1 “”<br>python scankey.py 10.16.14.182 6380 1 “123”</p>
-<ul>
-<li>集群</li>
-</ul>
-<p>格式:python scankey.py ip port pattern password</p>
-<p>python scankey.py 10.16.14.182 6380 hash<em> “”<br>python scankey.py 10.16.14.182 6380 hash</em> “123”</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2017/08/21/9.1).redis运维-docker机器用户权限篡改/" itemprop="url">
                   docker机器篡改用户uid
                 </a>
@@ -882,6 +760,159 @@ sda6              0.10    33.99  0.56  6.22    39.59   321.69    53.32     0.03 
     - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
     - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
 </code></pre><h2 id="工具使用"><a href="#工具使用" class="headerlink" title="工具使用"></a>工具使用</h2><h3 id="tsar"><a href="#tsar" class="headerlink" title="tsar"></a>tsar</h3><h3 id="iftop"><a href="#iftop" class="headerlink" title="iftop"></a>iftop</h3>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/08/05/9.2).redis工具使用/" itemprop="url">
+                  redis常用工具
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-08-05T16:37:35+08:00" content="2016-08-05">
+              2016-08-05
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="redis常用工具"><a href="#redis常用工具" class="headerlink" title="redis常用工具"></a>redis常用工具</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line">环境准备:（注:不同redis版本可能会有差异）</div><div class="line"></div><div class="line">1.redis-server -v</div><div class="line">Redis server v=3.0.7 sha=00000000:0 malloc=jemalloc-3.6.0 bits=64 build=fde71d6d37f8bceb</div><div class="line"></div><div class="line">2.python -V </div><div class="line">Python 2.7.3</div><div class="line">下载：wget https://www.python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2</div><div class="line">(下载:wget http://index.tv.sohuno.com/software/Python-2.7.3.tar.bz2)</div><div class="line">which python:查看python安装目录</div><div class="line">/usr/local/bin/python</div><div class="line"></div><div class="line">[@fl bin]# python -V</div><div class="line">Python 3.4.1</div><div class="line">[@fl bin]# cd /usr/bin</div><div class="line">[@fl bin]# ll | grep python</div><div class="line">-rwxr-xr-x    1 root root      10920 May 16  2012 abrt-action-analyze-python</div><div class="line">lrwxrwxrwx    1 root root         24 Aug 22 16:19 python -&gt; /usr/local/bin/python2.7</div><div class="line">lrwxrwxrwx.   1 root root          6 Sep 26  2014 python2 -&gt; python</div><div class="line">-rwxr-xr-x    2 root root       9032 May  2  2012 python2.6</div><div class="line">-rwxr-xr-x    2 root root       9032 May  2  2012 python2.6.6</div><div class="line">[@fl bin]# which python</div><div class="line">/usr/local/bin/python</div><div class="line">[@fl bin]# cd /usr/local/bin/</div><div class="line">[@fl bin]# ll | grep python</div><div class="line">lrwxrwxrwx 1 root root      24 Feb 22  2016 python -&gt; /usr/local/bin/python3.4</div><div class="line">lrwxrwxrwx 1 root root       9 Feb 13  2016 python2 -&gt; python2.7</div><div class="line">-rwxr-xr-x 1 root root 6162257 Feb 13  2016 python2.7</div><div class="line">-rwxr-xr-x 1 root root    1624 Feb 13  2016 python2.7-config</div><div class="line">lrwxrwxrwx 1 root root      16 Feb 13  2016 python2-config -&gt; python2.7-config</div><div class="line">lrwxrwxrwx 1 root root       9 Feb 22  2016 python3 -&gt; python3.4</div><div class="line">-rwxr-xr-x 2 root root 8773578 Feb 22  2016 python3.4</div><div class="line">lrwxrwxrwx 1 root root      17 Feb 22  2016 python3.4-config -&gt; python3.4m-config</div><div class="line">-rwxr-xr-x 2 root root 8773578 Feb 22  2016 python3.4m</div><div class="line">-rwxr-xr-x 1 root root    3049 Feb 22  2016 python3.4m-config</div><div class="line">lrwxrwxrwx 1 root root      16 Feb 22  2016 python3-config -&gt; python3.4-config</div><div class="line">lrwxrwxrwx 1 root root      14 Feb 13  2016 python-config -&gt; python2-config</div><div class="line">[@fl bin]# rm -f python</div><div class="line">[@fl bin]# ln -s /usr/local/bin/python2.7</div><div class="line">python2.7         python2.7-config</div><div class="line">[@fl bin]# ln -s /usr/local/bin/python2.7 python</div><div class="line">[@fl bin]# python -V</div><div class="line">Python 2.7.3</div><div class="line"></div><div class="line">3.python redis安装 rediscluster安装</div><div class="line"></div><div class="line">wget https://github.com/andymccurdy/redis-py/archive/2.10.5.zip</div><div class="line">wget https://github.com/Grokzen/redis-py-cluster/releases/download/1.3.4/redis-py-cluster-1.3.4.tar.gz</div><div class="line"></div><div class="line">python setup.py install</div><div class="line"></div><div class="line">4. 导入包</div><div class="line"></div><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div></pre></td></tr></table></figure>
+<h2 id="python工具使用"><a href="#python工具使用" class="headerlink" title="python工具使用"></a>python工具使用</h2><hr>
+<p>扫描scan key</p>
+<hr>
+<ul>
+<li>单机</li>
+</ul>
+<p>格式:python scankey.py ip port pattern password</p>
+<p>python scankey.py 10.16.14.182 6380 hash<em> “”<br>python scankey.py 10.16.14.182 6380 hash</em> “123”</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div><div class="line"></div><div class="line">def findInstancePatternKeys(host, port, pattern, password):</div><div class="line">    client = redis.StrictRedis(host=host, port=port, password=password)</div><div class="line">    pipeline = client.pipeline(transaction=False)</div><div class="line">    cursor = 0</div><div class="line">    print &quot;====================check &#123;host&#125;:&#123;port&#125;&quot;.format(host=host,port=port)</div><div class="line">    while True:</div><div class="line">        currentCursor, keys = client.scan(cursor=cursor, match=pattern, count=100)</div><div class="line">        if len(keys) &gt; 0:</div><div class="line">            for key in keys:</div><div class="line">              print &quot;key=&#123;key&#125;&quot;.format(key=key)</div><div class="line">            pipeline.execute()</div><div class="line">        cursor = currentCursor</div><div class="line">        if cursor == 0:</div><div class="line">            break</div><div class="line"></div><div class="line">findInstancePatternKeys(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4])</div></pre></td></tr></table></figure>
+<ul>
+<li>集群</li>
+</ul>
+<p>格式:python scankey.py ip port pattern password</p>
+<p>python cluster-scankey.py 10.16.14.182 6380 hash<em> “”<br>python cluster-scankey.py 10.16.14.182 6380 hash</em> “123”</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div><div class="line"></div><div class="line">def findClusterPatternKey(startupNodes, pattern,password):</div><div class="line">    clusterClient = rediscluster.StrictRedisCluster(startup_nodes=startupNodes,password=password, decode_responses=True)</div><div class="line">    clusterInfos = clusterClient.cluster_nodes()</div><div class="line">    for clusternode in clusterInfos:</div><div class="line">        slots = clusternode[&quot;slots&quot;]</div><div class="line">        # only check master</div><div class="line">        if len(slots) &gt; 0:</div><div class="line">            print &quot;========= check &#123;host&#125;:&#123;port&#125;&quot;.format(host=clusternode[&quot;host&quot;],port=clusternode[&quot;port&quot;])</div><div class="line">            findInstancePatternKeys(clusternode[&quot;host&quot;], clusternode[&quot;port&quot;], pattern, password)</div><div class="line"></div><div class="line">def findInstancePatternKeys(host, port, pattern, password):</div><div class="line">    client = redis.StrictRedis(host=host, port=port, password=password)</div><div class="line">    pipeline = client.pipeline(transaction=False)</div><div class="line">    cursor = 0</div><div class="line">    while True:</div><div class="line">        currentCursor, keys = client.scan(cursor=cursor, match=pattern, count=100)</div><div class="line">        if len(keys) &gt; 0:</div><div class="line">            for key in keys:</div><div class="line">                print &quot;key=&#123;key&#125;&quot;.format(key=key)</div><div class="line">            pipeline.execute()</div><div class="line">        cursor = currentCursor</div><div class="line">        if cursor == 0:</div><div class="line">            break</div><div class="line"></div><div class="line">startupNodes = [&#123;&quot;host&quot;:sys.argv[1],&quot;port&quot;:int(sys.argv[2])&#125;]</div><div class="line">findClusterPatternKey(startupNodes, sys.argv[3],sys.argv[4])</div></pre></td></tr></table></figure>
+<hr>
+<p>扫描 idle key</p>
+<hr>
+<ul>
+<li>单机</li>
+</ul>
+<p>格式:python scankey.py ip port idleDay password</p>
+<p>python scankey.py 10.16.14.182 6380 1 “”<br>python scankey.py 10.16.14.182 6380 1 “123”</p>
+<ul>
+<li>集群</li>
+</ul>
+<p>格式:python scankey.py ip port pattern password</p>
+<p>python scankey.py 10.16.14.182 6380 hash<em> “”<br>python scankey.py 10.16.14.182 6380 hash</em> “123”</p>
+
           
         
       
@@ -2644,7 +2675,7 @@ http://www.cnblogs.com/forfuture1978/archive/2009/12/14/1623599.html
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-count">23</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -2653,7 +2684,7 @@ http://www.cnblogs.com/forfuture1978/archive/2009/12/14/1623599.html
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">48</span>
+                <span class="site-state-item-count">49</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

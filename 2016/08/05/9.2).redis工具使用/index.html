@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="redis," />
 
 
 
@@ -84,17 +84,18 @@
 
 
 
-<meta name="description" content="redis工具使用1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556环境准备:（注:不同redis版本可能会有差异）1.redis-server -vRedis server v=3.0.7 sha=00000000:0 malloc=jema">
+<meta name="description" content="redis常用工具1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556环境准备:（注:不同redis版本可能会有差异）1.redis-server -vRedis server v=3.0.7 sha=00000000:0 malloc=jema">
+<meta name="keywords" content="redis">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Meteor">
-<meta property="og:url" content="/2017/08/22/9.2).redis工具使用/index.html">
+<meta property="og:title" content="redis常用工具">
+<meta property="og:url" content="/2016/08/05/9.2).redis工具使用/index.html">
 <meta property="og:site_name" content="Meteor">
-<meta property="og:description" content="redis工具使用1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556环境准备:（注:不同redis版本可能会有差异）1.redis-server -vRedis server v=3.0.7 sha=00000000:0 malloc=jema">
+<meta property="og:description" content="redis常用工具1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556环境准备:（注:不同redis版本可能会有差异）1.redis-server -vRedis server v=3.0.7 sha=00000000:0 malloc=jema">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-08-22T09:41:26.000Z">
+<meta property="og:updated_time" content="2017-08-23T05:57:07.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Meteor">
-<meta name="twitter:description" content="redis工具使用1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556环境准备:（注:不同redis版本可能会有差异）1.redis-server -vRedis server v=3.0.7 sha=00000000:0 malloc=jema">
+<meta name="twitter:title" content="redis常用工具">
+<meta name="twitter:description" content="redis常用工具1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556环境准备:（注:不同redis版本可能会有差异）1.redis-server -vRedis server v=3.0.7 sha=00000000:0 malloc=jema">
 
 
 
@@ -112,7 +113,7 @@
   };
 </script>
 
-  <title>  | Meteor </title>
+  <title> redis常用工具 | Meteor </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -265,7 +266,7 @@
             
             
               
-                
+                redis常用工具
               
             
           </h1>
@@ -277,11 +278,42 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-08-22T15:53:44+08:00" content="2017-08-22">
-              2017-08-22
+            <time itemprop="dateCreated" datetime="2016-08-05T16:37:35+08:00" content="2016-08-05">
+              2016-08-05
             </time>
           </span>
 
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
           
 
           
@@ -305,7 +337,7 @@
       
 
       
-        <h1 id="redis工具使用"><a href="#redis工具使用" class="headerlink" title="redis工具使用"></a>redis工具使用</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line">环境准备:（注:不同redis版本可能会有差异）</div><div class="line"></div><div class="line">1.redis-server -v</div><div class="line">Redis server v=3.0.7 sha=00000000:0 malloc=jemalloc-3.6.0 bits=64 build=fde71d6d37f8bceb</div><div class="line"></div><div class="line">2.python -V </div><div class="line">Python 2.7.3</div><div class="line">下载：wget https://www.python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2</div><div class="line">(下载:wget http://index.tv.sohuno.com/software/Python-2.7.3.tar.bz2)</div><div class="line">which python:查看python安装目录</div><div class="line">/usr/local/bin/python</div><div class="line"></div><div class="line">[@fl bin]# python -V</div><div class="line">Python 3.4.1</div><div class="line">[@fl bin]# cd /usr/bin</div><div class="line">[@fl bin]# ll | grep python</div><div class="line">-rwxr-xr-x    1 root root      10920 May 16  2012 abrt-action-analyze-python</div><div class="line">lrwxrwxrwx    1 root root         24 Aug 22 16:19 python -&gt; /usr/local/bin/python2.7</div><div class="line">lrwxrwxrwx.   1 root root          6 Sep 26  2014 python2 -&gt; python</div><div class="line">-rwxr-xr-x    2 root root       9032 May  2  2012 python2.6</div><div class="line">-rwxr-xr-x    2 root root       9032 May  2  2012 python2.6.6</div><div class="line">[@fl bin]# which python</div><div class="line">/usr/local/bin/python</div><div class="line">[@fl bin]# cd /usr/local/bin/</div><div class="line">[@fl bin]# ll | grep python</div><div class="line">lrwxrwxrwx 1 root root      24 Feb 22  2016 python -&gt; /usr/local/bin/python3.4</div><div class="line">lrwxrwxrwx 1 root root       9 Feb 13  2016 python2 -&gt; python2.7</div><div class="line">-rwxr-xr-x 1 root root 6162257 Feb 13  2016 python2.7</div><div class="line">-rwxr-xr-x 1 root root    1624 Feb 13  2016 python2.7-config</div><div class="line">lrwxrwxrwx 1 root root      16 Feb 13  2016 python2-config -&gt; python2.7-config</div><div class="line">lrwxrwxrwx 1 root root       9 Feb 22  2016 python3 -&gt; python3.4</div><div class="line">-rwxr-xr-x 2 root root 8773578 Feb 22  2016 python3.4</div><div class="line">lrwxrwxrwx 1 root root      17 Feb 22  2016 python3.4-config -&gt; python3.4m-config</div><div class="line">-rwxr-xr-x 2 root root 8773578 Feb 22  2016 python3.4m</div><div class="line">-rwxr-xr-x 1 root root    3049 Feb 22  2016 python3.4m-config</div><div class="line">lrwxrwxrwx 1 root root      16 Feb 22  2016 python3-config -&gt; python3.4-config</div><div class="line">lrwxrwxrwx 1 root root      14 Feb 13  2016 python-config -&gt; python2-config</div><div class="line">[@fl bin]# rm -f python</div><div class="line">[@fl bin]# ln -s /usr/local/bin/python2.7</div><div class="line">python2.7         python2.7-config</div><div class="line">[@fl bin]# ln -s /usr/local/bin/python2.7 python</div><div class="line">[@fl bin]# python -V</div><div class="line">Python 2.7.3</div><div class="line"></div><div class="line">3.python redis安装 rediscluster安装</div><div class="line"></div><div class="line">wget https://github.com/andymccurdy/redis-py/archive/2.10.5.zip</div><div class="line">wget https://github.com/Grokzen/redis-py-cluster/releases/download/1.3.4/redis-py-cluster-1.3.4.tar.gz</div><div class="line"></div><div class="line">python setup.py install</div><div class="line"></div><div class="line">4. 导入包</div><div class="line"></div><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div></pre></td></tr></table></figure>
+        <h1 id="redis常用工具"><a href="#redis常用工具" class="headerlink" title="redis常用工具"></a>redis常用工具</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line">环境准备:（注:不同redis版本可能会有差异）</div><div class="line"></div><div class="line">1.redis-server -v</div><div class="line">Redis server v=3.0.7 sha=00000000:0 malloc=jemalloc-3.6.0 bits=64 build=fde71d6d37f8bceb</div><div class="line"></div><div class="line">2.python -V </div><div class="line">Python 2.7.3</div><div class="line">下载：wget https://www.python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2</div><div class="line">(下载:wget http://index.tv.sohuno.com/software/Python-2.7.3.tar.bz2)</div><div class="line">which python:查看python安装目录</div><div class="line">/usr/local/bin/python</div><div class="line"></div><div class="line">[@fl bin]# python -V</div><div class="line">Python 3.4.1</div><div class="line">[@fl bin]# cd /usr/bin</div><div class="line">[@fl bin]# ll | grep python</div><div class="line">-rwxr-xr-x    1 root root      10920 May 16  2012 abrt-action-analyze-python</div><div class="line">lrwxrwxrwx    1 root root         24 Aug 22 16:19 python -&gt; /usr/local/bin/python2.7</div><div class="line">lrwxrwxrwx.   1 root root          6 Sep 26  2014 python2 -&gt; python</div><div class="line">-rwxr-xr-x    2 root root       9032 May  2  2012 python2.6</div><div class="line">-rwxr-xr-x    2 root root       9032 May  2  2012 python2.6.6</div><div class="line">[@fl bin]# which python</div><div class="line">/usr/local/bin/python</div><div class="line">[@fl bin]# cd /usr/local/bin/</div><div class="line">[@fl bin]# ll | grep python</div><div class="line">lrwxrwxrwx 1 root root      24 Feb 22  2016 python -&gt; /usr/local/bin/python3.4</div><div class="line">lrwxrwxrwx 1 root root       9 Feb 13  2016 python2 -&gt; python2.7</div><div class="line">-rwxr-xr-x 1 root root 6162257 Feb 13  2016 python2.7</div><div class="line">-rwxr-xr-x 1 root root    1624 Feb 13  2016 python2.7-config</div><div class="line">lrwxrwxrwx 1 root root      16 Feb 13  2016 python2-config -&gt; python2.7-config</div><div class="line">lrwxrwxrwx 1 root root       9 Feb 22  2016 python3 -&gt; python3.4</div><div class="line">-rwxr-xr-x 2 root root 8773578 Feb 22  2016 python3.4</div><div class="line">lrwxrwxrwx 1 root root      17 Feb 22  2016 python3.4-config -&gt; python3.4m-config</div><div class="line">-rwxr-xr-x 2 root root 8773578 Feb 22  2016 python3.4m</div><div class="line">-rwxr-xr-x 1 root root    3049 Feb 22  2016 python3.4m-config</div><div class="line">lrwxrwxrwx 1 root root      16 Feb 22  2016 python3-config -&gt; python3.4-config</div><div class="line">lrwxrwxrwx 1 root root      14 Feb 13  2016 python-config -&gt; python2-config</div><div class="line">[@fl bin]# rm -f python</div><div class="line">[@fl bin]# ln -s /usr/local/bin/python2.7</div><div class="line">python2.7         python2.7-config</div><div class="line">[@fl bin]# ln -s /usr/local/bin/python2.7 python</div><div class="line">[@fl bin]# python -V</div><div class="line">Python 2.7.3</div><div class="line"></div><div class="line">3.python redis安装 rediscluster安装</div><div class="line"></div><div class="line">wget https://github.com/andymccurdy/redis-py/archive/2.10.5.zip</div><div class="line">wget https://github.com/Grokzen/redis-py-cluster/releases/download/1.3.4/redis-py-cluster-1.3.4.tar.gz</div><div class="line"></div><div class="line">python setup.py install</div><div class="line"></div><div class="line">4. 导入包</div><div class="line"></div><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div></pre></td></tr></table></figure>
 <h2 id="python工具使用"><a href="#python工具使用" class="headerlink" title="python工具使用"></a>python工具使用</h2><hr>
 <p>扫描scan key</p>
 <hr>
@@ -353,18 +385,28 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/redis/" rel="tag">#redis</a>
+          
+        </div>
+      
 
       
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/08/21/9.1).redis运维-docker机器用户权限篡改/" rel="next" title="docker机器篡改用户uid">
-                <i class="fa fa-chevron-left"></i> docker机器篡改用户uid
+              <a href="/2016/08/05/(8.6).JAVA虚拟机(六)-JMM内存模型/" rel="next" title="JMM内存模型">
+                <i class="fa fa-chevron-left"></i> JMM内存模型
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/08/06/(8.5).JAVA虚拟机(五)-JVM性能调优及故障排查/" rel="prev" title="java虚拟机-故障排查">
+                java虚拟机-故障排查 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -446,7 +488,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-count">23</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -455,7 +497,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">48</span>
+                <span class="site-state-item-count">49</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -513,7 +555,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#redis工具使用"><span class="nav-number">1.</span> <span class="nav-text">redis工具使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#python工具使用"><span class="nav-number">1.1.</span> <span class="nav-text">python工具使用</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#redis常用工具"><span class="nav-number">1.</span> <span class="nav-text">redis常用工具</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#python工具使用"><span class="nav-number">1.1.</span> <span class="nav-text">python工具使用</span></a></li></ol></li></ol></div>
             
           </div>
         </section>
