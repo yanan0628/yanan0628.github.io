@@ -267,6 +267,146 @@
             
               
                 
+                <a class="post-title-link" href="/2017/08/22/9.3 redis运维-python环境安装/" itemprop="url">
+                  redis python环境安装
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-08-22T10:52:03+08:00" content="2017-08-22">
+              2017-08-22
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h1 id="redis-python环境安装"><a href="#redis-python环境安装" class="headerlink" title="redis-python环境安装"></a>redis-python环境安装</h1><p>这里使用python脚本主要是为了提供提供redis小工具使用，包括扫描 特定key，空闲key，bigkey,删除相关key 或 热点key等等。这是在使用过程遇到问题，总结一下。</p>
+<h2 id="相关依赖包准备"><a href="#相关依赖包准备" class="headerlink" title="相关依赖包准备"></a>相关依赖包准备</h2><p>python不同版本支持 redis redisclutser好像有些不一样，这里先统一环境：</p>
+<ul>
+<li><p>redis 3.0.7安装</p>
+<p>  wget <a href="http://download.redis.io/releases/redis-3.0.7.tar.gz" target="_blank" rel="external">http://download.redis.io/releases/redis-3.0.7.tar.gz</a><br>  tar -xvf redis-3.0.7.tar.gz<br>  cd redis-3.0.7<br>  make<br>  make install<br>  redis-server -v</p>
+</li>
+<li><p>Python 2.7.3</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">1.下载python：</div><div class="line">	wget https://www.python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2</div><div class="line"></div><div class="line">2.安装：</div><div class="line">	./confiugre</div><div class="line">	make  </div><div class="line">	make install</div><div class="line"></div><div class="line">2.查看python安装目录：which python  /usr/local/bin/python</div><div class="line"></div><div class="line">3.建立软链接：(覆盖操作系统python版本)</div><div class="line">	cd /usr/local/bin</div><div class="line">	ln -s /usr/local/bin/python2.7 python</div><div class="line"></div><div class="line">	[@fl bin]# ll | grep python</div><div class="line">	lrwxrwxrwx 1 root root      24 Aug 22 16:20 python -&gt; /usr/local/bin/python2.7</div><div class="line">	lrwxrwxrwx 1 root root       9 Feb 13  2016 python2 -&gt; python2.7</div><div class="line">	-rwxr-xr-x 1 root root 6162257 Feb 13  2016 python2.7</div><div class="line"></div><div class="line">4.查看python版本</div><div class="line">	python -V</div><div class="line">	Python 2.7.3</div></pre></td></tr></table></figure>
+<ul>
+<li>python添加redis依赖</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">import redis</div><div class="line">import rediscluster</div></pre></td></tr></table></figure>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/08/22/9.3 redis运维-python环境安装/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/08/21/9.1).redis运维-docker机器用户权限篡改/" itemprop="url">
                   docker机器篡改用户uid
                 </a>
@@ -329,70 +469,163 @@
 
       
         
+          <h1 id="docker机器篡改用户uid"><a href="#docker机器篡改用户uid" class="headerlink" title="docker机器篡改用户uid"></a>docker机器篡改用户uid</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">1.原因描述：</div><div class="line">cachecloud管理机器：默认创建用户 cachecloud 内网(cachecloud-open 开源用户)，系统默认分配uid为500以上，位于同一台物理机的容器同样的uid用户太多就会超出用户资源资源超出了，系统就会去修改原来的uid。最好指定下吧，范围最好是500以内的，docker这个用户隔离做的弱。</div><div class="line"></div><div class="line">2.查看用户名的uid</div><div class="line">cat /etc/passwd | grep cachecloud  </div><div class="line">cachecloud:x:504:504::/home/cachecloud:/bin/bash （cachecloud与uid=507绑定）</div><div class="line">启动redis实例 则以cachecloud用户进程启动，ps 查看第一列其实就是以504 uid启动</div><div class="line">[@expon-9 /data/cachecloud]# ps -ef | grep redis</div><div class="line">504       3724     1  0 May25 ?        01:36:07 redis-server 0.0.0.0:6381 [cluster]</div><div class="line">504       4705     1  0 Jun12 ?        01:55:42 redis-server *:6385 [sentinel]</div><div class="line">504       7647     1  0 May25 ?        01:50:45 redis-server 0.0.0.0:6383 [cluster]</div><div class="line">504       7695     1  0 May25 ?        01:57:46 redis-server 0.0.0.0:6384 [cluster]</div><div class="line"></div><div class="line">3.指定uid</div><div class="line">创建指定用户uid:useradd -u $&#123;uid&#125;</div><div class="line">修改指定用户uid:usermod -u $&#123;uid&#125;</div></pre></td></tr></table></figure>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/08/21/9.1).redis运维-docker机器用户权限篡改/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/08/22/9.2).redis工具使用/" itemprop="url">
+                  redis常用工具
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-08-22T16:37:35+08:00" content="2016-08-22">
+              2016-08-22
+            </time>
+          </span>
+
           
-            <h1 id="docker机器篡改用户uid"><a href="#docker机器篡改用户uid" class="headerlink" title="docker机器篡改用户uid"></a>docker机器篡改用户uid</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">1.原因描述：</div><div class="line">cachecloud管理机器：默认创建用户 cachecloud 内网(cachecloud-open 开源用户)，系统默认分配uid为500以上，位于同一台物理机的容器同样的uid用户太多就会超出用户资源资源超出了，系统就会去修改原来的uid。最好指定下吧，范围最好是500以内的，docker这个用户隔离做的弱。</div><div class="line"></div><div class="line">2.查看用户名的uid</div><div class="line">cat /etc/passwd | grep cachecloud  </div><div class="line">cachecloud:x:504:504::/home/cachecloud:/bin/bash （cachecloud与uid=507绑定）</div><div class="line">启动redis实例 则以cachecloud用户进程启动，ps 查看第一列其实就是以504 uid启动</div><div class="line">[@expon-9 /data/cachecloud]# ps -ef | grep redis</div><div class="line">504       3724     1  0 May25 ?        01:36:07 redis-server 0.0.0.0:6381 [cluster]</div><div class="line">504       4705     1  0 Jun12 ?        01:55:42 redis-server *:6385 [sentinel]</div><div class="line">504       7647     1  0 May25 ?        01:50:45 redis-server 0.0.0.0:6383 [cluster]</div><div class="line">504       7695     1  0 May25 ?        01:57:46 redis-server 0.0.0.0:6384 [cluster]</div><div class="line"></div><div class="line">3.指定uid</div><div class="line">创建指定用户uid:useradd -u $&#123;uid&#125;</div><div class="line">修改指定用户uid:usermod -u $&#123;uid&#125;</div></pre></td></tr></table></figure>
-<h2 id="1-问题来由"><a href="#1-问题来由" class="headerlink" title="1. 问题来由"></a>1. 问题来由</h2><h3 id="1-1-cachecloud异常日志"><a href="#1-1-cachecloud异常日志" class="headerlink" title="1.1 cachecloud异常日志"></a>1.1 cachecloud异常日志</h3><p>发现cachecloud报警 超时，查看cc的errlog，发现有大量的机器ssh通信失败(收集机器指标)</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">2017-08-19 01:20:28.408 &#123;machine-pool-thread-74&#125; ERROR com.sohu.cache.server.nmon.NMONService - start nmon 10.10.193.187 err:bash: </div><div class="line">/opt/cachecloud/soft/nmon: Permission denied</div><div class="line">659 2017-08-19 01:20:28.462 &#123;SSH-163&#125; ERROR com.sohu.cache.ssh.SSHTemplate - </div><div class="line">address 10.10.193.187:22 execute cmd:([ -e &quot;/opt/cachecloud/soft/nmon&quot; ] &amp;&amp; /</div><div class="line">opt/cachecloud/soft/nmon -V), err:bash: /opt/ cachecloud/soft/nmon: Permission denied</div></pre></td></tr></table></figure>
-<h3 id="1-2-发现目录权限变更"><a href="#1-2-发现目录权限变更" class="headerlink" title="1.2 发现目录权限变更"></a>1.2 发现目录权限变更</h3><ul>
-<li><p>目录用户从属：cachecloud现在变更为504,不是cachecloud用户无法收集机器数据(说明cachecloud uid=504 绑定失败)</p>
-</li>
-<li><p>查看cachecloud用户uid：cachecloud:x:285:504::/home/cachecloud:/bin/bash(cachecloud新的uid 为285)</p>
-<p>  <img src="http://i3.itc.cn/20170823/aac_a71c82ee_a822_fff4_d1b7_1b122cc7b511_1.png" alt=""></p>
-</li>
-</ul>
-<h3 id="1-3-赋权限给目录"><a href="#1-3-赋权限给目录" class="headerlink" title="1.3 赋权限给目录"></a>1.3 赋权限给目录</h3><p>执行chown -R cachecloud:cachecloud /opt/cachecloud 给目录赋权限，ssh通信正常，但是现在cachecloud用户id 为285</p>
-<h3 id="1-4-ps查看redis启动进程的uid"><a href="#1-4-ps查看redis启动进程的uid" class="headerlink" title="1.4 ps查看redis启动进程的uid"></a>1.4 ps查看redis启动进程的uid</h3><p>redis后台进程uid仍然是504，和上面cachecloud(uid=285）不一致</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">ps -ef | grep redis </div><div class="line">504 9706 1 0 Jul26 ? 00:54:26 redis-server *:6379 [cluster]</div><div class="line">504 9792 1 0 Jul26 ? 01:05:04 redis-server *:6380 [cluster]</div></pre></td></tr></table></figure>
-<h3 id="1-5-redis启动用户uid和目录用户uid权限不一致"><a href="#1-5-redis启动用户uid和目录用户uid权限不一致" class="headerlink" title="1.5 redis启动用户uid和目录用户uid权限不一致"></a>1.5 redis启动用户uid和目录用户uid权限不一致</h3><blockquote>
-<p>权限不一致，会导致以下问题：</p>
-</blockquote>
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="redis常用工具"><a href="#redis常用工具" class="headerlink" title="redis常用工具"></a>redis常用工具</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line">环境准备:（注:不同redis版本可能会有差异）</div><div class="line"></div><div class="line">1.redis-server -v</div><div class="line">Redis server v=3.0.7 sha=00000000:0 malloc=jemalloc-3.6.0 bits=64 build=fde71d6d37f8bceb</div><div class="line"></div><div class="line">2.python -V </div><div class="line">Python 2.7.3</div><div class="line">下载：wget https://www.python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2</div><div class="line">(下载:wget http://index.tv.sohuno.com/software/Python-2.7.3.tar.bz2)</div><div class="line">which python:查看python安装目录</div><div class="line">/usr/local/bin/python</div><div class="line"></div><div class="line">[@fl bin]# python -V</div><div class="line">Python 3.4.1</div><div class="line">[@fl bin]# cd /usr/bin</div><div class="line">[@fl bin]# ll | grep python</div><div class="line">-rwxr-xr-x    1 root root      10920 May 16  2012 abrt-action-analyze-python</div><div class="line">lrwxrwxrwx    1 root root         24 Aug 22 16:19 python -&gt; /usr/local/bin/python2.7</div><div class="line">lrwxrwxrwx.   1 root root          6 Sep 26  2014 python2 -&gt; python</div><div class="line">-rwxr-xr-x    2 root root       9032 May  2  2012 python2.6</div><div class="line">-rwxr-xr-x    2 root root       9032 May  2  2012 python2.6.6</div><div class="line">[@fl bin]# which python</div><div class="line">/usr/local/bin/python</div><div class="line">[@fl bin]# cd /usr/local/bin/</div><div class="line">[@fl bin]# ll | grep python</div><div class="line">lrwxrwxrwx 1 root root      24 Feb 22  2016 python -&gt; /usr/local/bin/python3.4</div><div class="line">lrwxrwxrwx 1 root root       9 Feb 13  2016 python2 -&gt; python2.7</div><div class="line">-rwxr-xr-x 1 root root 6162257 Feb 13  2016 python2.7</div><div class="line">-rwxr-xr-x 1 root root    1624 Feb 13  2016 python2.7-config</div><div class="line">lrwxrwxrwx 1 root root      16 Feb 13  2016 python2-config -&gt; python2.7-config</div><div class="line">lrwxrwxrwx 1 root root       9 Feb 22  2016 python3 -&gt; python3.4</div><div class="line">-rwxr-xr-x 2 root root 8773578 Feb 22  2016 python3.4</div><div class="line">lrwxrwxrwx 1 root root      17 Feb 22  2016 python3.4-config -&gt; python3.4m-config</div><div class="line">-rwxr-xr-x 2 root root 8773578 Feb 22  2016 python3.4m</div><div class="line">-rwxr-xr-x 1 root root    3049 Feb 22  2016 python3.4m-config</div><div class="line">lrwxrwxrwx 1 root root      16 Feb 22  2016 python3-config -&gt; python3.4-config</div><div class="line">lrwxrwxrwx 1 root root      14 Feb 13  2016 python-config -&gt; python2-config</div><div class="line">[@fl bin]# rm -f python</div><div class="line">[@fl bin]# ln -s /usr/local/bin/python2.7</div><div class="line">python2.7         python2.7-config</div><div class="line">[@fl bin]# ln -s /usr/local/bin/python2.7 python</div><div class="line">[@fl bin]# python -V</div><div class="line">Python 2.7.3</div><div class="line"></div><div class="line">3.python redis安装 rediscluster安装</div><div class="line"></div><div class="line">wget https://github.com/andymccurdy/redis-py/archive/2.10.5.zip</div><div class="line">wget https://github.com/Grokzen/redis-py-cluster/releases/download/1.3.4/redis-py-cluster-1.3.4.tar.gz</div><div class="line"></div><div class="line">python setup.py install</div><div class="line"></div><div class="line">4. 导入包</div><div class="line"></div><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div></pre></td></tr></table></figure>
+<h2 id="python工具使用"><a href="#python工具使用" class="headerlink" title="python工具使用"></a>python工具使用</h2><hr>
+<p>扫描scan key</p>
+<hr>
 <ul>
-<li>aof文件剧增，重写失败导致文件过大 aof_current_size 尺寸过大 (出现大量报警)，还有部分节点状态 变为 心跳停止</li>
-<li>redis日志：(大量权限异常 日志文件剧增)</li>
+<li>单机</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">[root@10 logs]# tail -f redis-6389-201701191612.log</div><div class="line">    32124:M 20 Aug 22:55:27.248 # Background AOF rewrite terminated with error</div><div class="line">    32124:M 20 Aug 22:55:27.348 * Starting automatic rewriting of AOF on 2987% growth</div><div class="line">    32124:M 20 Aug 22:55:27.422 * Background append only file rewriting started by pid 25156</div><div class="line">    25156:C 20 Aug 22:55:27.422 # Opening the temp file for AOF rewrite in rewriteAppendOnlyFile(): Permission denied</div><div class="line">    32124:M 20 Aug 22:55:27.523 # Background AOF rewrite terminated with error</div><div class="line">    32124:M 20 Aug 22:55:27.624 * Starting automatic rewriting of AOF on 2987% growth</div><div class="line">    32124:M 20 Aug 22:55:27.697 * Background append only file rewriting started by pid 25159</div><div class="line">    25159:C 20 Aug 22:55:27.697 # Opening the temp file for AOF rewrite in rewriteAppendOnlyFile(): Permission denied</div><div class="line">    32124:M 20 Aug 22:55:27.798 # Background AOF rewrite terminated with error</div><div class="line">    32124:M 20 Aug 22:55:27.899 * Starting automatic rewriting of AOF on 2987% growth</div></pre></td></tr></table></figure>
-<h2 id="2-篡改用户uid处理"><a href="#2-篡改用户uid处理" class="headerlink" title="2.篡改用户uid处理"></a>2.篡改用户uid处理</h2><h3 id="2-1-passwd相关参数解释"><a href="#2-1-passwd相关参数解释" class="headerlink" title="2.1 passwd相关参数解释"></a>2.1 passwd相关参数解释</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">执行cat /etc/passwd | grep cachecloudc查看cacheloud用户uid</div><div class="line">uid:285 gid:504 (第一次创建用户时 gid=uid=504)</div><div class="line"></div><div class="line">cachecloud:x:285:504::/home/cachecloud:/bin/bash</div><div class="line">LOGNAME:PASSWORD:UID:GID:USERINFO:HOME:SHELL</div><div class="line">用户名 :密码:用户标识号:组标识号:用户名:用户主目录:命令解释程序</div></pre></td></tr></table></figure>
-<h3 id="2-2-被篡改uid原因分析"><a href="#2-2-被篡改uid原因分析" class="headerlink" title="2.2 被篡改uid原因分析"></a>2.2 被篡改uid原因分析</h3><p>docker机器引起，原因分析：</p>
-<pre><code>1.默认分配的UID:GID是一致,当前用户uid=gid=504，如果在创建用户过程中，不指定
-  useradd -u ${uid},系统会自动分配大于500的uid
-2.当前机器uid已被修改为285，此时 cachecloud 与uid=504 绑定失效，目录显示原有
-  cachecloud用户id：504
-3.执行完chown -R cachecloud:cachecloud /opt/cachecloud，此时目录用户为
-  cachecoud ，但此时cachecloud用户与uid=285绑定
-4.此时redis重写aof 出现大量权限失败异常，解决办法参考2.3
-</code></pre><h3 id="2-3-解决办法"><a href="#2-3-解决办法" class="headerlink" title="2.3 解决办法"></a>2.3 解决办法</h3><ul>
-<li><p>1.重启redis（uid会重新绑定）</p>
-</li>
-<li><p>2.不重启redis,在线配置用户uid</p>
-<pre><code>1:确认redis进程的uid
-    ps -ef | grep redis
-    504      27534     1  1  2016 ?        5-13:15:33 redis-server *:6380 [cluster]
-    504      27619     1  1  2016 ?        5-03:46:29 redis-server *:6381 [cluster]
-    504      27703     1  1  2016 ?        5-10:25:36 redis-server *:6382 [cluster]
-    504      27788     1  0  2016 ?        1-19:20:19 redis-server *:6383 [cluster]
-    第一列504为uid
-
-2:确认用户cachecloud的uid
-    cat /etc/passwd | grep cachecloud
-    cachecloud:x:285:504::/home/cachecloud:/bin/bash
-    当前uid为285，需要重置用户uid
-
-3:修改用户的uid
-    usermod -u 504 cachecloud
-
-4:修改目录属主
-    chown -R cachecloud:cachecloud /opt/cachecloud
-
-5.确认用户uid：
-    cat /etc/passwd | grep cachecloud
-    cachecloud:x:504:504::/home/cachecloud:/bin/bash
-
-查看top：
-PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
-28793 cachecloud  20   0 3314m 1.9g  424 R 71.2  0.8   0:05.02 redis-server
-28796 cachecloud  20   0 3394m 2.0g  420 R 70.9  0.8   0:04.86 redis-server    
-</code></pre></li>
+<p>格式:python scankey.py ip port pattern password</p>
+<p>python scankey.py 10.16.14.182 6380 hash<em> “”<br>python scankey.py 10.16.14.182 6380 hash</em> “123”</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div><div class="line"></div><div class="line">def findInstancePatternKeys(host, port, pattern, password):</div><div class="line">    client = redis.StrictRedis(host=host, port=port, password=password)</div><div class="line">    pipeline = client.pipeline(transaction=False)</div><div class="line">    cursor = 0</div><div class="line">    print &quot;====================check &#123;host&#125;:&#123;port&#125;&quot;.format(host=host,port=port)</div><div class="line">    while True:</div><div class="line">        currentCursor, keys = client.scan(cursor=cursor, match=pattern, count=100)</div><div class="line">        if len(keys) &gt; 0:</div><div class="line">            for key in keys:</div><div class="line">              print &quot;key=&#123;key&#125;&quot;.format(key=key)</div><div class="line">            pipeline.execute()</div><div class="line">        cursor = currentCursor</div><div class="line">        if cursor == 0:</div><div class="line">            break</div><div class="line"></div><div class="line">findInstancePatternKeys(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4])</div></pre></td></tr></table></figure>
+<ul>
+<li>集群</li>
 </ul>
+<p>格式:python scankey.py ip port pattern password</p>
+<p>python cluster-scankey.py 10.16.14.182 6380 hash<em> “”<br>python cluster-scankey.py 10.16.14.182 6380 hash</em> “123”</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div><div class="line"></div><div class="line">def findClusterPatternKey(startupNodes, pattern,password):</div><div class="line">    clusterClient = rediscluster.StrictRedisCluster(startup_nodes=startupNodes,password=password, decode_responses=True)</div><div class="line">    clusterInfos = clusterClient.cluster_nodes()</div><div class="line">    for clusternode in clusterInfos:</div><div class="line">        slots = clusternode[&quot;slots&quot;]</div><div class="line">        # only check master</div><div class="line">        if len(slots) &gt; 0:</div><div class="line">            print &quot;========= check &#123;host&#125;:&#123;port&#125;&quot;.format(host=clusternode[&quot;host&quot;],port=clusternode[&quot;port&quot;])</div><div class="line">            findInstancePatternKeys(clusternode[&quot;host&quot;], clusternode[&quot;port&quot;], pattern, password)</div><div class="line"></div><div class="line">def findInstancePatternKeys(host, port, pattern, password):</div><div class="line">    client = redis.StrictRedis(host=host, port=port, password=password)</div><div class="line">    pipeline = client.pipeline(transaction=False)</div><div class="line">    cursor = 0</div><div class="line">    while True:</div><div class="line">        currentCursor, keys = client.scan(cursor=cursor, match=pattern, count=100)</div><div class="line">        if len(keys) &gt; 0:</div><div class="line">            for key in keys:</div><div class="line">                print &quot;key=&#123;key&#125;&quot;.format(key=key)</div><div class="line">            pipeline.execute()</div><div class="line">        cursor = currentCursor</div><div class="line">        if cursor == 0:</div><div class="line">            break</div><div class="line"></div><div class="line">startupNodes = [&#123;&quot;host&quot;:sys.argv[1],&quot;port&quot;:int(sys.argv[2])&#125;]</div><div class="line">findClusterPatternKey(startupNodes, sys.argv[3],sys.argv[4])</div></pre></td></tr></table></figure>
+<hr>
+<p>扫描 idle key</p>
+<hr>
+<ul>
+<li>单机</li>
+</ul>
+<p>格式:python scankey.py ip port idleDay password</p>
+<p>python scankey.py 10.16.14.182 6380 1 “”<br>python scankey.py 10.16.14.182 6380 1 “123”</p>
+<ul>
+<li>集群</li>
+</ul>
+<p>格式:python scankey.py ip port pattern password</p>
+<p>python scankey.py 10.16.14.182 6380 hash<em> “”<br>python scankey.py 10.16.14.182 6380 hash</em> “123”</p>
 
           
         
@@ -760,159 +993,6 @@ sda6              0.10    33.99  0.56  6.22    39.59   321.69    53.32     0.03 
     - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
     - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
 </code></pre><h2 id="工具使用"><a href="#工具使用" class="headerlink" title="工具使用"></a>工具使用</h2><h3 id="tsar"><a href="#tsar" class="headerlink" title="tsar"></a>tsar</h3><h3 id="iftop"><a href="#iftop" class="headerlink" title="iftop"></a>iftop</h3>
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/08/05/9.2).redis工具使用/" itemprop="url">
-                  redis常用工具
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-05T16:37:35+08:00" content="2016-08-05">
-              2016-08-05
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="redis常用工具"><a href="#redis常用工具" class="headerlink" title="redis常用工具"></a>redis常用工具</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line">环境准备:（注:不同redis版本可能会有差异）</div><div class="line"></div><div class="line">1.redis-server -v</div><div class="line">Redis server v=3.0.7 sha=00000000:0 malloc=jemalloc-3.6.0 bits=64 build=fde71d6d37f8bceb</div><div class="line"></div><div class="line">2.python -V </div><div class="line">Python 2.7.3</div><div class="line">下载：wget https://www.python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2</div><div class="line">(下载:wget http://index.tv.sohuno.com/software/Python-2.7.3.tar.bz2)</div><div class="line">which python:查看python安装目录</div><div class="line">/usr/local/bin/python</div><div class="line"></div><div class="line">[@fl bin]# python -V</div><div class="line">Python 3.4.1</div><div class="line">[@fl bin]# cd /usr/bin</div><div class="line">[@fl bin]# ll | grep python</div><div class="line">-rwxr-xr-x    1 root root      10920 May 16  2012 abrt-action-analyze-python</div><div class="line">lrwxrwxrwx    1 root root         24 Aug 22 16:19 python -&gt; /usr/local/bin/python2.7</div><div class="line">lrwxrwxrwx.   1 root root          6 Sep 26  2014 python2 -&gt; python</div><div class="line">-rwxr-xr-x    2 root root       9032 May  2  2012 python2.6</div><div class="line">-rwxr-xr-x    2 root root       9032 May  2  2012 python2.6.6</div><div class="line">[@fl bin]# which python</div><div class="line">/usr/local/bin/python</div><div class="line">[@fl bin]# cd /usr/local/bin/</div><div class="line">[@fl bin]# ll | grep python</div><div class="line">lrwxrwxrwx 1 root root      24 Feb 22  2016 python -&gt; /usr/local/bin/python3.4</div><div class="line">lrwxrwxrwx 1 root root       9 Feb 13  2016 python2 -&gt; python2.7</div><div class="line">-rwxr-xr-x 1 root root 6162257 Feb 13  2016 python2.7</div><div class="line">-rwxr-xr-x 1 root root    1624 Feb 13  2016 python2.7-config</div><div class="line">lrwxrwxrwx 1 root root      16 Feb 13  2016 python2-config -&gt; python2.7-config</div><div class="line">lrwxrwxrwx 1 root root       9 Feb 22  2016 python3 -&gt; python3.4</div><div class="line">-rwxr-xr-x 2 root root 8773578 Feb 22  2016 python3.4</div><div class="line">lrwxrwxrwx 1 root root      17 Feb 22  2016 python3.4-config -&gt; python3.4m-config</div><div class="line">-rwxr-xr-x 2 root root 8773578 Feb 22  2016 python3.4m</div><div class="line">-rwxr-xr-x 1 root root    3049 Feb 22  2016 python3.4m-config</div><div class="line">lrwxrwxrwx 1 root root      16 Feb 22  2016 python3-config -&gt; python3.4-config</div><div class="line">lrwxrwxrwx 1 root root      14 Feb 13  2016 python-config -&gt; python2-config</div><div class="line">[@fl bin]# rm -f python</div><div class="line">[@fl bin]# ln -s /usr/local/bin/python2.7</div><div class="line">python2.7         python2.7-config</div><div class="line">[@fl bin]# ln -s /usr/local/bin/python2.7 python</div><div class="line">[@fl bin]# python -V</div><div class="line">Python 2.7.3</div><div class="line"></div><div class="line">3.python redis安装 rediscluster安装</div><div class="line"></div><div class="line">wget https://github.com/andymccurdy/redis-py/archive/2.10.5.zip</div><div class="line">wget https://github.com/Grokzen/redis-py-cluster/releases/download/1.3.4/redis-py-cluster-1.3.4.tar.gz</div><div class="line"></div><div class="line">python setup.py install</div><div class="line"></div><div class="line">4. 导入包</div><div class="line"></div><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div></pre></td></tr></table></figure>
-<h2 id="python工具使用"><a href="#python工具使用" class="headerlink" title="python工具使用"></a>python工具使用</h2><hr>
-<p>扫描scan key</p>
-<hr>
-<ul>
-<li>单机</li>
-</ul>
-<p>格式:python scankey.py ip port pattern password</p>
-<p>python scankey.py 10.16.14.182 6380 hash<em> “”<br>python scankey.py 10.16.14.182 6380 hash</em> “123”</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div><div class="line"></div><div class="line">def findInstancePatternKeys(host, port, pattern, password):</div><div class="line">    client = redis.StrictRedis(host=host, port=port, password=password)</div><div class="line">    pipeline = client.pipeline(transaction=False)</div><div class="line">    cursor = 0</div><div class="line">    print &quot;====================check &#123;host&#125;:&#123;port&#125;&quot;.format(host=host,port=port)</div><div class="line">    while True:</div><div class="line">        currentCursor, keys = client.scan(cursor=cursor, match=pattern, count=100)</div><div class="line">        if len(keys) &gt; 0:</div><div class="line">            for key in keys:</div><div class="line">              print &quot;key=&#123;key&#125;&quot;.format(key=key)</div><div class="line">            pipeline.execute()</div><div class="line">        cursor = currentCursor</div><div class="line">        if cursor == 0:</div><div class="line">            break</div><div class="line"></div><div class="line">findInstancePatternKeys(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4])</div></pre></td></tr></table></figure>
-<ul>
-<li>集群</li>
-</ul>
-<p>格式:python scankey.py ip port pattern password</p>
-<p>python cluster-scankey.py 10.16.14.182 6380 hash<em> “”<br>python cluster-scankey.py 10.16.14.182 6380 hash</em> “123”</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div><div class="line"></div><div class="line">def findClusterPatternKey(startupNodes, pattern,password):</div><div class="line">    clusterClient = rediscluster.StrictRedisCluster(startup_nodes=startupNodes,password=password, decode_responses=True)</div><div class="line">    clusterInfos = clusterClient.cluster_nodes()</div><div class="line">    for clusternode in clusterInfos:</div><div class="line">        slots = clusternode[&quot;slots&quot;]</div><div class="line">        # only check master</div><div class="line">        if len(slots) &gt; 0:</div><div class="line">            print &quot;========= check &#123;host&#125;:&#123;port&#125;&quot;.format(host=clusternode[&quot;host&quot;],port=clusternode[&quot;port&quot;])</div><div class="line">            findInstancePatternKeys(clusternode[&quot;host&quot;], clusternode[&quot;port&quot;], pattern, password)</div><div class="line"></div><div class="line">def findInstancePatternKeys(host, port, pattern, password):</div><div class="line">    client = redis.StrictRedis(host=host, port=port, password=password)</div><div class="line">    pipeline = client.pipeline(transaction=False)</div><div class="line">    cursor = 0</div><div class="line">    while True:</div><div class="line">        currentCursor, keys = client.scan(cursor=cursor, match=pattern, count=100)</div><div class="line">        if len(keys) &gt; 0:</div><div class="line">            for key in keys:</div><div class="line">                print &quot;key=&#123;key&#125;&quot;.format(key=key)</div><div class="line">            pipeline.execute()</div><div class="line">        cursor = currentCursor</div><div class="line">        if cursor == 0:</div><div class="line">            break</div><div class="line"></div><div class="line">startupNodes = [&#123;&quot;host&quot;:sys.argv[1],&quot;port&quot;:int(sys.argv[2])&#125;]</div><div class="line">findClusterPatternKey(startupNodes, sys.argv[3],sys.argv[4])</div></pre></td></tr></table></figure>
-<hr>
-<p>扫描 idle key</p>
-<hr>
-<ul>
-<li>单机</li>
-</ul>
-<p>格式:python scankey.py ip port idleDay password</p>
-<p>python scankey.py 10.16.14.182 6380 1 “”<br>python scankey.py 10.16.14.182 6380 1 “123”</p>
-<ul>
-<li>集群</li>
-</ul>
-<p>格式:python scankey.py ip port pattern password</p>
-<p>python scankey.py 10.16.14.182 6380 hash<em> “”<br>python scankey.py 10.16.14.182 6380 hash</em> “123”</p>
-
           
         
       
@@ -2474,154 +2554,6 @@ http://www.cnblogs.com/forfuture1978/archive/2009/12/14/1623599.html
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/07/01/(7.1).分布式架构-dubbo/" itemprop="url">
-                  dubbo架构和源码分析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-07-01T10:52:03+08:00" content="2016-07-01">
-              2016-07-01
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/分布式/" itemprop="url" rel="index">
-                    <span itemprop="name">分布式</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="dubbo架构原理"><a href="#dubbo架构原理" class="headerlink" title="dubbo架构原理"></a>dubbo架构原理</h2><blockquote>
-<h3 id="框架设计"><a href="#框架设计" class="headerlink" title="框架设计"></a>框架设计</h3></blockquote>
-<p><img src="http://i2.itc.cn/20160517/aac_f5d59df3_6197_4d8e_0bd9_908362449c02_2.png" alt="dubbo框架结构"></p>
-<ul>
-<li><code>config，配置层</code>，对外配置接口，以ServiceConfig, ReferenceConfig为中心，可以直接new配置类，也可以通过spring解析配置生成配置类</li>
-<li><code>proxy，服务代理层</code>，服务接口透明代理，生成服务的客户端Stub和服务器端Skeleton，以ServiceProxy为中心，扩展接口为ProxyFactory</li>
-<li><code>registry，注册中心层</code>，封装服务地址的注册与发现，以服务URL为中心，扩展接口为RegistryFactory, Registry, RegistryService</li>
-<li><code>cluster，路由层</code>，封装多个提供者的路由及负载均衡，并桥接注册中心，以Invoker为中心，扩展接口为Cluster, Directory, Router, LoadBalance</li>
-<li><code>monitor，监控层</code>，RPC调用次数和调用时间监控，以Statistics为中心，扩展接口为MonitorFactory, Monitor, MonitorService</li>
-<li><code>protocol，远程调用层</code>，封将RPC调用，以Invocation, Result为中心，扩展接口为Protocol, Invoker, Exporter</li>
-<li><code>exchange，信息交换层</code>，封装请求响应模式，同步转异步，以Request, Response为中心，扩展接口为Exchanger, ExchangeChannel, ExchangeClient, ExchangeServer</li>
-<li><code>transport，网络传输层</code>，抽象mina和netty为统一接口，以Message为中心，扩展接口为Channel, Transporter, Client, Server, Codec</li>
-<li><code>serialize，数据序列化层</code>，可复用的一些工具，扩展接口为Serialization, ObjectInput, ObjectOutput, ThreadPool</li>
-</ul>
-<blockquote>
-<h3 id="依赖关系"><a href="#依赖关系" class="headerlink" title="依赖关系"></a>依赖关系</h3></blockquote>
-<p><img src="http://i3.itc.cn/20160516/aac_ec527bd3_be4b_a20b_eb92_3020fcd4d4f7_4.jpg" alt="dubbo服务端和客户端调用关系"></p>
-<p><strong>节点角色说明：</strong></p>
-<ul>
-<li>Provider: 暴露服务的服务提供方。</li>
-<li>Consumer: 调用远程服务的服务消费方。</li>
-<li>Registry: 服务注册与发现的注册中心。</li>
-<li>Monitor: 统计服务的调用次调和调用时间的监控中心。</li>
-<li>Container: 服务运行容器。</li>
-</ul>
-<p><strong>调用关系说明：</strong></p>
-<ul>
-<li>0-服务容器负责启动，加载，运行服务提供者。</li>
-<li>1-服务提供者在启动时，向注册中心注册自己提供的服务。</li>
-<li>2-服务消费者在启动时，向注册中心订阅自己所需的服务。</li>
-<li>3-注册中心返回服务提供者地址列表给消费者，如果有变更，注册中心将基于长连接推送变更数据给消费者。</li>
-<li>4-服务消费者，从提供者地址列表中，基于软负载均衡算法，选一台提供者进行调用，如果调用失败，再选另一台调用。</li>
-<li>5-服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到监控中心。</li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/07/01/(7.1).分布式架构-dubbo/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -2667,7 +2599,7 @@ http://www.cnblogs.com/forfuture1978/archive/2009/12/14/1623599.html
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-count">36</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -2684,7 +2616,7 @@ http://www.cnblogs.com/forfuture1978/archive/2009/12/14/1623599.html
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">49</span>
+                <span class="site-state-item-count">50</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

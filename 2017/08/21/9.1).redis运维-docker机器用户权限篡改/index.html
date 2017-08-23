@@ -93,7 +93,7 @@
 <meta property="og:description" content="docker机器篡改用户uid123456789101112131415161.原因描述：cachecloud管理机器：默认创建用户 cachecloud 内网(cachecloud-open 开源用户)，系统默认分配uid为500以上，位于同一台物理机的容器同样的uid用户太多就会超出用户资源资源超出了，系统就会去修改原来的uid。最好指定下吧，范围最好是500以内的，docker这个用户隔离做">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://i3.itc.cn/20170823/aac_a71c82ee_a822_fff4_d1b7_1b122cc7b511_1.png">
-<meta property="og:updated_time" content="2017-08-23T03:46:02.000Z">
+<meta property="og:updated_time" content="2017-08-23T06:15:03.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="docker机器篡改用户uid">
 <meta name="twitter:description" content="docker机器篡改用户uid123456789101112131415161.原因描述：cachecloud管理机器：默认创建用户 cachecloud 内网(cachecloud-open 开源用户)，系统默认分配uid为500以上，位于同一台物理机的容器同样的uid用户太多就会超出用户资源资源超出了，系统就会去修改原来的uid。最好指定下吧，范围最好是500以内的，docker这个用户隔离做">
@@ -328,6 +328,7 @@
 
       
         <h1 id="docker机器篡改用户uid"><a href="#docker机器篡改用户uid" class="headerlink" title="docker机器篡改用户uid"></a>docker机器篡改用户uid</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">1.原因描述：</div><div class="line">cachecloud管理机器：默认创建用户 cachecloud 内网(cachecloud-open 开源用户)，系统默认分配uid为500以上，位于同一台物理机的容器同样的uid用户太多就会超出用户资源资源超出了，系统就会去修改原来的uid。最好指定下吧，范围最好是500以内的，docker这个用户隔离做的弱。</div><div class="line"></div><div class="line">2.查看用户名的uid</div><div class="line">cat /etc/passwd | grep cachecloud  </div><div class="line">cachecloud:x:504:504::/home/cachecloud:/bin/bash （cachecloud与uid=507绑定）</div><div class="line">启动redis实例 则以cachecloud用户进程启动，ps 查看第一列其实就是以504 uid启动</div><div class="line">[@expon-9 /data/cachecloud]# ps -ef | grep redis</div><div class="line">504       3724     1  0 May25 ?        01:36:07 redis-server 0.0.0.0:6381 [cluster]</div><div class="line">504       4705     1  0 Jun12 ?        01:55:42 redis-server *:6385 [sentinel]</div><div class="line">504       7647     1  0 May25 ?        01:50:45 redis-server 0.0.0.0:6383 [cluster]</div><div class="line">504       7695     1  0 May25 ?        01:57:46 redis-server 0.0.0.0:6384 [cluster]</div><div class="line"></div><div class="line">3.指定uid</div><div class="line">创建指定用户uid:useradd -u $&#123;uid&#125;</div><div class="line">修改指定用户uid:usermod -u $&#123;uid&#125;</div></pre></td></tr></table></figure>
+<a id="more"></a>
 <h2 id="1-问题来由"><a href="#1-问题来由" class="headerlink" title="1. 问题来由"></a>1. 问题来由</h2><h3 id="1-1-cachecloud异常日志"><a href="#1-1-cachecloud异常日志" class="headerlink" title="1.1 cachecloud异常日志"></a>1.1 cachecloud异常日志</h3><p>发现cachecloud报警 超时，查看cc的errlog，发现有大量的机器ssh通信失败(收集机器指标)</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">2017-08-19 01:20:28.408 &#123;machine-pool-thread-74&#125; ERROR com.sohu.cache.server.nmon.NMONService - start nmon 10.10.193.187 err:bash: </div><div class="line">/opt/cachecloud/soft/nmon: Permission denied</div><div class="line">659 2017-08-19 01:20:28.462 &#123;SSH-163&#125; ERROR com.sohu.cache.ssh.SSHTemplate - </div><div class="line">address 10.10.193.187:22 execute cmd:([ -e &quot;/opt/cachecloud/soft/nmon&quot; ] &amp;&amp; /</div><div class="line">opt/cachecloud/soft/nmon -V), err:bash: /opt/ cachecloud/soft/nmon: Permission denied</div></pre></td></tr></table></figure>
 <h3 id="1-2-发现目录权限变更"><a href="#1-2-发现目录权限变更" class="headerlink" title="1.2 发现目录权限变更"></a>1.2 发现目录权限变更</h3><ul>
@@ -420,13 +421,17 @@ PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/08/06/(8.5).JAVA虚拟机(五)-JVM性能调优及故障排查/" rel="next" title="java虚拟机-故障排查">
-                <i class="fa fa-chevron-left"></i> java虚拟机-故障排查
+              <a href="/2016/08/22/9.2).redis工具使用/" rel="next" title="redis常用工具">
+                <i class="fa fa-chevron-left"></i> redis常用工具
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/08/22/9.3 redis运维-python环境安装/" rel="prev" title="redis python环境安装">
+                redis python环境安装 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -500,7 +505,7 @@ PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-count">36</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -517,7 +522,7 @@ PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">49</span>
+                <span class="site-state-item-count">50</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
