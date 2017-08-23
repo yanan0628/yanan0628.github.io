@@ -1,0 +1,905 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="CMS," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="概念认知枚举根节点 GC root可达性分析对执行时间的敏感体现在GC停顿上，这项工作分析必须确保能在”一致性”的快照进行操作，(冻结某个时间点上对象引用关系以及任何对象引用变更)，这也是为什么会产生Stop The Word. 在HotSpot虚拟机实现中，是有办法直接获取哪些地方(OopMap的数据结构)存放着对象的引用。当虚拟机在类加载完成的时候，HotSpot就把对象内什么偏移量上是什么数">
+<meta name="keywords" content="CMS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CMS Heap Stucture">
+<meta property="og:url" content="/2016/08/03/(8.3).JAVA虚拟机(三)-CMS垃圾回收器/index.html">
+<meta property="og:site_name" content="Meteor">
+<meta property="og:description" content="概念认知枚举根节点 GC root可达性分析对执行时间的敏感体现在GC停顿上，这项工作分析必须确保能在”一致性”的快照进行操作，(冻结某个时间点上对象引用关系以及任何对象引用变更)，这也是为什么会产生Stop The Word. 在HotSpot虚拟机实现中，是有办法直接获取哪些地方(OopMap的数据结构)存放着对象的引用。当虚拟机在类加载完成的时候，HotSpot就把对象内什么偏移量上是什么数">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide1.png">
+<meta property="og:image" content="http://dl2.iteye.com/upload/attachment/0115/7590/5e899581-4025-3895-bc08-d702fc71dff5.png">
+<meta property="og:image" content="http://i2.itc.cn/20160904/aac_6f45a003_baef_f7c1_93fb_a261e84665e3_1.png">
+<meta property="og:image" content="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide2.png">
+<meta property="og:image" content="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide3.png">
+<meta property="og:image" content="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide4.png">
+<meta property="og:image" content="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide5.png">
+<meta property="og:image" content="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide6.png">
+<meta property="og:image" content="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide7.png">
+<meta property="og:updated_time" content="2016-09-05T02:25:52.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CMS Heap Stucture">
+<meta name="twitter:description" content="概念认知枚举根节点 GC root可达性分析对执行时间的敏感体现在GC停顿上，这项工作分析必须确保能在”一致性”的快照进行操作，(冻结某个时间点上对象引用关系以及任何对象引用变更)，这也是为什么会产生Stop The Word. 在HotSpot虚拟机实现中，是有办法直接获取哪些地方(OopMap的数据结构)存放着对象的引用。当虚拟机在类加载完成的时候，HotSpot就把对象内什么偏移量上是什么数">
+<meta name="twitter:image" content="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> CMS Heap Stucture | Meteor </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Meteor</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                CMS Heap Stucture
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-08-03T16:37:35+08:00" content="2016-08-03">
+              2016-08-03
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="概念认知"><a href="#概念认知" class="headerlink" title="概念认知"></a>概念认知</h3><h4 id="枚举根节点-GC-root"><a href="#枚举根节点-GC-root" class="headerlink" title="枚举根节点 GC root"></a>枚举根节点 GC root</h4><p>可达性分析对执行时间的敏感体现在GC停顿上，这项工作分析必须确保能在”一致性”的快照进行操作，(冻结某个时间点上对象引用关系以及任何对象引用变更)，这也是为什么会产生Stop The Word.</p>
+<p>在HotSpot虚拟机实现中，是有办法直接获取哪些地方(OopMap的数据结构)存放着对象的引用。当虚拟机在类加载完成的时候，HotSpot就把对象内什么偏移量上是什么数据类型计算出来，再JIT编译过程中，也会在特定的位置记录下栈和寄存器中哪些位置是被引用的。</p>
+<h4 id="安全点-safe-point"><a href="#安全点-safe-point" class="headerlink" title="安全点 safe point"></a>安全点 safe point</h4><p>在OopMap的协助下，HotSpot可快速且准确的完成GC roots枚举，但是有一个问题：引用关系变化会比较频繁会造成OopMap内容变化指令非常多，那样会需要大量的额外空间，这样GC空间成本会很高。</p>
+<p><em>但实际上HotSpot，只是会”特定的位置”记录这些信息，这些位置简称<strong>安全点-safepoint</strong>，即程序执行时并非在所有地方都能停顿下来开始GC，只有达到安全点时才能暂停。</em></p>
+<p>如何在GC发生时让所有线程，都”跑”到最近安全点上停顿下来，两种方案：</p>
+<ul>
+<li>抢断式中断</li>
+</ul>
+<p>不需要线程的执行代码主动配合，在gc发生时，首先把所有线程全部中断，如果发现有线程中断的地方不在安全点上，就恢复线程，就让”该线程跑到”安全点上。</p>
+<ul>
+<li>主动式中断 (hotspot)</li>
+</ul>
+<p>当GC需要中断线程的时候，不需要对线程操作，仅仅简单的设置一个标志位，各个线程执行时 主动去轮训这个标志，发现中断标志位为真，才让线程挂起。</p>
+<h4 id="安全区域-safe-region"><a href="#安全区域-safe-region" class="headerlink" title="安全区域 safe region"></a>安全区域 safe region</h4><p>safepoint似乎已经完美解决如何进入GC的问题，但实际情况不一样。safepoint机制是保证程序执行时，在不太久时间内就会遇到可进入GC的safepoint,但是程序 “不执行”的时候呢?</p>
+<ul>
+<li>程序没有获取到cpu的时间片</li>
+<li>线程处于sleep或bolcked状态<br>这些情况线程是无法响应JVM的中断请求，无法”跑到”安全的地方去中断挂起，这里就需要用到 <em>安全区域safe-region</em>来解决。</li>
+</ul>
+<p><strong>安全区域safe-region</strong>指的是在一段代码片段中，引用关系不会发生变化。在这个区域的任意地方开始GC都是安全的，可以把它看做是safe-point的扩展。</p>
+<p>在线程执行到safe Region的代码时，首先标识自己已经进入了Safe Region,那样，当JVM要发起GC时，就不用管标识自己为safe region状态的线程，当线程离开safe region时，就需要检查系统 是否已经完成 根节点枚举，如果完成就继续执行，否则它就必须等待直到收到可以离开safe region的信号为止。</p>
+<h4 id="吞吐量"><a href="#吞吐量" class="headerlink" title="吞吐量"></a>吞吐量</h4><p>吞吐量 = 运行用户代码时间/（运行用户代码时间+垃圾收集时间）</p>
+<p>虚拟机总共运行100分钟，其中垃圾收集花掉1分钟，那么吞吐量是 99%。</p>
+<h4 id="并行-并发收集区别"><a href="#并行-并发收集区别" class="headerlink" title="并行/并发收集区别"></a>并行/并发收集区别</h4><ul>
+<li>并行（parallel）：只多条垃圾收集线程并行工作，但此时用户线程任然处于等待状态。</li>
+<li>并发(Concurent)：指用户线程与垃圾收集线程同时执行(不一定是并行的，可能需要交替执行)，垃圾收集程序运行另外一个Cpu上。(收集线程数=(cpu数量+3)/4 ,不足4个 对用户程序影响可能变大)</li>
+</ul>
+<h3 id="Reviewing-Generational-GC-and-CMS"><a href="#Reviewing-Generational-GC-and-CMS" class="headerlink" title="Reviewing Generational GC and CMS"></a>Reviewing Generational GC and CMS</h3><p>The Concurrent Mark Sweep (CMS) collector (also referred to as the concurrent low pause collector) collects the tenured generation. It attempts to minimize the pauses due to garbage collection by doing most of the garbage collection work concurrently with the application threads. Normally the concurrent low pause collector does not copy or compact the live objects. A garbage collection is done without moving the live objects. If fragmentation becomes a problem, allocate a larger heap.  </p>
+<p>大致意思：CMS垃圾回收器是回收堆中老年代对象。它与应用线程并行做垃圾回收以减少最小停顿时间，它的最小停顿时间不是因为 复制或整理存活对象，最主要问题是因为碎片化，所以需要分配一个较大的堆。</p>
+<p>特点：</p>
+<ul>
+<li>牺牲吞吐量换取最小停顿时间 </li>
+<li>并发标记清除垃圾回收算法</li>
+<li>需要一个较大的堆空间</li>
+</ul>
+<p>问题：</p>
+<ul>
+<li>产生碎片化</li>
+</ul>
+<blockquote>
+<p>Heap Structure for Cms Collector</p>
+</blockquote>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide1.png" alt=""></p>
+<h3 id="CMS-Collection-Phase-CMS收集阶段"><a href="#CMS-Collection-Phase-CMS收集阶段" class="headerlink" title="CMS Collection Phase(CMS收集阶段)"></a>CMS Collection Phase(CMS收集阶段)</h3><p>CMS收集器有几个缺点：</p>
+<ul>
+<li><p>cms收集器占用cpu资源，总吞吐量会降低</p>
+<p>  在并发阶段，它虽然不会导致用户线程停顿，但是占用可一部分线程(或者说CPU资源)，从而导致应用程序变慢。</p>
+</li>
+<li><p>cms收集器无法处理”浮动垃圾”</p>
+<p>  由于cms并发清理阶段，用户线程还在运行着，伴随着程序运行自然会产生新的垃圾，这一部分垃圾在标记过程中，无法再这一次GC处理，需要等待下一次GC是再清理掉。这一部分垃圾成为<strong>浮动垃圾</strong>。可以适当调整老年代回收百分比参数：-XX:CMSInitiationgOccupancyFraction ,<strong>还可能会造成Concurrent Mode Failure失败导致另一次FullGC产生。</strong><br>  jdk1.5 老年代触发 百分比68%，JDK1.6 老年代触发百分比 92%</p>
+</li>
+<li><p>cms收集器会产生空间碎片，可能会造成额外FULL GC触发</p>
+<p>  由于CMS是基于”标记-清除”算法实现，意味着收集结束会产生大量空碎片空间，如果碎片过多时，将会给大对象分配带来很大麻烦，此时往往老年代还有很多空间剩余，会造成提前一次进行FULL gc的触发，为解决这个问题，cms提供一个参数 +useCmsCompactAtFullCollection（碎片整理，默认开启），内存整理肯定就增加了停顿时间，虚拟器还提供一个参数-XX:CMSFullGCBeforeCompaction,这个参数 用于设置执行多少次不压缩的Full Gc后，跟着来一次带压缩的(默认值为0，表示每次进入Full GC都要进行碎片整理)</p>
+</li>
+</ul>
+<blockquote>
+<p>CMS收集过程</p>
+</blockquote>
+<p><img src="http://dl2.iteye.com/upload/attachment/0115/7590/5e899581-4025-3895-bc08-d702fc71dff5.png" alt=""></p>
+<p>初始标记仅仅是标记一下GC Roots能直接关联到的对象，速度很快，并发标记就是进行<br>GC Roots Trancing的过程，而重新标记阶段则是为了修正并发标记期间因用户程序继<br>续运行而导致标记产生变动那一部分对象的标记记录，这个阶段的停顿时间比初始标记稍<br>长一些，但远比并发标记时间短。</p>
+<p><img src="http://i2.itc.cn/20160904/aac_6f45a003_baef_f7c1_93fb_a261e84665e3_1.png" alt=""></p>
+<h3 id="How-YoungGC-works-with-GC-CMS年轻代回收过程"><a href="#How-YoungGC-works-with-GC-CMS年轻代回收过程" class="headerlink" title="How YoungGC works with GC(CMS年轻代回收过程)"></a>How YoungGC works with GC(CMS年轻代回收过程)</h3><p>使用算法：copying算法(速度快 存活对象少)</p>
+<ul>
+<li>1.The young generation is colored light green and the old generation in blue. This is what the CMS might look like if your application has been running for a while. Objects are scattered around the old generation area.</li>
+</ul>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide2.png" alt=""></p>
+<ul>
+<li>2.Live objects are copied from the Eden space and survivor space to the other survivor space. Any older objects that have reached their aging threshold are promoted to old generation.</li>
+</ul>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide3.png" alt=""></p>
+<ul>
+<li>3.After a young GC, the Eden space is cleared and one of the survivor spaces is cleared.</li>
+</ul>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide4.png" alt=""><br>Newly promoted objects are shown in dark blue on the diagram. The green objects are surviving young generation objects that have not yet been promoted to old generation. </p>
+<h3 id="Old-Generation-Collection-With-CMS（CMS老年代垃圾回收）"><a href="#Old-Generation-Collection-With-CMS（CMS老年代垃圾回收）" class="headerlink" title="Old Generation Collection With CMS（CMS老年代垃圾回收）"></a>Old Generation Collection With CMS（CMS老年代垃圾回收）</h3><ul>
+<li>1.Two stop the world events take place: initial mark and remark. When the old generation reaches a certain occupancy rate, the CMS is kicked off。</li>
+</ul>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide5.png" alt=""><br>(1) Initial mark is a short pause phase where live (reachable) objects are marked. (2) Concurrent marking finds live objects while the application continues to execute. Finally, in the (3) remark phase, objects are found that were missed during (2) concurrent marking in the previous phase.</p>
+<ul>
+<li>2.Objects that were not marked in the previous phase are deallocated in place. There is no compaction.</li>
+</ul>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide6.png" alt=""><br>Note: Unmarked objects == Dead Objects</p>
+<ul>
+<li>3.After the (4) Sweeping phase, you can see that a lot of memory has been freed up. You will also notice that no compaction has been done.</li>
+</ul>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide7.png" alt=""><br>Finally, the CMS collector will move through the (5) resetting phase and wait for the next time the GC threshold is reached..</p>
+<h3 id="CMS参数解释"><a href="#CMS参数解释" class="headerlink" title="CMS参数解释"></a>CMS参数解释</h3><p>-XX：+UseConcMarkSweepGC</p>
+<pre><code>激活CMS收集器。默认HotSpot JVM使用的是并行收集器
+</code></pre><p>-XX：UseParNewGC</p>
+<pre><code>当使用-XX：+UseConcMarkSweepGC时，-XX：UseParNewGC会自动开启。因此，
+如果年轻代的并行GC不想开启，可以通过设置-XX：-UseParNewGC来关掉。
+</code></pre><p>-XX：+CMSConcurrentMTEnabled</p>
+<pre><code>当该标志被启用时，并发的CMS阶段将以多线程执行
+(因此，多个GC线程会与所有的应用程序线程并行工作)。该标志已经默认开启，
+如果顺序执行更好，这取决于所使用的硬件，多线程执行可以通过-XX：-CMSConcurremntMTEnabled禁用。
+</code></pre><p>-XX：ConcGCThreads</p>
+<pre><code>标志-XX：ConcGCThreads=&lt;value&gt;(早期JVM版本也叫-XX:ParallelCMSThreads)定义并发CMS
+过程运行时的线程数。比如value=4意味着CMS周期的所有阶段都以4个线程来执行。尽管更多的线
+程会加快并发CMS过程，但其也会带来额外的同步开销。因此，对于特定的应用程序，应该通过测试
+来判断增加CMS线程数是否真的能够带来性能的提升。如果还标志未设置，JVM会根据并行收集器中
+的-XX：ParallelGCThreads参数的值来计算出默认的并行CMS线程数。该公式是ConcGCThreads
+ = (ParallelGCThreads + 3)/4。因此，对于CMS收集器， -XX:ParallelGCThreads标志不
+仅影响“stop-the-world”垃圾收集阶段，还影响并发阶段。
+</code></pre><p>-XX:CMSInitiatingOccupancyFraction</p>
+<pre><code>当堆满之后，并行收集器便开始进行垃圾收集，例如，当没有足够的空间来容纳新分配或提升的对
+象,JVM会在一开始执行CMS周期前作一些线索查找。该线索由 -
+XX:CMSInitiatingOccupancyFraction=&lt;value&gt;来设置，该值代表老年代堆空间的使用率.
+</code></pre><p>-XX：+UseCMSInitiatingOccupancyOnly</p>
+<pre><code>触发fullGC的空间百分比，jdk5 默认68%  jdk6 默认92%
+</code></pre><p>-XX:+CMSClassUnloadingEnabled</p>
+<pre><code>相对于并行收集器，CMS收集器默认不会对永久代进行垃圾回收。如果希望对永久代进行垃圾回收，
+可用设置标志-XX:+CMSClassUnloadingEnabled。
+</code></pre><p>-XX:+UseCMSCompactAtFullCollection</p>
+<pre><code>打开对年老代的压缩.可能会影响性能,但是可以消除碎片,由于并发收集器不对内存空间进行压缩,
+整理,所以运行一段时间以后会产生&quot;碎片&quot;,使得运行效率降低.此值设置运行多少次GC以后对内存
+空间进行压缩,整理.
+</code></pre><p>-XX:+ExplicitGCInvokesConcurrent and </p>
+<p>-XX:+ExplicitGCInvokesConcurrentAndUnloadsClasses</p>
+<p>-XX:+DisableExplicitGC</p>
+<p>该标志将告诉JVM完全忽略系统的GC调用(不管使用的收集器是什么类型)</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>oracle官网cms垃圾回收：<a href="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/index.html" target="_blank" rel="external">http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/index.html</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/CMS/" rel="tag">#CMS</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/08/02/(8.2).JAVA虚拟机(二)-GC介绍及垃圾回收算法/" rel="next" title="GC介绍及垃圾回收算法">
+                <i class="fa fa-chevron-left"></i> GC介绍及垃圾回收算法
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/08/04/(8.4).JAVA虚拟机(四)-G1垃圾回收器/" rel="prev" title="G1 Heap Stucture">
+                G1 Heap Stucture <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/metor.ico"
+               alt="Pedestrian" />
+          <p class="site-author-name" itemprop="name">Pedestrian</p>
+          <p class="site-description motion-element" itemprop="description">study for goal</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">48</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/yanan0628" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://carlosfu.github.io/" target="_blank" title="fudada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  fudada
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://jolinzhangg.github.io/" target="_blank" title="xiaodada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  xiaodada
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#概念认知"><span class="nav-number">1.</span> <span class="nav-text">概念认知</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#枚举根节点-GC-root"><span class="nav-number">1.1.</span> <span class="nav-text">枚举根节点 GC root</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安全点-safe-point"><span class="nav-number">1.2.</span> <span class="nav-text">安全点 safe point</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安全区域-safe-region"><span class="nav-number">1.3.</span> <span class="nav-text">安全区域 safe region</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#吞吐量"><span class="nav-number">1.4.</span> <span class="nav-text">吞吐量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#并行-并发收集区别"><span class="nav-number">1.5.</span> <span class="nav-text">并行/并发收集区别</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reviewing-Generational-GC-and-CMS"><span class="nav-number">2.</span> <span class="nav-text">Reviewing Generational GC and CMS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CMS-Collection-Phase-CMS收集阶段"><span class="nav-number">3.</span> <span class="nav-text">CMS Collection Phase(CMS收集阶段)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#How-YoungGC-works-with-GC-CMS年轻代回收过程"><span class="nav-number">4.</span> <span class="nav-text">How YoungGC works with GC(CMS年轻代回收过程)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Old-Generation-Collection-With-CMS（CMS老年代垃圾回收）"><span class="nav-number">5.</span> <span class="nav-text">Old Generation Collection With CMS（CMS老年代垃圾回收）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CMS参数解释"><span class="nav-number">6.</span> <span class="nav-text">CMS参数解释</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pedestrian</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+                            
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').mousedown(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+  
+
+  
+
+  
+
+</body>
+</html>

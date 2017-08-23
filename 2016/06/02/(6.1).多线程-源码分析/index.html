@@ -1,0 +1,1789 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="AQS,JUC,CAS," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="AQS(AbstactQueuedSynchronizer)队列同步器AQS概述JDK1.7的java.util.concurrent.lock: AbstractQueuedSynchronizer (java.util.concurrent.locks)     Sync in BaseFuture (org.elasticsearch.common.util.concurrent)">
+<meta name="keywords" content="AQS,JUC,CAS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多线程源码分析">
+<meta property="og:url" content="/2016/06/02/(6.1).多线程-源码分析/index.html">
+<meta property="og:site_name" content="Meteor">
+<meta property="og:description" content="AQS(AbstactQueuedSynchronizer)队列同步器AQS概述JDK1.7的java.util.concurrent.lock: AbstractQueuedSynchronizer (java.util.concurrent.locks)     Sync in BaseFuture (org.elasticsearch.common.util.concurrent)">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://i3.itc.cn/20160907/aac_bc679be1_20f1_b35a_3ac8_6c05515fb314_1.png">
+<meta property="og:image" content="http://i0.itc.cn/20160906/aac_74bb0904_12b6_7e23_00f8_d3d23eaabee0_3.png">
+<meta property="og:image" content="http://i0.itc.cn/20160906/aac_74bb0904_12b6_7e23_00f8_d3d23eaabee0_4.png">
+<meta property="og:image" content="http://i1.itc.cn/20160906/aac_74bb0904_12b6_7e23_00f8_d3d23eaabee0_5.png">
+<meta property="og:image" content="http://i1.itc.cn/20160906/aac_bc4f391d_1e59_2cfb_7834_ab6a6b94d2f8_1.png">
+<meta property="og:image" content="http://i1.itc.cn/20160906/aac_138a14d1_0623_8405_1f78_2367ea86ed24_1.png">
+<meta property="og:image" content="http://i1.itc.cn/20160906/aac_138a14d1_0623_8405_1f78_2367ea86ed24_3.png">
+<meta property="og:image" content="http://i2.itc.cn/20160906/aac_138a14d1_0623_8405_1f78_2367ea86ed24_4.png">
+<meta property="og:image" content="http://i2.itc.cn/20160906/aac_138a14d1_0623_8405_1f78_2367ea86ed24_2.png">
+<meta property="og:image" content="http://i2.itc.cn/20160630/aac_3fe63360_2218_b4e0_56d4_89a2c3216c58_2.png">
+<meta property="og:image" content="http://i0.itc.cn/20160906/aac_bc4f391d_1e59_2cfb_7834_ab6a6b94d2f8_2.png">
+<meta property="og:image" content="http://i1.itc.cn/20160906/aac_bc4f391d_1e59_2cfb_7834_ab6a6b94d2f8_3.png">
+<meta property="og:image" content="http://i3.itc.cn/20160906/aac_bc4f391d_1e59_2cfb_7834_ab6a6b94d2f8_4.png">
+<meta property="og:image" content="http://i3.itc.cn/20160906/aac_93869b23_171e_f5c7_b916_e769d4391ef7_1.png">
+<meta property="og:image" content="http://i3.itc.cn/20160906/aac_93869b23_171e_f5c7_b916_e769d4391ef7_2.png">
+<meta property="og:image" content="http://i1.itc.cn/20160906/aac_93869b23_171e_f5c7_b916_e769d4391ef7_3.png">
+<meta property="og:image" content="http://i1.itc.cn/20160706/aac_36f1f1d8_7130_1bf2_50f2_53af4dc6c963_3.png">
+<meta property="og:updated_time" content="2016-09-07T01:57:42.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="多线程源码分析">
+<meta name="twitter:description" content="AQS(AbstactQueuedSynchronizer)队列同步器AQS概述JDK1.7的java.util.concurrent.lock: AbstractQueuedSynchronizer (java.util.concurrent.locks)     Sync in BaseFuture (org.elasticsearch.common.util.concurrent)">
+<meta name="twitter:image" content="http://i3.itc.cn/20160907/aac_bc679be1_20f1_b35a_3ac8_6c05515fb314_1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 多线程源码分析 | Meteor </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Meteor</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                多线程源码分析
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-06-02T10:52:03+08:00" content="2016-06-02">
+              2016-06-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/多线程/" itemprop="url" rel="index">
+                    <span itemprop="name">多线程</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="AQS-AbstactQueuedSynchronizer-队列同步器"><a href="#AQS-AbstactQueuedSynchronizer-队列同步器" class="headerlink" title="AQS(AbstactQueuedSynchronizer)队列同步器"></a>AQS(AbstactQueuedSynchronizer)队列同步器</h2><h3 id="AQS概述"><a href="#AQS概述" class="headerlink" title="AQS概述"></a>AQS概述</h3><p>JDK1.7的java.util.concurrent.lock:</p>
+<pre><code>AbstractQueuedSynchronizer (java.util.concurrent.locks)
+    Sync in BaseFuture (org.elasticsearch.common.util.concurrent)
+    Sync in CountDownLatch (java.util.concurrent)
+    Sync in ReentrantLock (java.util.concurrent.locks)
+    Sync in ReentrantReadWriteLock (java.util.concurrent.locks)
+    Sync in Semaphore (java.util.concurrent)
+    Worker in ThreadPoolExecutor (java.util.concurrent)
+</code></pre><p>凡是继承AQS的类，都是线程安全的。</p>
+<p>每个继承AQS的类内部都包含一个如下的内部类定义：</p>
+<pre><code>//定义一个内部类
+abstract static class Sync extends AbstractQueuedSynchronizer{
+    /** 重构 **/
+}
+//维护一个Sync 的对象，用于线程同步安全
+private final Sync sync;
+</code></pre><h3 id="AQS的结构"><a href="#AQS的结构" class="headerlink" title="AQS的结构"></a>AQS的结构</h3><ul>
+<li><p>2个重要内部类：ConditionObject和Node</p>
+</li>
+<li><p>3个重要属性:</p>
+<pre><code>private transient volatile Node head;
+private transient volatile Node tail;
+private volatile int state;
+</code></pre></li>
+</ul>
+<p>~~ java</p>
+<pre><code>/**
+ * Head of the wait queue, lazily initialized.  Except for
+ * initialization, it is modified only via method setHead.  Note:
+ * If head exists, its waitStatus is guaranteed not to be
+ * CANCELLED.
+ */
+private transient volatile Node head;
+
+/**
+ * Tail of the wait queue, lazily initialized.  Modified only via
+ * method enq to add new wait node.
+ */
+private transient volatile Node tail;
+
+/**
+ * The synchronization state.
+ */
+private volatile int state;    
+</code></pre><p>注释其实已经告诉我们了，Node类型的head和tail是一个FIFO的wait queue；一个int类型的状态位state。到这里也能猜到AQS对外呈现（或者说声明）的主要行为就是由<strong>一个状态位</strong>和<strong>一个有序队列</strong>来配合完成.</p>
+<p>~~ java</p>
+<pre><code>//获取排它锁 X锁
+ public final void acquire(int arg) {
+    if (!tryAcquire(arg) &amp;&amp;
+        acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
+        selfInterrupt();
+}
+
+//释放排它锁
+public final boolean release(int arg) {
+    if (tryRelease(arg)) {
+        Node h = head;
+        if (h != null &amp;&amp; h.waitStatus != 0)
+            unparkSuccessor(h);
+        return true;
+    }
+    return false;
+}
+
+//获取共享锁 S锁
+public final void acquireShared(int arg) {
+    if (tryAcquireShared(arg) &lt; 0)
+        doAcquireShared(arg);
+}
+
+//释放共享锁 S锁
+public final boolean releaseShared(int arg) {
+    if (tryReleaseShared(arg)) {
+        doReleaseShared();
+        return true;
+    }
+    return false;
+}
+</code></pre><p>AQS主要的工作思路正是如此：在获取锁时候，先判断当前状态是否允许获取锁，若是可以则获取锁，否则获取不成功。获取不成功则会阻塞，进入阻塞队列。而释放锁时，一般会修改状态位，唤醒队列中的阻塞线程。 跟踪这几个try字体的方法定义，发现一个惊人的巧合，这几个方法在AQS中居然都是一样的定义：</p>
+<pre><code>protected boolean tr***(int arg) {
+     throw new UnsupportedOperationException();
+ }
+</code></pre><p>即都是父类中只有定义，在子类中实现。</p>
+<h3 id="AQS的重要方法"><a href="#AQS的重要方法" class="headerlink" title="AQS的重要方法"></a>AQS的重要方法</h3><p>简单看下下面几个方法的源码发现定义中都涉及到了getState(), setState(int) compareAndSetState(int, int)，即对状态位state的维护。</p>
+<pre><code>tryAcquire(int)
+tryRelease(int)
+tryAcquireShared(int)
+tryReleaseShared(int)
+</code></pre><p>下图表示compareAndSetState(int, int)的调用，可以看的更清楚看到，说明几个同步工具类内定义的Sync类，即自定义子类中其实都涉及到对state的操作。</p>
+<h3 id="常用同步工具类-AQS在子类中的使用"><a href="#常用同步工具类-AQS在子类中的使用" class="headerlink" title="常用同步工具类-AQS在子类中的使用"></a>常用同步工具类-AQS在子类中的使用</h3><p>对每个考察会从如下几个方面来进行:</p>
+<ul>
+<li>工具类的主要作用</li>
+<li>主要获取锁方法（其他的类似方法如对应的可以更好的处理中断和超时或者异步等特性）</li>
+<li>主要释放锁方法（其他的类似方法如对应的可以更好的处理中断和超时或者异步等特性）</li>
+<li>工具类的构造方法（构造方法能告诉我们一个类最在意，最根本的属性）</li>
+<li>Sync构造方法</li>
+<li>Sync接口方法</li>
+<li>Sync对AQS方法的override</li>
+<li>state的作用</li>
+<li>state维护重要逻辑</li>
+</ul>
+<h4 id="semaphore信号量"><a href="#semaphore信号量" class="headerlink" title="semaphore信号量"></a>semaphore信号量</h4><p><em>A counting semaphore. Conceptually, a semaphore maintains a set of permits. Each acquire blocks if necessary until a permit is available, and then takes it. Each release adds a permit, potentially releasing a blocking acquirer. However, no actual permit objects are used; the Semaphore just keeps a count of the number available and acts accordingly.</em></p>
+<p>信号量Semaphore的主要作用是来控制同时访问某个特定资源的操作数量，或者同时执行某个指定操作的数量。 Semaphore只是计数，不包括许可对象，并且Semaphore也不会把许可与线程对象关联起来，因此一个线程中获得的许可可以在另外一个线程中释放。<br>Semphore对外的两个方法是 acquire()和release()方法。</p>
+<ul>
+<li>acquire()：在许可可用前会阻塞每一个 acquire()，然后再获取该许可。</li>
+<li>release():每调用 release() 添加一个许可，释放一个正在阻塞的获取者。</li>
+</ul>
+<p>达到这样的操作是通过同步器Sync来操作，可以是FairSync，也可以是NonfairSync。 从Sync的构造方法中，就可以看出Semphore中所谓的permit其实就是AQS中的state。</p>
+<pre><code>public Semaphore(int permits, boolean fair) {
+    sync = (fair)? new FairSync(permits) : new NonfairSync(permits);
+}
+Sync(int permits) {
+    setState(permits);
+}
+</code></pre><p>在Semaphore中使用AQS的子类Sync，初始化state表示许可数，在每一次请求acquire()一个许可都会导致计数器减少1，同样每次释放一个许可release()都会导致计数器增加1。一旦达到了0，新的许可请求线程将被挂起。</p>
+<h4 id="countdownlatch闭锁"><a href="#countdownlatch闭锁" class="headerlink" title="countdownlatch闭锁"></a>countdownlatch闭锁</h4><p><em>A synchronization aid that allows one or more threads to wait until a set of operations being performed in other threads completes. A CountDownLatch is initialized with a given count. The await methods block until the current count reaches zero due to invocations of the countDown method, after which all waiting threads are released and any subsequent invocations of await return immediately.</em></p>
+<p>就像名字Latch所表达的一样，把一组线程全部关在外面，在某个状态时候放开。即一种同步机制来保证一个或多个线程等待其他线程完成。初始化了一个count计数，当count未递减到0时候，每次调用await方法都会阻塞。每次调用countDown来是的的count递减。 </p>
+<ul>
+<li>构造方法</li>
+</ul>
+<p>~~ java</p>
+<pre><code>public CountDownLatch(int count) {
+    if (count &lt; 0) throw new IllegalArgumentException(&quot;count &lt; 0&quot;);
+    this.sync = new Sync(count);
+}
+</code></pre><ul>
+<li>重要方法 await和countDown</li>
+</ul>
+<p>定义await方法的作用是在计数器不为0时候阻塞调用线程，为0时候立即返回；countDown方法的作用是计数递减。</p>
+<pre><code> public void await() throws InterruptedException {
+    sync.acquireSharedInterruptibly(1);
+}
+ public void countDown() {
+    sync.releaseShared(1);
+}
+</code></pre><h4 id="ReenTrantlock-可重入锁"><a href="#ReenTrantlock-可重入锁" class="headerlink" title="ReenTrantlock-可重入锁"></a>ReenTrantlock-可重入锁</h4><p> <em>A reentrant mutual exclusion Lock with the same basic behavior and semantics as the implicit monitor lock accessed using synchronized methods and statements, but with extended capabilities. A ReentrantLock is owned by the thread last successfully locking, but not yet unlocking it. A thread invoking lock will return, successfully acquiring the lock, when the lock is not owned by another thread. The method will return immediately if the current thread already owns the lock. This can be checked using methods isHeldByCurrentThread, and getHoldCount.</em></p>
+<p>默认构造方法：(非公平锁实现)<br>    public ReentrantLock() {<br>        sync = new NonfairSync();<br>    }</p>
+<p>基于AQS实现内部类Sync，有两种锁实现：</p>
+<pre><code>AbstractQueuedSynchronizer (java.util.concurrent.locks)
+    Sync in ReentrantLock (java.util.concurrent.locks)
+        FairSync in ReentrantLock (java.util.concurrent.locks)
+        NonfairSync in ReentrantLock (java.util.concurrent.locks)
+</code></pre><ul>
+<li><p>FairSync公平锁：总是调用acquire方法来和其他线程一样公平的尝试获取锁</p>
+</li>
+<li><p>NonfairSync非公平锁：只要当前没有线程持有锁，就将锁给当前线程，比如像使用tryLock</p>
+</li>
+</ul>
+<p>~~ java</p>
+<pre><code>/**NoFairSync**/
+ final void lock() {
+    if (compareAndSetState(0, 1))
+        //对于非公平锁只要当前没有线程持有锁，就将锁给当前线程
+        setExclusiveOwnerThread(Thread.currentThread());
+    else
+        acquire(1);
+}
+/**FairSync**/
+  final void lock() {
+    acquire(1);
+}
+</code></pre><p> 对于非公平锁，通过state是否为0判断，当前是否有线程持有锁，如果没有则把锁分配给当前线程；否则如果state不为0，说明当前有线程持有锁，则判断持有锁的线程是否就是当前线程，如果是增加state计数，表示持有锁的线程的重入次数增加。当然增加重入数也会检查是否超过最大值。</p>
+<p><strong>比较公平锁机制和非公平锁机制的差别仅仅在于如果当前没有线程持有锁，是优先把锁分配给当前线程，还是优先分配给等待队列中队首的线程。</strong></p>
+<h4 id="FutureTask-异步"><a href="#FutureTask-异步" class="headerlink" title="FutureTask-异步"></a>FutureTask-异步</h4><p><em>A cancellable asynchronous computation. This class provides a base implementation of Future, with methods to start and cancel a computation, query to see if the computation is complete, and retrieve the result of the computation. The result can only be retrieved when the computation has completed; the get method will block if the computation has not yet completed. Once the computation has completed, the computation cannot be restarted or cancelled.</em></p>
+<blockquote>
+<p>类图：</p>
+</blockquote>
+<pre><code>FutureTask (java.util.concurrent)
+    RunnableFuture (java.util.concurrent)
+        Future (java.util.concurrent)
+        Runnable (java.lang)
+</code></pre><blockquote>
+<p>构造方法：</p>
+</blockquote>
+<pre><code>public FutureTask(Runnable runnable, V result) {
+    this.callable = Executors.callable(runnable, result);
+    this.state = NEW;       // ensure visibility of callable
+}
+
+public FutureTask(Callable&lt;T&gt; callable) {
+    if (callable == null)
+        throw new NullPointerException();
+    sync = new Sync(callable);
+}
+</code></pre><p>FutureTask实现了RunnableFuture接口，也即实现了Runnable和Future接口。作业线程执行的内容是FutureTask的的run方法内定义的任务内容。如线程池 ThreadPoolExecutor.Worker.runTask(Runnable task)方法可以看到在线程池的Worker线程中调用到执行任务的run方法。这里使用Sync的作用，就是在任务执行线程和提交任务（同时也是获取任务执行结果）的线程之间维持一个锁的关系，保证只有执行结束后才能获取到结果。</p>
+<blockquote>
+<p>通过future获取随机数的例子：</p>
+</blockquote>
+<pre><code>//callable
+Callable&lt;Integer&gt; callable = new Callable&lt;Integer&gt;() {
+
+    @Override
+    public Integer call() throws Exception {
+        //取1-100之间随机数
+        return new Random().nextInt(100);
+    }
+};
+
+FutureTask&lt;Integer&gt; futureTask = new FutureTask&lt;Integer&gt;(callable);
+new Thread(futureTask).start(); //可用线程启动 或用线程池启动
+
+try {
+    TimeUnit.SECONDS.sleep(5);
+
+    Integer getNum = futureTask.get();
+    System.out.println(&quot;getNum:&quot;+getNum);
+
+} catch (InterruptedException e) {
+    e.printStackTrace();
+} catch (ExecutionException e) {
+    e.printStackTrace();
+}
+</code></pre><p>总结：在FutureTask实现了异步的执行和提交，作为可以被Executor提交的对象。通过Sync来维护任务的执行状态，从而保证只有工作线程任务执行完后，其他线程才能获取到执行结果。AQS的子类Sync在这里主要是借用state状态位来存储执行状态，来完成对对各种状态以及加锁、阻塞的实现。</p>
+<h2 id="CAS并发原子类"><a href="#CAS并发原子类" class="headerlink" title="CAS并发原子类"></a>CAS并发原子类</h2><p>CAS（Compare and swap）比较和替换是设计并发算法时用到的一种技术。简单来说，比较和替换是使用一个期望值和一个变量的当前值进行比较，如果当前变量的值与我们期望的值相等，就使用一个新值替换当前变量的值。这听起来可能有一点复杂但是实际上你理解之后发现很简单，接下来，让我们跟深入的了解一下这项技术。</p>
+<h3 id="悲观锁和乐观锁"><a href="#悲观锁和乐观锁" class="headerlink" title="悲观锁和乐观锁"></a>悲观锁和乐观锁</h3><ul>
+<li><p>悲观锁：会导致其它所有需要锁的线程挂起，等待持有锁的线程释放锁。 </p>
+<p>  synchronized</p>
+</li>
+<li><p>乐观锁：每次不加锁而是假设没有冲突而去完成某项操作，如果因为冲突失败就重试，直到成功为止。</p>
+<p>  cas原子类</p>
+</li>
+</ul>
+<h3 id="AtomicBoolean"><a href="#AtomicBoolean" class="headerlink" title="AtomicBoolean"></a>AtomicBoolean</h3><p>在程序和算法中一个经常出现的模式就是“check and act”模式。先检查后操作模式发生在代码中首先检查一个变量的值，然后再基于这个值做一些操作。使用cas原子类  目的 减少锁的使用，提高多线程并发执行，减少因为锁竞争 降低开销。</p>
+<p>下面是一个使用AtomicBoolean类实现lock()方法的例子：</p>
+<pre><code>public static class MyLock {
+    private AtomicBoolean locked = new AtomicBoolean(false);
+
+    public boolean lock() {
+        return locked.compareAndSet(false, true);
+    }
+}
+</code></pre><p>locked变量不再是boolean类型而是AtomicBoolean。这个类中有一个compareAndSet()方法，它使用一个期望值和AtomicBoolean实例的值比较，和两者相等，则使用一个新值替换原来的值。在这个例子中，它比较locked的值和false，如果locked的值为false，则把修改为true。<br>如果值被替换了，compareAndSet()返回true，否则，返回false。</p>
+<p>参考：<a href="http://ifeve.com/compare-and-swap/" target="_blank" rel="external">http://ifeve.com/compare-and-swap/</a></p>
+<h2 id="常用阻塞队列"><a href="#常用阻塞队列" class="headerlink" title="常用阻塞队列"></a>常用阻塞队列</h2><h3 id="阻塞队列获取-移除API"><a href="#阻塞队列获取-移除API" class="headerlink" title="阻塞队列获取/移除API"></a>阻塞队列获取/移除API</h3><p><img src="http://i3.itc.cn/20160907/aac_bc679be1_20f1_b35a_3ac8_6c05515fb314_1.png" alt=""></p>
+<p>BlockingQueue阻塞队列提供了四种处理方法:</p>
+<table>
+<thead>
+<tr>
+<th>方法\处理方式</th>
+<th style="text-align:center">抛出异常</th>
+<th style="text-align:center">返回特殊值</th>
+<th style="text-align:center">一直阻塞</th>
+<th style="text-align:center">超时退出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>插入方法(e)</td>
+<td style="text-align:center">add(e)</td>
+<td style="text-align:center">offer(e)</td>
+<td style="text-align:center">put(e)</td>
+<td style="text-align:center">offer(e,time,unit)</td>
+</tr>
+<tr>
+<td>移除方法</td>
+<td style="text-align:center">remove()</td>
+<td style="text-align:center">poll()</td>
+<td style="text-align:center">take()</td>
+<td style="text-align:center">poll(time,unit)</td>
+</tr>
+<tr>
+<td>检查方法</td>
+<td style="text-align:center">element()</td>
+<td style="text-align:center">peek()</td>
+<td style="text-align:center">不可用</td>
+<td style="text-align:center">不可用</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>抛出异常</strong>：是指当阻塞队列满时候，再往队列里插入元素，会抛出IllegalStateException(“Queue full”)异常。当队列为空时，从队列里获取元素时会抛出NoSuchElementException异常 。</li>
+<li><strong>返回特殊值</strong>：插入方法会返回是否成功，成功则返回true。移除方法，则是从队列里拿出一个元素，如果没有则返回null</li>
+<li><strong>一直阻塞</strong>：当阻塞队列满时，如果生产者线程往队列里put元素，队列会一直阻塞生产者线程，直到拿到数据，或者响应中断退出。当队列空时，消费者线程试图从队列里take元素，队列也会阻塞消费者线程，直到队列可用。</li>
+<li><p><strong>超时退出</strong>：当阻塞队列满时，队列会阻塞生产者线程一段时间，如果超过一定的时间，生产者线程就会退出。</p>
+<p>  放入数据：<br>  　　offer(anObject):表示如果可能的话,将anObject加到BlockingQueue里,即如果BlockingQueue可以容纳,<br>  　　　　则返回true,否则返回false.（本方法不阻塞当前执行方法的线程）<br>  　　offer(E o, long timeout, TimeUnit unit),可以设定等待的时间，如果在指定的时间内，还不能往队列中<br>  　　　　加入BlockingQueue，则返回失败。<br>  　　put(anObject):把anObject加到BlockingQueue里,如果BlockQueue没有空间,则调用此方法的线程被阻断<br>  　　　　直到BlockingQueue里面有空间再继续.<br>  获取数据：<br>  　　poll(time):取走BlockingQueue里排在首位的对象,若不能立即取出,则可以等time参数规定的时间,<br>  　　　　取不到时返回null;<br>  　　poll(long timeout, TimeUnit unit)：从BlockingQueue取出一个队首的对象，如果在指定时间内，<br>  　　　　队列一旦有数据可取，则立即返回队列中的数据。否则知道时间超时还没有数据可取，返回失败。<br>  　　take():取走BlockingQueue里排在首位的对象,若BlockingQueue为空,阻断进入等待状态直到<br>  　　　　BlockingQueue有新的数据被加入;<br>  　　drainTo():一次性从BlockingQueue获取所有可用的数据对象（还可以指定获取数据的个数），<br>  　　　　通过该方法，可以提升获取数据效率；不需要多次分批加锁或释放锁。</p>
+</li>
+</ul>
+<h3 id="LinkedBlockingQueue和ArrayBlockingQueue对比"><a href="#LinkedBlockingQueue和ArrayBlockingQueue对比" class="headerlink" title="LinkedBlockingQueue和ArrayBlockingQueue对比"></a>LinkedBlockingQueue和ArrayBlockingQueue对比</h3><p><code>linkedBlockingQueue</code>和<code>ArrayBlockingQueue</code>比较：</p>
+<pre><code>LinkedBlockingQueue是BlockingQueue的一种使用Link List的实现，它对头和尾（取和添加
+操作）采用两把不同的锁，相对于ArrayBlockingQueue提高了吞吐量。它也是一种阻塞型的容
+器，适合于实现“消费者生产者”模式。
+ArrayBlockingQueue是对BlockingQueue的一个数组实现，它使用一把全局的锁并行对queue的
+读写操作，同时使用两个Condition阻塞容量为空时的取操作和容量满时的写操作。
+正因为LinkedBlockingQueue使用两个独立的锁控制数据同步，所以可以使存取两种操作并行执
+行，从而提高并发效率。而ArrayBlockingQueue使用一把锁，造成在存取两种操作争抢一把锁，
+而使得性能相对低下。LinkedBlockingQueue可以不设置队列容量，默认Integer.MAX_VALUE
+其容易造成内存溢出，一般要设置其值。
+</code></pre><h3 id="ArrayBlockingQueue"><a href="#ArrayBlockingQueue" class="headerlink" title="ArrayBlockingQueue"></a>ArrayBlockingQueue</h3><p>   ArrayBlockingQueue一个由数组支持的<strong>有界的阻塞队列</strong>。此队列按 FIFO（先进先出）原则对元素进行排序。队列的头部 是在队列中存在时间最长的元素。队列的尾部 是在队列中存在时间最短的元素。新元素插入到队列的尾部，队列获取操作则是从队列头部开始获得元素。这是一个典型的“有界缓存区”，固定大小的数组在其中保持生产者插入的元素和使用者提取的元素。一旦创建了这样的缓存区，就不能再增加其容量。试图向已满队列中放入元素会导致操作受阻塞；试图从空队列中提取元素将导致类似阻塞。</p>
+<blockquote>
+<p>源码</p>
+</blockquote>
+<pre><code>~~ java 基于 reetranLock锁 和 condition等待通知 实现
+
+public class ArrayBlockingQueue&lt;E&gt; extends AbstractQueue&lt;E&gt;
+    implements BlockingQueue&lt;E&gt;, java.io.Serializable {
+
+/** The queued items */
+final Object[] items;
+
+/** items index for next take, poll, peek or remove */
+int takeIndex;
+
+/** items index for next put, offer, or add */
+int putIndex;
+
+/** Number of elements in the queue */
+int count;
+
+/** Main lock guarding all access 用于阻塞其他线程 */
+final ReentrantLock lock;
+/** Condition for waiting takes   用于唤醒消费 */
+private final Condition notEmpty;
+/** Condition for waiting puts    用于唤醒生产 */
+private final Condition notFull ;
+
+/**
+ * offer和poll一对，有返回值
+ *
+ * @throws NullPointerException if the specified element is null
+ */
+public boolean offer(E e) {
+    checkNotNull(e);
+    final ReentrantLock lock = this.lock;
+    lock.lock();
+    try {
+        if (count == items.length)
+            return false;
+        else {
+            insert(e);//如果queue未满，添加元素，通知消费
+            return true;
+        }
+    } finally {
+        lock.unlock();
+    }
+}
+
+ public E poll() {
+    final ReentrantLock lock = this.lock;
+    lock.lock();
+    try {
+        return (count == 0) ? null : extract();
+    } finally {
+        lock.unlock();
+    }
+}
+
+/**
+ *  put和take一对
+ */
+public void put(E e) throws InterruptedException {
+    checkNotNull(e);
+    final ReentrantLock lock = this.lock;
+    lock.lockInterruptibly();    //可中断锁
+    try {
+        while (count == items.length)
+            notFull.await();    //如果queue满了，就会阻塞&quot;放&quot;的过程
+        insert(e);
+    } finally {
+        lock.unlock();
+    }
+}
+
+public E take() throws InterruptedException {
+    final ReentrantLock lock = this.lock;
+    lock.lockInterruptibly();
+    try {
+        while (count == 0)
+            notEmpty.await();    //如果queue为空，就会阻塞&quot;取&quot;的过程
+        return extract();        //queue不为空，就释放notEmpty
+    } finally {
+        lock.unlock();
+    }
+}
+
+/**
+ * Inserts element at current put position, advances, and signals.
+ * Call only when holding lock.
+ */
+private void insert(E x) {
+    items[putIndex] = x;
+    putIndex = inc(putIndex);
+    ++count;
+    notEmpty.signal();            // 等待生产&quot;放&quot;入元素，唤醒 队列为空 的阻塞线程进行消费
+}
+
+ /**
+ * Extracts element at current take position, advances, and signals.
+ * Call only when holding lock.
+ */
+private E extract() {
+    final Object[] items = this.items;
+    E x = this.&lt;E&gt;cast(items[takeIndex]);
+    items[takeIndex] = null;
+    takeIndex = inc(takeIndex);
+    --count;
+    notFull.signal();            // 等待消费&quot;取&quot;出元素，唤醒 队列为满 的阻塞线程进行生产
+    return x;
+}
+</code></pre><h3 id="LinkedBlockingQueue"><a href="#LinkedBlockingQueue" class="headerlink" title="LinkedBlockingQueue"></a>LinkedBlockingQueue</h3><p>基于链表的阻塞队列，同ArrayListBlockingQueue类似，其内部也维持着一个数据缓冲队列（该队列由一个链表构成），当生产者往队列中放入一个数据时，队列会从生产者手中获取数据，并缓存在队列内部，而生产者立即返回；只有当队列缓冲区达到<strong>最大值缓存容量</strong>时（LinkedBlockingQueue可以通过构造函数指定该值），才会阻塞生产者队列，直到消费者从队列中消费掉一份数据，生产者线程会被唤醒，反之对于消费者这端的处理也基于同样的原理。而LinkedBlockingQueue之所以能够高效的处理并发数据，还因为其对于生产者端和消费者端分别采用了独立的锁来控制数据同步，这也意味着在高并发的情况下生产者和消费者可以并行地操作队列中的数据，以此来提高整个队列的并发性能。<br>作为开发者，<strong>我们需要注意的是，如果构造一个LinkedBlockingQueue对象，而没有指定其容量大小，LinkedBlockingQueue会默认一个类似无限大小的容量（Integer.MAX_VALUE），这样的话，如果生产者的速度一旦大于消费者的速度，也许还没有等到队列满阻塞产生，系统内存就有可能已被消耗殆尽了。</strong>（如果 生产者速度&gt;消费速度 ，队列会持续增大，会撑爆jvm内存）</p>
+<blockquote>
+<p>源码</p>
+</blockquote>
+<pre><code>public class LinkedBlockingQueue&lt;E&gt; extends AbstractQueue&lt;E&gt;
+    implements BlockingQueue&lt;E&gt;, java.io.Serializable {
+
+    /**
+     * Linked list node class，内部类：定义一个节点
+     */
+    static class Node&lt;E&gt; {
+        E item;
+
+        /**
+         * One of:
+         * - the real successor Node
+         * - this Node, meaning the successor is head.next
+         * - null, meaning there is no successor (this is the last node)
+         */
+        Node&lt;E&gt; next;
+
+        Node(E x) { item = x; }
+    }
+
+    /** The capacity bound, or Integer.MAX_VALUE if none */
+    private final int capacity;
+
+    /** Current number of elements */
+    private final AtomicInteger count = new AtomicInteger(0);
+
+    /**
+     * Head of linked list.
+     * Invariant: head.item == null
+     */
+    private transient Node&lt;E&gt; head;
+
+    /**
+     * Tail of linked list.
+     * Invariant: last.next == null
+     */
+    private transient Node&lt;E&gt; last;
+
+    /** Lock held by take, poll, etc &quot;取&quot;锁 */
+    private final ReentrantLock takeLock = new ReentrantLock();
+
+    /** Wait queue for waiting takes  消费者阻塞通知 */
+    private final Condition notEmpty = takeLock.newCondition();
+
+    /** Lock held by put, offer, etc  &quot;放&quot;锁 */
+    private final ReentrantLock putLock = new ReentrantLock();
+
+    /** Wait queue for waiting puts  生产者阻塞通知 */
+    private final Condition notFull = putLock.newCondition();
+
+    /**
+    *   put和take一套，分别用独立锁，比arraylistBlockingQueue并发性能更好
+    */
+    public void put(E e) throws InterruptedException {
+    if (e == null) throw new NullPointerException();
+    // Note: convention in all put/take/etc is to preset local var
+    // holding count negative to indicate failure unless set.
+    int c = -1;
+    Node&lt;E&gt; node = new Node(e);
+    final ReentrantLock putLock = this.putLock;
+    final AtomicInteger count = this.count;
+    putLock.lockInterruptibly();
+    try {
+        /*
+         * Note that count is used in wait guard even though it is
+         * not protected by lock. This works because count can
+         * only decrease at this point (all other puts are shut
+         * out by lock), and we (or some other waiting put) are
+         * signalled if it ever changes from capacity. Similarly
+         * for all other uses of count in other wait guards.
+         */
+        while (count.get() == capacity) {
+            notFull.await();
+        }
+        enqueue(node);
+        c = count.getAndIncrement();
+        if (c + 1 &lt; capacity)
+            notFull.signal();
+    } finally {
+        putLock.unlock();
+    }
+    if (c == 0)
+        signalNotEmpty();
+}
+
+public E take() throws InterruptedException {
+    E x;
+    int c = -1;
+    final AtomicInteger count = this.count;
+    final ReentrantLock takeLock = this.takeLock;
+    takeLock.lockInterruptibly();
+    try {
+        while (count.get() == 0) {
+            notEmpty.await();
+        }
+        x = dequeue();
+        c = count.getAndDecrement();
+        if (c &gt; 1)
+            notEmpty.signal();
+    } finally {
+        takeLock.unlock();
+    }
+    if (c == capacity)
+        signalNotFull();
+    return x;
+}
+
+/**
+*  offer和poll是一对
+*/
+public boolean offer(E e) {
+    if (e == null) throw new NullPointerException();
+    final AtomicInteger count = this.count;
+    if (count.get() == capacity)
+        return false;
+    int c = -1;
+    Node&lt;E&gt; node = new Node(e);
+    final ReentrantLock putLock = this.putLock;
+    putLock.lock();
+    try {
+        if (count.get() &lt; capacity) {
+            enqueue(node);
+            c = count.getAndIncrement();
+            if (c + 1 &lt; capacity)
+                notFull.signal();
+        }
+    } finally {
+        putLock.unlock();
+    }
+    if (c == 0)
+        signalNotEmpty();
+    return c &gt;= 0;
+}
+
+ public E poll() {
+    final AtomicInteger count = this.count;
+    if (count.get() == 0)
+        return null;
+    E x = null;
+    int c = -1;
+    final ReentrantLock takeLock = this.takeLock;
+    takeLock.lock();
+    try {
+        if (count.get() &gt; 0) {
+            x = dequeue();
+            c = count.getAndDecrement();
+            if (c &gt; 1)
+                notEmpty.signal();
+        }
+    } finally {
+        takeLock.unlock();
+    }
+    if (c == capacity)
+        signalNotFull();
+    return x;
+}
+
+/**
+ * Signals a waiting take. Called only from put/offer (which do not
+ * otherwise ordinarily lock takeLock.)
+ */
+private void signalNotEmpty() {
+    final ReentrantLock takeLock = this.takeLock;
+    takeLock.lock();
+    try {
+        notEmpty.signal();
+    } finally {
+        takeLock.unlock();
+    }
+}
+
+/**
+ * Signals a waiting put. Called only from take/poll.
+ */
+private void signalNotFull() {
+    final ReentrantLock putLock = this.putLock;
+    putLock.lock();
+    try {
+        notFull.signal();
+    } finally {
+        putLock.unlock();
+    }
+}
+</code></pre><h3 id="DelayQueue"><a href="#DelayQueue" class="headerlink" title="DelayQueue"></a>DelayQueue</h3><p>DelayQueue：是一个支持延时获取元素的使用优先级队列的实现的<strong>无界阻塞队列</strong>。队列中的元素必须实现Delayed接口和Comparable接口，也就是说DelayQueue里面的元素必须有public int compareTo( T o)和long getDelay(TimeUnit unit)方法存在，在创建元素时可以指定多久才能从队列中获取当前元素。只有在延迟期满时才能从队列中提取元素。我们可以将DelayQueue运用在以下应用场景：<br><strong>缓存系统的设计</strong>：可以用DelayQueue保存缓存元素的有效期，使用一个线程循环查询DelayQueue，一旦能从DelayQueue中获取元素时，表示缓存有效期到了。<br><strong>定时任务调度</strong>。使用DelayQueue保存当天将会执行的任务和执行时间，一旦从DelayQueue中获取到任务就开始执行，从比如TimerQueue就是使用DelayQueue实现的。</p>
+<h3 id="PriorityBlockingQueue"><a href="#PriorityBlockingQueue" class="headerlink" title="PriorityBlockingQueue"></a>PriorityBlockingQueue</h3><p>PriorityBlockingQueue ：一个支持优先级排序的<strong>无界阻塞队列</strong>（优先级的判断通过构造函数传入的Compator对象来决定），但需要注意的是<strong>PriorityBlockingQueue并不会阻塞数据生产者，而只会在没有可消费的数据时，阻塞数据的消费者</strong>。因此使用的时候要特别注意，生产者生产数据的速度绝对不能快于消费者消费数据的速度，否则时间一长，会最终耗尽所有的可用堆内存空间。在实现PriorityBlockingQueue时，内部控制线程同步的锁采用的是公平锁。</p>
+<h3 id="SynchronousQueue"><a href="#SynchronousQueue" class="headerlink" title="SynchronousQueue"></a>SynchronousQueue</h3><p>一种无缓冲的等待队列，类似于无中介的直接交易，有点像原始社会中的生产者和消费者，生产者拿着产品去集市销售给产品的最终消费者，而消费者必须亲自去集市找到所要商品的直接生产者，如果一方没有找到合适的目标，那么对不起，大家都在集市等待。相对于有缓冲的BlockingQueue来说，少了一个中间经销商的环节（缓冲区），如果有经销商，生产者直接把产品批发给经销商，而无需在意经销商最终会将这些产品卖给那些消费者，由于经销商可以库存一部分商品，因此相对于直接交易模式，总体来说采用中间经销商的模式会吞吐量高一些（可以批量买卖）；但另一方面，又因为经销商的引入，使得产品从生产者到消费者中间增加了额外的交易环节，单个产品的及时响应性能可能会降低。<br>声明一个SynchronousQueue有两种不同的方式，它们之间有着不太一样的行为。公平模式和非公平模式的区别:<br>如果采用公平模式：SynchronousQueue会采用公平锁，并配合一个FIFO队列来阻塞多余的生产者和消费者，从而体系整体的公平策略；<br>但如果是非公平模式（SynchronousQueue默认）：SynchronousQueue采用非公平锁，同时配合一个LIFO队列来管理多余的生产者和消费者，而后一种模式，如果生产者和消费者的处理速度有差距，则很容易出现饥渴的情况，即可能有某些生产者或者是消费者的数据永远都得不到处理。</p>
+<h2 id="线程池"><a href="#线程池" class="headerlink" title="线程池"></a>线程池</h2><h3 id="Excutor框架介绍"><a href="#Excutor框架介绍" class="headerlink" title="Excutor框架介绍"></a>Excutor框架介绍</h3><blockquote>
+<p>任务的两级调度模型</p>
+</blockquote>
+<p><img src="http://i0.itc.cn/20160906/aac_74bb0904_12b6_7e23_00f8_d3d23eaabee0_3.png" alt=""></p>
+<ul>
+<li>任务：</li>
+<li>任务的执行:包括任务执行机制的核心接口Executor和ExecutorService,Executor框架有两个关键类实现了ExecutorService接口(<strong>ThreadPoolExecutor、ScheduledThreadPoolExecutor</strong>)</li>
+<li>异步计算的结果：包括接口future和实现Futrue接口的FutureTask类</li>
+</ul>
+<blockquote>
+<p>类图：<br><img src="http://i0.itc.cn/20160906/aac_74bb0904_12b6_7e23_00f8_d3d23eaabee0_4.png" alt=""></p>
+</blockquote>
+<ul>
+<li>Executor:定义的一个借口，它是Executor框架的基础，它将任务的提交与任务的执行分离开来。</li>
+<li>ThreadPoolExecutor:线程池的核心实现类，用来执行被提交的任务。</li>
+<li>ScheduledThreadPoolExecutor:是线程池的另外一个实现类，可以在给定延迟后运行命令或者定期执行命令，比Timer更灵活和强大。</li>
+<li>Future/FutureTask ：一个是异步的接口，另外是一个异步的实现类，代表异步执行任务的方式。</li>
+<li>Runnable/Callable:都是接口，都可以被ThreadPoolExecutor或ScheduledThreadPoolExecutor作为任务去执行。</li>
+</ul>
+<blockquote>
+<p>Executor使用示意图</p>
+</blockquote>
+<p><img src="http://i1.itc.cn/20160906/aac_74bb0904_12b6_7e23_00f8_d3d23eaabee0_5.png" alt=""></p>
+<p>1).主线程首先创建实现Runnable或Callable接口的任务对象</p>
+<p>2).工具类Executors可以把Runnable对象封装为Callable对象</p>
+<pre><code>public static &lt;T&gt; Callable&lt;T&gt; callable(Runnable task, T result) {
+    if (task == null)
+        throw new NullPointerException();
+    return new RunnableAdapter&lt;T&gt;(task, result);
+}
+
+public static Callable&lt;Object&gt; callable(Runnable task) {
+    if (task == null)
+        throw new NullPointerException();
+    return new RunnableAdapter&lt;Object&gt;(task, null);
+}
+</code></pre><p>3).也可以直接把Runnable对象直接交给ExecutorService执行。</p>
+<pre><code>//直接实现Executor接口的execute方法
+void execute(Runnable command);
+</code></pre><p>4).页可以把Runnable对象或Callable对象提交给ExecutorService执行</p>
+<pre><code>都是基于异步的实现：
+&lt;T&gt; Future&lt;T&gt; submit(Callable&lt;T&gt; task);
+&lt;T&gt; Future&lt;T&gt; submit(Runnable task, T result);
+Future&lt;?&gt; submit(Runnable task);    
+</code></pre><ul>
+<li>Executor/ExecutorService接口</li>
+</ul>
+<p><img src="http://i1.itc.cn/20160906/aac_bc4f391d_1e59_2cfb_7834_ab6a6b94d2f8_1.png" alt=""><br><img src="http://i1.itc.cn/20160906/aac_138a14d1_0623_8405_1f78_2367ea86ed24_1.png" alt=""></p>
+<ul>
+<li>Runnable接口</li>
+</ul>
+<p><img src="http://i1.itc.cn/20160906/aac_138a14d1_0623_8405_1f78_2367ea86ed24_3.png" alt=""></p>
+<ul>
+<li>Future/Callable接口</li>
+</ul>
+<p><img src="http://i2.itc.cn/20160906/aac_138a14d1_0623_8405_1f78_2367ea86ed24_4.png" alt=""></p>
+<p><img src="http://i2.itc.cn/20160906/aac_138a14d1_0623_8405_1f78_2367ea86ed24_2.png" alt=""></p>
+<p>源码可以逐一解读，了解设计和实现方式。</p>
+<h3 id="ThreadPoolExecutor实现"><a href="#ThreadPoolExecutor实现" class="headerlink" title="ThreadPoolExecutor实现"></a>ThreadPoolExecutor实现</h3><p>线程池模型图：</p>
+<p><img src="http://i2.itc.cn/20160630/aac_3fe63360_2218_b4e0_56d4_89a2c3216c58_2.png" alt="正常步骤"></p>
+<blockquote>
+<p>构造方法：</p>
+</blockquote>
+<pre><code>/**
+ * Creates a new {@code ThreadPoolExecutor} with the given initial
+ * parameters.
+ *
+ * @param corePoolSize: the number of threads to keep in the pool, even
+ *        if they are idle, unless {@code allowCoreThreadTimeOut} is set
+ *        【核心线程池的大小】
+ * @param maximumPoolSize the maximum number of threads to allow in the
+ *        pool【最大线程池大小】
+ * @param keepAliveTime when the number of threads is greater than
+ *        the core, this is the maximum time that excess idle threads
+ *        will wait for new tasks before terminating.【线程空闲时存活时间】
+ * @param unit the time unit for the {@code keepAliveTime} argument【时间单位】
+ * @param workQueue the queue to use for holding tasks before they are
+ *        executed.  This queue will hold only the {@code Runnable}
+ *        tasks submitted by the {@code execute} method.【用来保存任务的工作队列】
+ * @param threadFactory the factory to use when the executor
+ *        creates a new thread【定义线程池相关信息】
+ * @param handler the handler to use when execution is blocked
+ *        because the thread bounds and queue capacities are reached
+ *        【当线程池关闭或已经达到饱和时，所采用的拒绝策略】
+ * @throws IllegalArgumentException if one of the following holds:&lt;br&gt;
+ *         {@code corePoolSize &lt; 0}&lt;br&gt;      
+ *         {@code keepAliveTime &lt; 0}&lt;br&gt; 
+ *         {@code maximumPoolSize &lt;= 0}&lt;br&gt;
+ *         {@code maximumPoolSize &lt; corePoolSize}
+ * @throws NullPointerException if {@code workQueue}
+ *         or {@code threadFactory} or {@code handler} is null
+ */
+public ThreadPoolExecutor(int corePoolSize,
+                          int maximumPoolSize,
+                          long keepAliveTime,
+                          TimeUnit unit,
+                          BlockingQueue&lt;Runnable&gt; workQueue,
+                          ThreadFactory threadFactory,
+                          RejectedExecutionHandler handler) {
+    if (corePoolSize &lt; 0 ||
+        maximumPoolSize &lt;= 0 ||
+        maximumPoolSize &lt; corePoolSize ||
+        keepAliveTime &lt; 0)
+        throw new IllegalArgumentException();
+    if (workQueue == null || threadFactory == null || handler == null)
+        throw new NullPointerException();
+    this.corePoolSize = corePoolSize;
+    this.maximumPoolSize = maximumPoolSize;
+    this.workQueue = workQueue;
+    this.keepAliveTime = unit.toNanos(keepAliveTime);
+    this.threadFactory = threadFactory;
+    this.handler = handler;
+}
+</code></pre><blockquote>
+<p>使用方式：</p>
+</blockquote>
+<p>通常使用工厂类Executors来创建。创建类型以下三种：</p>
+<ul>
+<li><p>FixedThreadPool:创建固定线程数的线程池，适合于限制当前线程数量的应用场景，适用于负载比较重的服务器。</p>
+<p>  <img src="http://i0.itc.cn/20160906/aac_bc4f391d_1e59_2cfb_7834_ab6a6b94d2f8_2.png" alt=""></p>
+<pre><code>1).如果当前运行的线程数少于corePoolSize,怎创建新线程来执行任务。
+2).在线程池完成预热之后(currentThreads==corePoolSize),则将任务加入LinkedBlockingQueue.
+3).线程执行完1中的任务后，会在循环中反复从LinkedBlockingQueue获取任务来执行。
+
+注：FixedThreadPool默认使用无界队列LinkedBlockingQueue，队列容量为Integer.MAX_VALUE 2的31次方,不会走默认拒绝策略。
+</code></pre></li>
+<li><p>SingleThreadPool:创建使用单个线程的线程池，适用于保证顺序的执行各个任务</p>
+<p>  <img src="http://i1.itc.cn/20160906/aac_bc4f391d_1e59_2cfb_7834_ab6a6b94d2f8_3.png" alt=""></p>
+<pre><code>注:默认也是使用无界队列，队列容量为Integer.MAX_VALUE 2的31次方，线程池核心数量和最大数量为1。
+</code></pre></li>
+<li><p>CachedThreadPool:创建一个无大小边界的线程池，适用于执行很多短期的异步任务小程序，适用于负载较轻的服务器。</p>
+<p>  <img src="http://i3.itc.cn/20160906/aac_bc4f391d_1e59_2cfb_7834_ab6a6b94d2f8_4.png" alt=""></p>
+<p>  1).首先执行SynchronousQueue.offer(Runnable task),如果当前maxPoolsize中有空闲线程执行SynchronousQueue.poll(KeepaliveTime,Timeunit),那么配对成功，主线程吧任务交给空闲线程去执行，否则执行步骤2).<br>  2）.当初始MaxPoolSize为空，没有空闲线程，这种情况threadPool会取创建一个新线程执行任务。<br>  3).在步骤2)中新创建的线程将任务执行完后，会执行SynchronousQueue.poll(KeepaliveTime,Timeunit)默认是等待60s,如果60s以内 提交了新任务，则由该线程继续执行，否则改空闲线程将终止。</p>
+</li>
+</ul>
+<pre><code>注：CachedThreadPool的corePoolSize设置为0，即corePool为空；maxPoolSize设置
+    为Integer.MAX_VALUE,即是无界的，keepalive设置60s,空闲线程超过60s将会被终
+    止。CachedThreadPool使用的是没有容量的SynchronousQueue,存在一个问题：如果
+    主线程提交任务的速度快于处理的速度，会使该线程池不断创建新线程。极端情况下回耗
+    尽操作系统的cpu和内存资源。
+</code></pre><blockquote>
+<p>代码实现：</p>
+</blockquote>
+<pre><code>//1.创建线程数threads=10的固定线程池
+ExecutorService fixThreadPool = Executors.newFixedThreadPool(10);
+//内部实现
+public static ExecutorService newFixedThreadPool(int nThreads) {
+    return new ThreadPoolExecutor(nThreads, nThreads,
+                                  0L, TimeUnit.MILLISECONDS,
+                                  new LinkedBlockingQueue&lt;Runnable&gt;());
+}
+
+//2.创建单个线程的线程池
+ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
+//内部实现
+public static ExecutorService newSingleThreadExecutor() {
+    return new FinalizableDelegatedExecutorService
+        (new ThreadPoolExecutor(1, 1,
+                            0L, TimeUnit.MILLISECONDS,
+                            new LinkedBlockingQueue&lt;Runnable&gt;()));
+   }
+
+//3.创建无边界大小的线程池
+ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
+//内部实现
+public static ExecutorService newCachedThreadPool() {
+    return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                  60L, TimeUnit.SECONDS,
+                                  new SynchronousQueue&lt;Runnable&gt;());
+}
+
+//4.1 方式1：  调用execute 执行runnable任务
+threadPoolExecutor.execute(new Runnable() {
+    @Override public void run() {
+        System.out.println(&quot;execute a new task&quot;);
+    }
+});
+//4.2 方式2： 调用submit方法提交runnable任务
+Future&lt;?&gt; futureTask = threadPoolExecutor.submit(new Runnable() {
+    @Override public void run() {
+        System.out.println(&quot;submit a new task&quot;);
+    }
+});
+//System.out.println(&quot;future runnable:&quot;+futureTask.get());//调用返回
+//4.3 方式3： 调用submit方法提交callable
+Future&lt;Object&gt; cFuture = threadPoolExecutor.submit(new Callable&lt;Object&gt;() {
+    //回调函数
+    @Override public Object call() throws Exception {
+        return 1;
+    }
+});
+System.out.println(&quot;future callable:&quot;+cFuture.get());
+</code></pre><blockquote>
+<p>饱和策略的默认四种实现:</p>
+</blockquote>
+<ul>
+<li>AbortPolicy:直接抛出异常</li>
+<li>CallerRunsPolicy:只用调用者所在线程来运行任务</li>
+<li>DiscardOldestPolicy:丢弃队列里的最近的一个任务，并执行当前任务</li>
+<li><p>DiscardPolicy:不处理直接丢弃掉。</p>
+<p>  饱和策略源码：</p>
+<pre><code>public static class CallerRunsPolicy implements RejectedExecutionHandler {
+    /**
+     * Creates a {@code CallerRunsPolicy}.
+     */
+    public CallerRunsPolicy() { }
+
+    /**
+     * Executes task r in the caller&apos;s thread, unless the executor
+     * has been shut down, in which case the task is discarded.
+     *
+     * @param r the runnable task requested to be executed
+     * @param e the executor attempting to execute this task
+     */
+    public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+        // 用当前线程来执行调用任务
+        if (!e.isShutdown()) {
+            r.run();
+        }
+    }
+}
+
+/**
+ * A handler for rejected tasks that throws a
+ * {@code RejectedExecutionException}.
+ */
+public static class AbortPolicy implements RejectedExecutionHandler {
+    /**
+     * Creates an {@code AbortPolicy}.
+     */
+    public AbortPolicy() { }
+
+    /**
+     * Always throws RejectedExecutionException.
+     *
+     * @param r the runnable task requested to be executed
+     * @param e the executor attempting to execute this task
+     * @throws RejectedExecutionException always.
+     */
+    public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+        // 直接抛出拒绝的异常                
+        throw new RejectedExecutionException(&quot;Task &quot; + r.toString() +
+                                             &quot; rejected from &quot; +
+                                             e.toString());
+    }
+}
+
+/**
+ * A handler for rejected tasks that silently discards the
+ * rejected task.
+ */
+public static class DiscardPolicy implements RejectedExecutionHandler {
+    /**
+     * Creates a {@code DiscardPolicy}.
+     */
+    public DiscardPolicy() { }
+
+    /**
+     * Does nothing, which has the effect of discarding task r.
+     *
+     * @param r the runnable task requested to be executed
+     * @param e the executor attempting to execute this task
+     */
+    public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+        // 不做任何处理，直接丢弃掉
+    }
+}
+
+/**
+ * A handler for rejected tasks that discards the oldest unhandled
+ * request and then retries {@code execute}, unless the executor
+ * is shut down, in which case the task is discarded.
+ */
+public static class DiscardOldestPolicy implements RejectedExecutionHandler {
+    /**
+     * Creates a {@code DiscardOldestPolicy} for the given executor.
+     */
+    public DiscardOldestPolicy() { }
+
+    /**
+     * Obtains and ignores the next task that the executor
+     * would otherwise execute, if one is immediately available,
+     * and then retries execution of task r, unless the executor
+     * is shut down, in which case task r is instead discarded.
+     *
+     * @param r the runnable task requested to be executed
+     * @param e the executor attempting to execute this task
+     */
+    public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+        // 丢弃队列里最近的一个任务，并执行当前任务
+        if (!e.isShutdown()) {
+            e.getQueue().poll();
+            e.execute(r);
+        }
+    }
+}
+</code></pre></li>
+</ul>
+<h3 id="ScheduledThreadPoolExecutor实现"><a href="#ScheduledThreadPoolExecutor实现" class="headerlink" title="ScheduledThreadPoolExecutor实现"></a>ScheduledThreadPoolExecutor实现</h3><p>执行流程图：<br><img src="http://i3.itc.cn/20160906/aac_93869b23_171e_f5c7_b916_e769d4391ef7_1.png" alt=""></p>
+<p>ScheduledThreadPoolExecutor使用的是DelayQueue,其中DelayQueue是一个无界队列，所以MaxPoolSize没有什么意义，执行任务分两部分：</p>
+<ul>
+<li><p>调用scheduleWithFixedDelay或scheduleAtFixedRate方法 向DelayQueue添加一个延时的任务</p>
+<pre><code>/**
+ * command :执行的任务
+ * initialDelay:开始计时时间
+ * delay:延迟执行时间
+ * unit：时间单位
+ */
+public ScheduledFuture&lt;?&gt; scheduleWithFixedDelay(Runnable command,
+                                             long initialDelay,
+                                             long delay,
+                                             TimeUnit unit) {}
+</code></pre></li>
+<li><p>线程池中线程从DelayQueue中获取SchduledFutureTask,然后执行任务。</p>
+</li>
+<li><p>延时执行 通过future异步机制实现。</p>
+<pre><code>//5.执行定时任务的线程池
+ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(10);
+scheduledThreadPoolExecutor.scheduleWithFixedDelay(new Runnable() {
+    @Override public void run() {
+        System.out.println(&quot;schdule a task&quot;);
+    }
+},2,5,TimeUnit.SECONDS);
+</code></pre></li>
+</ul>
+<h3 id="FutureTask"><a href="#FutureTask" class="headerlink" title="FutureTask"></a>FutureTask</h3><p>FutureTask除了实现Future接口还实现了Runnable接口，因此 既可以交给Executor执行也可以有FutrueTask.run（）去执行。</p>
+<p>FutureTask状态变更：<br><img src="http://i3.itc.cn/20160906/aac_93869b23_171e_f5c7_b916_e769d4391ef7_2.png" alt=""></p>
+<ul>
+<li>当未启动：执行FutureTask.get()会导致调用线程阻塞；执行cancel()将导致任务用于不会被执行；</li>
+<li>已启动状态：执行FutureTask.get()会导致调用线程阻塞；执行cancel(true)将试图中断执行任务线程 ；执行cancel(false)不会对线程产生影响</li>
+<li>已完成状态：执行FutureTask.get()将导致调用线程立即返回结果或者抛出异常；执行cancel（）将返回false.</li>
+</ul>
+<p>FutureTask执行示意图：<br><img src="http://i1.itc.cn/20160906/aac_93869b23_171e_f5c7_b916_e769d4391ef7_3.png" alt=""></p>
+<h2 id="JDK相关类"><a href="#JDK相关类" class="headerlink" title="JDK相关类"></a>JDK相关类</h2><h3 id="Lock"><a href="#Lock" class="headerlink" title="Lock"></a>Lock</h3><pre><code>Lock (java.util.concurrent.locks)
+    ReadLock in ReentrantReadWriteLock (java.util.concurrent.locks)
+    ReentrantLock (java.util.concurrent.locks)
+    WriteLock in ReentrantReadWriteLock (java.util.concurrent.locks)
+
+
+成员方法：
+    lock()
+    lockInterruptibly()
+    tryLock()
+    tryLock()
+    unlock()
+    newCondition()
+</code></pre><h3 id="LockSupport"><a href="#LockSupport" class="headerlink" title="LockSupport"></a>LockSupport</h3><p> lockSupport工具静态方法:</p>
+<pre><code>unpark(Thread) 
+park(Object)
+parkNanos(Object, long)
+parkUntil(Object, long)
+park()
+parkNanos(long)
+parkUntil(long) 
+</code></pre><p><img src="http://i1.itc.cn/20160706/aac_36f1f1d8_7130_1bf2_50f2_53af4dc6c963_3.png" alt="Locksupport阻塞和唤醒方法"></p>
+<h3 id="ThreadLocal"><a href="#ThreadLocal" class="headerlink" title="ThreadLocal"></a>ThreadLocal</h3><p>ThreadLocal，很多地方叫做线程本地变量，也有些地方叫做线程本地存储，其实意思差不多。可能很多朋友都知道ThreadLocal为变量在每个线程中都创建了一个副本，那么每个线程可以访问自己内部的副本变量。</p>
+<blockquote>
+<p>数据结构：</p>
+</blockquote>
+<p>通过其内部类ThreadLocalMap 作为其存储结构，类似Map的数据结构存储 键-值 对。</p>
+<p>~~ java</p>
+<pre><code> //Thread持有THreadLocals的引用
+ public class Thread implements Runnable {
+    ThreadLocal.ThreadLocalMap threadLocals = null;
+ }
+
+// ThreadLocal
+ public class ThreadLocal&lt;T&gt; {
+     static class ThreadLocalMap {
+
+        private Entry[] table;
+
+        static class Entry extends WeakReference&lt;ThreadLocal&gt; {
+                /** The value associated with this ThreadLocal. */
+                Object value;
+
+                Entry(ThreadLocal k, Object v) {
+                    super(k);
+                    value = v;
+                }
+        }
+
+        //构造方法
+        ThreadLocalMap(ThreadLocal firstKey, Object firstValue) {
+                table = new Entry[INITIAL_CAPACITY];
+                int i = firstKey.threadLocalHashCode &amp; (INITIAL_CAPACITY - 1);
+                table[i] = new Entry(firstKey, firstValue);
+                size = 1;
+                setThreshold(INITIAL_CAPACITY);
+        }
+    }
+}
+</code></pre><blockquote>
+<p>ThreadLocal类提供的几个方法:</p>
+</blockquote>
+<pre><code>public T get() { }
+public void set(T value) { }
+public void remove() { }
+protected T initialValue() { }  //懒加载
+</code></pre><p>get()方法是用来获取ThreadLocal在当前线程中保存的变量副本，set()用来设置当前线程中变量的副本，remove()用来移除当前线程中变量的副本，initialValue()是一个protected方法，一般是用来在使用时进行重写的，它是一个延迟加载方法。</p>
+<p>可参考：<a href="http://www.cnblogs.com/dolphin0520/p/3920407.html" target="_blank" rel="external">http://www.cnblogs.com/dolphin0520/p/3920407.html</a></p>
+<h3 id="Unsafe"><a href="#Unsafe" class="headerlink" title="Unsafe"></a>Unsafe</h3><p>包名：sun.misc.Unsafe</p>
+<p>提供了可以随意查看及修改JVM中运行时的数据结构，尽管这些功能在JAVA开发本身是不适用的，Unsafe是一个用于研究学习HotSpot虚拟机非常棒的工具，因为它不需要调用C++代码，或者需要创建即时分析的工具。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>AQS同步工具对比：<a href="http://yanan0628.iteye.com/blog/2322683" target="_blank" rel="external">http://yanan0628.iteye.com/blog/2322683</a><br>并发编程网：<a href="http://ifeve.com/abstractqueuedsynchronizer-use/" target="_blank" rel="external">http://ifeve.com/abstractqueuedsynchronizer-use/</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/AQS/" rel="tag">#AQS</a>
+          
+            <a href="/tags/JUC/" rel="tag">#JUC</a>
+          
+            <a href="/tags/CAS/" rel="tag">#CAS</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/06/02/(6.1).多线程-并发编程/" rel="next" title="并发编程">
+                <i class="fa fa-chevron-left"></i> 并发编程
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/06/02/(6.3).缓存-redis/" rel="prev" title="redis">
+                redis <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/metor.ico"
+               alt="Pedestrian" />
+          <p class="site-author-name" itemprop="name">Pedestrian</p>
+          <p class="site-description motion-element" itemprop="description">study for goal</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">48</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/yanan0628" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://carlosfu.github.io/" target="_blank" title="fudada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  fudada
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://jolinzhangg.github.io/" target="_blank" title="xiaodada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  xiaodada
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#AQS-AbstactQueuedSynchronizer-队列同步器"><span class="nav-number">1.</span> <span class="nav-text">AQS(AbstactQueuedSynchronizer)队列同步器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AQS概述"><span class="nav-number">1.1.</span> <span class="nav-text">AQS概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AQS的结构"><span class="nav-number">1.2.</span> <span class="nav-text">AQS的结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AQS的重要方法"><span class="nav-number">1.3.</span> <span class="nav-text">AQS的重要方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常用同步工具类-AQS在子类中的使用"><span class="nav-number">1.4.</span> <span class="nav-text">常用同步工具类-AQS在子类中的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#semaphore信号量"><span class="nav-number">1.4.1.</span> <span class="nav-text">semaphore信号量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#countdownlatch闭锁"><span class="nav-number">1.4.2.</span> <span class="nav-text">countdownlatch闭锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ReenTrantlock-可重入锁"><span class="nav-number">1.4.3.</span> <span class="nav-text">ReenTrantlock-可重入锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#FutureTask-异步"><span class="nav-number">1.4.4.</span> <span class="nav-text">FutureTask-异步</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CAS并发原子类"><span class="nav-number">2.</span> <span class="nav-text">CAS并发原子类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#悲观锁和乐观锁"><span class="nav-number">2.1.</span> <span class="nav-text">悲观锁和乐观锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AtomicBoolean"><span class="nav-number">2.2.</span> <span class="nav-text">AtomicBoolean</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常用阻塞队列"><span class="nav-number">3.</span> <span class="nav-text">常用阻塞队列</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#阻塞队列获取-移除API"><span class="nav-number">3.1.</span> <span class="nav-text">阻塞队列获取/移除API</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LinkedBlockingQueue和ArrayBlockingQueue对比"><span class="nav-number">3.2.</span> <span class="nav-text">LinkedBlockingQueue和ArrayBlockingQueue对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ArrayBlockingQueue"><span class="nav-number">3.3.</span> <span class="nav-text">ArrayBlockingQueue</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LinkedBlockingQueue"><span class="nav-number">3.4.</span> <span class="nav-text">LinkedBlockingQueue</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DelayQueue"><span class="nav-number">3.5.</span> <span class="nav-text">DelayQueue</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PriorityBlockingQueue"><span class="nav-number">3.6.</span> <span class="nav-text">PriorityBlockingQueue</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SynchronousQueue"><span class="nav-number">3.7.</span> <span class="nav-text">SynchronousQueue</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池"><span class="nav-number">4.</span> <span class="nav-text">线程池</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Excutor框架介绍"><span class="nav-number">4.1.</span> <span class="nav-text">Excutor框架介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ThreadPoolExecutor实现"><span class="nav-number">4.2.</span> <span class="nav-text">ThreadPoolExecutor实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ScheduledThreadPoolExecutor实现"><span class="nav-number">4.3.</span> <span class="nav-text">ScheduledThreadPoolExecutor实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FutureTask"><span class="nav-number">4.4.</span> <span class="nav-text">FutureTask</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK相关类"><span class="nav-number">5.</span> <span class="nav-text">JDK相关类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Lock"><span class="nav-number">5.1.</span> <span class="nav-text">Lock</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LockSupport"><span class="nav-number">5.2.</span> <span class="nav-text">LockSupport</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ThreadLocal"><span class="nav-number">5.3.</span> <span class="nav-text">ThreadLocal</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Unsafe"><span class="nav-number">5.4.</span> <span class="nav-text">Unsafe</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">5.5.</span> <span class="nav-text">参考</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pedestrian</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+                            
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').mousedown(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+  
+
+  
+
+  
+
+</body>
+</html>

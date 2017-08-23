@@ -1,0 +1,933 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="maven,git,jenkins," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="jenkins自动部署工具官网：https://jenkins.io/index.html 安装部署 当前最新版本-2.7.1.war 下载  jenkins插件列表 查看   服务启动java -jar启动脚本启动liunx后台进程： #!/bin/bash echo -e &amp;quot;Starting the jenkins ...\c&amp;quot;  # 可配置JMV_OPTS,JMX_OPT">
+<meta name="keywords" content="maven,git,jenkins">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jenkins的安装使用">
+<meta property="og:url" content="/2016/02/04/(2.5).集成工具-jenkins的安装使用/index.html">
+<meta property="og:site_name" content="Meteor">
+<meta property="og:description" content="jenkins自动部署工具官网：https://jenkins.io/index.html 安装部署 当前最新版本-2.7.1.war 下载  jenkins插件列表 查看   服务启动java -jar启动脚本启动liunx后台进程： #!/bin/bash echo -e &amp;quot;Starting the jenkins ...\c&amp;quot;  # 可配置JMV_OPTS,JMX_OPT">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://i0.itc.cn/20160801/aac_7c06373e_9dcf_8bb9_650e_a8e0bd67f016_3.png">
+<meta property="og:image" content="http://i3.itc.cn/20160801/aac_7c06373e_9dcf_8bb9_650e_a8e0bd67f016_1.png">
+<meta property="og:image" content="http://i2.itc.cn/20160801/aac_7c06373e_9dcf_8bb9_650e_a8e0bd67f016_2.png">
+<meta property="og:image" content="http://i3.itc.cn/20160801/aac_7c06373e_9dcf_8bb9_650e_a8e0bd67f016_4.png">
+<meta property="og:image" content="http://i2.itc.cn/20160801/aac_2f04e178_10bf_64e9_d33a_bdd54871bac5_2.png">
+<meta property="og:image" content="http://i1.itc.cn/20160801/aac_2f04e178_10bf_64e9_d33a_bdd54871bac5_3.png">
+<meta property="og:image" content="http://i0.itc.cn/20160801/aac_2f04e178_10bf_64e9_d33a_bdd54871bac5_4.png">
+<meta property="og:image" content="http://i3.itc.cn/20160801/aac_2f04e178_10bf_64e9_d33a_bdd54871bac5_1.png">
+<meta property="og:image" content="http://i0.itc.cn/20160801/aac_2f04e178_10bf_64e9_d33a_bdd54871bac5_4.png">
+<meta property="og:image" content="http://i2.itc.cn/20160801/aac_3750d2c4_9c09_ac0c_443e_3d1c4a54b6f9_2.png">
+<meta property="og:image" content="http://i2.itc.cn/20160801/aac_3750d2c4_9c09_ac0c_443e_3d1c4a54b6f9_1.png">
+<meta property="og:image" content="http://i0.itc.cn/20160801/aac_2e44bd50_880d_9e3d_cdd9_4f3549cb1316_3.png">
+<meta property="og:image" content="http://i2.itc.cn/20160801/aac_2e44bd50_880d_9e3d_cdd9_4f3549cb1316_1.png">
+<meta property="og:image" content="http://i2.itc.cn/20160801/aac_2e44bd50_880d_9e3d_cdd9_4f3549cb1316_2.png">
+<meta property="og:updated_time" content="2016-08-01T10:02:08.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="jenkins的安装使用">
+<meta name="twitter:description" content="jenkins自动部署工具官网：https://jenkins.io/index.html 安装部署 当前最新版本-2.7.1.war 下载  jenkins插件列表 查看   服务启动java -jar启动脚本启动liunx后台进程： #!/bin/bash echo -e &amp;quot;Starting the jenkins ...\c&amp;quot;  # 可配置JMV_OPTS,JMX_OPT">
+<meta name="twitter:image" content="http://i0.itc.cn/20160801/aac_7c06373e_9dcf_8bb9_650e_a8e0bd67f016_3.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> jenkins的安装使用 | Meteor </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Meteor</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                jenkins的安装使用
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-02-04T11:20:00+08:00" content="2016-02-04">
+              2016-02-04
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/工具/" itemprop="url" rel="index">
+                    <span itemprop="name">工具</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="jenkins自动部署工具"><a href="#jenkins自动部署工具" class="headerlink" title="jenkins自动部署工具"></a>jenkins自动部署工具</h2><p>官网：<a href="https://jenkins.io/index.html" target="_blank" rel="external">https://jenkins.io/index.html</a></p>
+<h3 id="安装部署"><a href="#安装部署" class="headerlink" title="安装部署"></a>安装部署</h3><ul>
+<li><p>当前最新版本-2.7.1.war <a href="http://mirrors.jenkins-ci.org/war-stable/latest/jenkins.war" target="_blank" rel="external">下载</a></p>
+</li>
+<li><p>jenkins插件列表 <a href="https://wiki.jenkins-ci.org/display/JENKINS/Plugins" target="_blank" rel="external">查看</a></p>
+</li>
+</ul>
+<h3 id="服务启动"><a href="#服务启动" class="headerlink" title="服务启动"></a>服务启动</h3><h4 id="java-jar启动"><a href="#java-jar启动" class="headerlink" title="java -jar启动"></a>java -jar启动</h4><pre><code>脚本启动liunx后台进程：
+#!/bin/bash
+echo -e &quot;Starting the jenkins ...\c&quot;
+
+# 可配置JMV_OPTS,JMX_OPTS 或者 需要依赖的环境变量
+
+nohup java -DJENKINS_HOME=/data/soft/jenkins_home -jar ./jenkins.war --httpPort=8888 &gt; ./log/jenkins.out 2&gt;&amp;1 &amp; 
+
+echo -e &quot;jenkins Completed! &quot;
+</code></pre><p>nohup启用后台进程启动命令 2&gt;&amp;1的意思：把标准错误（2）重定向到标准输出中（1），而标准输出又导入文件output里面。</p>
+<h4 id="容器启动"><a href="#容器启动" class="headerlink" title="容器启动"></a>容器启动</h4><p>在tomcat或者 jetty容器下部署，需要注意问题：</p>
+<ul>
+<li>保证端口配置（这里用的8888，默认8080端口）不冲突，</li>
+<li>配置全局-DJENKINS_HOME 环境变量，根据服务器当前 硬盘大小进行合理配置，之后会依赖maven仓库 和 git项目拉取 需要一定存储占用。(默认放是在 /root/.jenkins下)</li>
+</ul>
+<h4 id="访问web服务地址"><a href="#访问web服务地址" class="headerlink" title="访问web服务地址"></a>访问web服务地址</h4><p><a href="http://*.*.*.*:8888/">http://*.*.*.*:8888/</a></p>
+<p>第一次需要初始化密码： vim  /root/.jenkins/secrets/initialAdminPassword(默认安装路径)</p>
+<h3 id="插件依赖"><a href="#插件依赖" class="headerlink" title="插件依赖"></a>插件依赖</h3><ul>
+<li>jenkins支持在线更新</li>
+</ul>
+<p>依赖网络环境，不一定更新成功<br><img src="http://i0.itc.cn/20160801/aac_7c06373e_9dcf_8bb9_650e_a8e0bd67f016_3.png" alt="可选插件去查询"></p>
+<ul>
+<li>后台支持hpi插件手动上传</li>
+</ul>
+<ol>
+<li>jenkins官网下载插件，可以会有多重依赖</li>
+</ol>
+<p><img src="http://i3.itc.cn/20160801/aac_7c06373e_9dcf_8bb9_650e_a8e0bd67f016_1.png" alt="官网下载"></p>
+<ol>
+<li>从”高级”点进去进行上传</li>
+</ol>
+<p><img src="http://i2.itc.cn/20160801/aac_7c06373e_9dcf_8bb9_650e_a8e0bd67f016_2.png" alt="hpi插件上传"></p>
+<h4 id="系统全局配置-涉及项目使用到的jdk-maven-svn-git"><a href="#系统全局配置-涉及项目使用到的jdk-maven-svn-git" class="headerlink" title="系统全局配置(涉及项目使用到的jdk/maven/svn/git)"></a>系统全局配置(涉及项目使用到的jdk/maven/svn/git)</h4><p><img src="http://i3.itc.cn/20160801/aac_7c06373e_9dcf_8bb9_650e_a8e0bd67f016_4.png" alt="配置入口"></p>
+<h4 id="项目工具安装配置"><a href="#项目工具安装配置" class="headerlink" title="项目工具安装配置"></a>项目工具安装配置</h4><p>官网插件地址：<a href="https://wiki.jenkins-ci.org/display/JENKINS/Plugins" target="_blank" rel="external">https://wiki.jenkins-ci.org/display/JENKINS/Plugins</a></p>
+<p>项目工具部署路径：<br><img src="http://i2.itc.cn/20160801/aac_2f04e178_10bf_64e9_d33a_bdd54871bac5_2.png" alt=""></p>
+<blockquote>
+<p>jdk/maven/git安装路径</p>
+</blockquote>
+<p><img src="http://i1.itc.cn/20160801/aac_2f04e178_10bf_64e9_d33a_bdd54871bac5_3.png" alt=""></p>
+<blockquote>
+<p>jdk/maven/git环境变量及版本</p>
+</blockquote>
+<p>jdk:<br><img src="http://i0.itc.cn/20160801/aac_2f04e178_10bf_64e9_d33a_bdd54871bac5_4.png" alt="jdk"></p>
+<p>maven:<br><img src="http://i3.itc.cn/20160801/aac_2f04e178_10bf_64e9_d33a_bdd54871bac5_1.png" alt="maven"></p>
+<p>git:<br><img src="http://i0.itc.cn/20160801/aac_2f04e178_10bf_64e9_d33a_bdd54871bac5_4.png" alt="git"></p>
+<blockquote>
+<p>Jenkins指定 jdk/maven/git配置</p>
+</blockquote>
+<p>根据安装好环境配置如下：</p>
+<p><img src="http://i2.itc.cn/20160801/aac_3750d2c4_9c09_ac0c_443e_3d1c4a54b6f9_2.png" alt=""><br><img src="http://i2.itc.cn/20160801/aac_3750d2c4_9c09_ac0c_443e_3d1c4a54b6f9_1.png" alt=""></p>
+<blockquote>
+<p>git插件使用问题</p>
+</blockquote>
+<p>git对应liunx所有版本列表: <a href="https://www.kernel.org/pub/software/scm/git/" target="_blank" rel="external">查看</a></p>
+<ul>
+<li><p>centos系统安装安装git版本问题：</p>
+<pre><code>在CentOS5的时代，由于yum源中没有git，所以需要预先安装一系列的依赖包。但在CentOS6的yum源中已经有git的版本了，可以直接使用yum源进行安装。
+$ sudo yum install git
+但是yum源中安装的git版本是1.7.1，太老了，Github等需要的Git版本最低都不能低于1.7.2 。所以我们一般不用上面的方法。而是下载git源码，编译安装。
+
+编译安装的步骤是【4】：
+（1）首先先更新系统sudo yum update
+（2）安装依赖的包
+sudo yum install curl-devel expat-devel gettext-devel openssl-devel zlib-devel gcc perl-ExtUtils-MakeMaker
+（3）下载git源码并解压缩
+$ wget https://github.com/git/git/archive/v2.3.0.zip
+$ unzip v2.3.0.zip
+$ cd git-2.3.0
+（4）编译安装
+将其安装在“/usr/local/git”目录下。
+make prefix=/usr/local/git all
+sudo make prefix=/usr/local/git install
+（5）此时你如果使用git --version 查看git版本的话，发现git仍然是1.7.1版本。这是因为它默认使用了&quot;/usr/bin&quot;下的git。
+
+你可以用下面的命令查看git所在的路径：
+$ whereis git
+git: /usr/bin/git /usr/local/git /usr/share/man/man1/git.1.gz
+
+（6）我们要把编译安装的git路径放到环境变量里，让它替换&quot;/usr/bin&quot;下的git。为此我们可以修改“/etc/profile”文件（或者/etc/bashrc文件）。
+sudo vim /etc/profile
+然后在文件的最后一行，添加下面的内容，然后保存退出。
+export PATH=/usr/local/git/bin:$PATH
+
+（7）使用source命令应用修改。
+source /etc/profile
+（8）然后再次使用git --version 查看git版本，发现输出2.3.0，表明安装成功。
+</code></pre></li>
+</ul>
+<h4 id="jenkin配置git项目访问"><a href="#jenkin配置git项目访问" class="headerlink" title="jenkin配置git项目访问"></a>jenkin配置git项目访问</h4><ul>
+<li><p>用户名/密码访问</p>
+<p>  github或者私服的git上 登陆账号密码登陆<br>  <img src="http://i0.itc.cn/20160801/aac_2e44bd50_880d_9e3d_cdd9_4f3549cb1316_3.png" alt="">    </p>
+</li>
+</ul>
+<ul>
+<li><p>ssh互信配置</p>
+</li>
+<li><p>ssh-keygen -t rsa -C “test@163.com”   生成public key</p>
+<pre><code>Generating public/private rsa key pair.
+Enter file in which to save the key (/root/.ssh/id_rsa): 
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /root/.ssh/id_rsa.
+Your public key has been saved in /root/.ssh/id_rsa.pub.
+The key fingerprint is:
+a6:51:70:c6:fb:75:ee:1e:4a:63:97:73:c6:f5:40:e0 test@163.com
+The key&apos;s randomart image is:
++--[ RSA 2048]----+
+|      ..o   .    |
+|       +.  . .   |
+|        ..  E .  |
+|       ..   ...  |
+|      . S. . o. .|
+|       +  .   .+o|
+|      .     +.= =|
+|           o +.= |
+|            ...  |
++-----------------+
+</code></pre></li>
+</ul>
+<ul>
+<li>手动添加机器公钥 cat /root/.ssh/id_rsa.pub  拷贝public key到github上</li>
+</ul>
+<p><img src="http://i2.itc.cn/20160801/aac_2e44bd50_880d_9e3d_cdd9_4f3549cb1316_1.png" alt=""></p>
+<ul>
+<li>配置项目</li>
+</ul>
+<p><img src="http://i2.itc.cn/20160801/aac_2e44bd50_880d_9e3d_cdd9_4f3549cb1316_2.png" alt=""></p>
+<h3 id="注意问题"><a href="#注意问题" class="headerlink" title="注意问题"></a>注意问题</h3><ul>
+<li>jenkins集成git,maven等插件，需要注意版本问题</li>
+<li>需要服务器拥有外网访问权限，不然下载插件 更新会有问题</li>
+</ul>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>博客：<a href="http://www.cnblogs.com/zhcncn/p/4030078.html" target="_blank" rel="external">http://www.cnblogs.com/zhcncn/p/4030078.html</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/maven/" rel="tag">#maven</a>
+          
+            <a href="/tags/git/" rel="tag">#git</a>
+          
+            <a href="/tags/jenkins/" rel="tag">#jenkins</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/02/03/(2.3).版本管理工具-svn,git的安装使用/" rel="next" title="Svn和Git的使用">
+                <i class="fa fa-chevron-left"></i> Svn和Git的使用
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/02/05/(2.4).仓库工具-nexus的安装使用/" rel="prev" title="Nexus的使用">
+                Nexus的使用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/metor.ico"
+               alt="Pedestrian" />
+          <p class="site-author-name" itemprop="name">Pedestrian</p>
+          <p class="site-description motion-element" itemprop="description">study for goal</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">48</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/yanan0628" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://carlosfu.github.io/" target="_blank" title="fudada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  fudada
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://jolinzhangg.github.io/" target="_blank" title="xiaodada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  xiaodada
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#jenkins自动部署工具"><span class="nav-number">1.</span> <span class="nav-text">jenkins自动部署工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装部署"><span class="nav-number">1.1.</span> <span class="nav-text">安装部署</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务启动"><span class="nav-number">1.2.</span> <span class="nav-text">服务启动</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#java-jar启动"><span class="nav-number">1.2.1.</span> <span class="nav-text">java -jar启动</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#容器启动"><span class="nav-number">1.2.2.</span> <span class="nav-text">容器启动</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#访问web服务地址"><span class="nav-number">1.2.3.</span> <span class="nav-text">访问web服务地址</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#插件依赖"><span class="nav-number">1.3.</span> <span class="nav-text">插件依赖</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#系统全局配置-涉及项目使用到的jdk-maven-svn-git"><span class="nav-number">1.3.1.</span> <span class="nav-text">系统全局配置(涉及项目使用到的jdk/maven/svn/git)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#项目工具安装配置"><span class="nav-number">1.3.2.</span> <span class="nav-text">项目工具安装配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#jenkin配置git项目访问"><span class="nav-number">1.3.3.</span> <span class="nav-text">jenkin配置git项目访问</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注意问题"><span class="nav-number">1.4.</span> <span class="nav-text">注意问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">1.5.</span> <span class="nav-text">参考</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pedestrian</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+                            
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').mousedown(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+  
+
+  
+
+  
+
+</body>
+</html>
