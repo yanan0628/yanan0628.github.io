@@ -267,6 +267,248 @@
             
               
                 
+                <a class="post-title-link" href="/2017/08/29/9.4) redis-客户端超时问题/" itemprop="url">
+                  redis客户端超时分析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-08-29T09:37:35+08:00" content="2017-08-29">
+              2017-08-29
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h1 id="常见的redis超时分析"><a href="#常见的redis超时分析" class="headerlink" title="常见的redis超时分析"></a>常见的redis超时分析</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">(1). 网络原因：比如是否存在跨机房、网络割接等等。</div><div class="line">(2). 慢查询，因为redis是单线程，如果有慢查询的话，会阻塞住之后的操作。 </div><div class="line">(3). value值过大？比如value几十兆，当然这种情况比较少，其实也可以看做是慢查询的一种</div><div class="line">(4). aof重写/rdb fork发生？瞬间会堵一下Redis服务器。</div><div class="line">(5). redis自身阻塞（swap fsync 磁盘io hugePage内存页未关闭）</div><div class="line">(5). 其他..................</div></pre></td></tr></table></figure>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/08/29/9.4) redis-客户端超时问题/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/08/23/9.2).redis工具使用/" itemprop="url">
+                  redis常用工具
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-08-23T16:37:35+08:00" content="2017-08-23">
+              2017-08-23
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h1 id="redis常用工具"><a href="#redis常用工具" class="headerlink" title="redis常用工具"></a>redis常用工具</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">环境准备:（注:不同redis版本可能会有差异）</div><div class="line"></div><div class="line">1.redis-server -v</div><div class="line">Redis server v=3.0.7 sha=00000000:0 malloc=jemalloc-3.6.0 bits=64 build=fde71d6d37f8bceb</div><div class="line"></div><div class="line">2.python -V </div><div class="line">Python 2.7.3</div><div class="line">下载：wget https://www.python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">3.python redis安装 rediscluster安装</div><div class="line"></div><div class="line">wget https://github.com/andymccurdy/redis-py/archive/2.10.5.zip</div><div class="line">unzip 2.10.5.zip</div><div class="line">cd redis-2.10.5</div><div class="line">python setup.py install</div><div class="line"></div><div class="line">wget https://github.com/Grokzen/redis-py-cluster/releases/download/1.3.4/redis-py-cluster-1.3.4.tar.gz</div><div class="line">tar -xvf redis-py-cluster-1.3.4.tar.gz</div><div class="line">cd redis-py-cluster-1.3.4</div><div class="line">python setup.py install</div><div class="line"></div><div class="line">4. 导入包</div><div class="line"></div><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div></pre></td></tr></table></figure>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/08/23/9.2).redis工具使用/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/08/22/9.3 redis运维-python环境安装/" itemprop="url">
                   redis python环境安装
                 </a>
@@ -509,282 +751,7 @@
             
               
                 
-                <a class="post-title-link" href="/2016/08/29/9.4) redis-客户端超时问题/" itemprop="url">
-                  redis客户端超时分析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-29T09:37:35+08:00" content="2016-08-29">
-              2016-08-29
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h1 id="常见的redis超时分析"><a href="#常见的redis超时分析" class="headerlink" title="常见的redis超时分析"></a>常见的redis超时分析</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">(1). 网络原因：比如是否存在跨机房、网络割接等等。</div><div class="line">(2). 慢查询，因为redis是单线程，如果有慢查询的话，会阻塞住之后的操作。 </div><div class="line">(3). value值过大？比如value几十兆，当然这种情况比较少，其实也可以看做是慢查询的一种</div><div class="line">(4). aof重写/rdb fork发生？瞬间会堵一下Redis服务器。</div><div class="line">(5). redis自身阻塞（swap fsync 磁盘io hugePage内存页未关闭）</div><div class="line">(5). 其他..................</div></pre></td></tr></table></figure>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/08/29/9.4) redis-客户端超时问题/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/08/23/9.2).redis工具使用/" itemprop="url">
-                  redis常用工具
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-23T16:37:35+08:00" content="2016-08-23">
-              2016-08-23
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="redis常用工具"><a href="#redis常用工具" class="headerlink" title="redis常用工具"></a>redis常用工具</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">环境准备:（注:不同redis版本可能会有差异）</div><div class="line"></div><div class="line">1.redis-server -v</div><div class="line">Redis server v=3.0.7 sha=00000000:0 malloc=jemalloc-3.6.0 bits=64 build=fde71d6d37f8bceb</div><div class="line"></div><div class="line">2.python -V </div><div class="line">Python 2.7.3</div><div class="line">下载：wget https://www.python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">3.python redis安装 rediscluster安装</div><div class="line"></div><div class="line">wget https://github.com/andymccurdy/redis-py/archive/2.10.5.zip</div><div class="line">unzip 2.10.5.zip</div><div class="line">cd redis-2.10.5</div><div class="line">python setup.py install</div><div class="line"></div><div class="line">wget https://github.com/Grokzen/redis-py-cluster/releases/download/1.3.4/redis-py-cluster-1.3.4.tar.gz</div><div class="line">tar -xvf redis-py-cluster-1.3.4.tar.gz</div><div class="line">cd redis-py-cluster-1.3.4</div><div class="line">python setup.py install</div><div class="line"></div><div class="line">4. 导入包</div><div class="line"></div><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div></pre></td></tr></table></figure>
-<h2 id="python工具使用"><a href="#python工具使用" class="headerlink" title="python工具使用"></a>python工具使用</h2><hr>
-<p><strong>扫描scan key</strong></p>
-<hr>
-<ul>
-<li>单机</li>
-</ul>
-<p>调用格式:python scankey.py <code>ip</code> <code>port</code> <code>pattern</code> <code>password</code></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">参数：			</div><div class="line">sys.argv[1]：机器ip    127.0.0.1	</div><div class="line">sys.argv[2]：端口号     6379	</div><div class="line">sys.argv[3]：匹配格式   video*	</div><div class="line">sys.argv[4]：redis密码  默认&quot;&quot;	</div><div class="line">执行脚本：python scan.py 127.0.0.1 6379 hashmap1* &quot;123&quot;</div></pre></td></tr></table></figure>
-<blockquote>
-<p>不含密码执行：python scankey.py 127.0.0.1 6379 hash* “”</p>
-<p>含密码执行：python scankey.py 127.0.0.1 6379 hash* “123”</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"># -*- coding: UTF-8 -*-</div><div class="line">import redis</div><div class="line">import sys</div><div class="line"></div><div class="line">def findInstancePatternKeys(host, port, pattern, password):</div><div class="line">    client = redis.StrictRedis(host=host, port=port, password=password)</div><div class="line">    pipeline = client.pipeline(transaction=False)</div><div class="line">    cursor = 0</div><div class="line">    print &quot;====================check &#123;host&#125;:&#123;port&#125;&quot;.format(host=host,port=port)</div><div class="line">    while True:</div><div class="line">        currentCursor, keys = client.scan(cursor=cursor, match=pattern, count=100)</div><div class="line">        if len(keys) &gt; 0:</div><div class="line">            for key in keys:</div><div class="line">                print &quot;key=&#123;key&#125;&quot;.format(key=key)</div><div class="line">            pipeline.execute()</div><div class="line">        cursor = currentCursor</div><div class="line">        if cursor == 0:</div><div class="line">            break</div><div class="line"></div><div class="line">findInstancePatternKeys(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4])</div></pre></td></tr></table></figure>
-<ul>
-<li>集群</li>
-</ul>
-<p>格式:python scankey.py <code>ip</code> <code>port</code> <code>pattern</code> <code>password</code> <code>output</code></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">参数：</div><div class="line">sys.argv[1]：机器ip    127.0.0.1</div><div class="line">sys.argv[2]：端口号     6379</div><div class="line">sys.argv[3]：匹配格式   video*</div><div class="line">sys.argv[4]：redis密码  默认&quot;&quot;</div><div class="line">sys.argv[5]：输出文件路径 $&#123;path&#125;/scankey083015.txt</div><div class="line"></div><div class="line">执行脚本：python scan-cluster.py 127.0.0.1 6380 hashtag* &quot;&quot; &quot;$&#123;path&#125;/file.txt&quot;</div></pre></td></tr></table></figure>
-<blockquote>
-<p>无密码访问：python cluster-scankey.py 127.0.0.1 6380 hashtag<em> “” “/opt/soft/tool/output/scankey.txt”<br>有密码访问：python cluster-scankey.py 127.0.0.1 6380 hashtag</em> “123” “/opt/soft/tool/output/scankey.txt”    </p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"># -*- coding: UTF-8 -*-</div><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div><div class="line"></div><div class="line">def findClusterPatternKey(startupNodes, pattern,password):</div><div class="line">    clusterClient = rediscluster.StrictRedisCluster(startup_nodes=startupNodes,password=password, decode_responses=True)</div><div class="line">    clusterInfos = clusterClient.cluster_nodes()</div><div class="line">    for clusternode in clusterInfos:</div><div class="line">        slots = clusternode[&quot;slots&quot;]</div><div class="line">        # only check master</div><div class="line">        if len(slots) &gt; 0:</div><div class="line">            print &quot;========= check &#123;host&#125;:&#123;port&#125;&quot;.format(host=clusternode[&quot;host&quot;],port=clusternode[&quot;port&quot;])</div><div class="line">            print &gt;&gt; file,&quot;========= check &#123;host&#125;:&#123;port&#125;&quot;.format(host=clusternode[&quot;host&quot;],port=clusternode[&quot;port&quot;])</div><div class="line">            findInstancePatternKeys(clusternode[&quot;host&quot;], clusternode[&quot;port&quot;], pattern, password)</div><div class="line">    file.close()</div><div class="line"></div><div class="line">def findInstancePatternKeys(host, port, pattern, password):</div><div class="line">    client = redis.StrictRedis(host=host, port=port, password=password)</div><div class="line">    pipeline = client.pipeline(transaction=False)</div><div class="line">    cursor = 0</div><div class="line">    while True:</div><div class="line">        currentCursor, keys = client.scan(cursor=cursor, match=pattern, count=100)</div><div class="line">        if len(keys) &gt; 0:</div><div class="line">            for key in keys:</div><div class="line">                print &quot;key=&#123;key&#125;&quot;.format(key=key)</div><div class="line">                print &gt;&gt; file,&quot;key=&#123;key&#125;&quot;.format(key=key)</div><div class="line">            pipeline.execute()</div><div class="line">        cursor = currentCursor</div><div class="line">        if cursor == 0:</div><div class="line">            break</div><div class="line"></div><div class="line"># file output</div><div class="line">file=open(sys.argv[5],&apos;w&apos;)</div><div class="line"></div><div class="line">startupNodes = [&#123;&quot;host&quot;:sys.argv[1],&quot;port&quot;:int(sys.argv[2])&#125;]</div><div class="line">findClusterPatternKey(startupNodes, sys.argv[3],sys.argv[4])</div></pre></td></tr></table></figure>
-<hr>
-<p>扫描 idle key</p>
-<hr>
-<ul>
-<li>单机</li>
-</ul>
-<p>格式:python idlekey.py ip port idleDay password</p>
-<p>python idlekey.py 10.16.14.182 6380 1 “”<br>python idlekey.py 10.16.14.182 6380 1 “123”</p>
-<ul>
-<li>集群</li>
-</ul>
-<p>格式:python idlekey.py ip port pattern password</p>
-<p>python idlekey.py 10.16.14.182 6380 hash<em> “”<br>python idlekey.py 10.16.14.182 6380 hash</em> “123”</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/08/11/9.4) redis运维-升级redis密码过程/" itemprop="url">
+                <a class="post-title-link" href="/2017/08/11/9.4) redis运维-升级redis密码过程/" itemprop="url">
                   cachecloud在线升级密码过程
                 </a>
               
@@ -798,8 +765,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-11T16:37:35+08:00" content="2016-08-11">
-              2016-08-11
+            <time itemprop="dateCreated" datetime="2017-08-11T16:37:35+08:00" content="2017-08-11">
+              2017-08-11
             </time>
           </span>
 
