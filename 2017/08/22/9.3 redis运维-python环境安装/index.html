@@ -84,18 +84,18 @@
 
 
 
-<meta name="description" content="redis-python环境安装这里使用python脚本主要是为了提供提供redis小工具使用，包括扫描 特定key，空闲key，bigkey,删除相关key 或 热点key等等。这是在使用过程遇到问题，总结一下。 相关依赖包准备python不同版本支持 redis redisclutser好像有些不一样，这里先统一环境：  redis 3.0.7安装   wget http://download">
+<meta name="description" content="redis-python环境安装这里使用python脚本主要是为了提供提供redis小工具使用，包括扫描 特定key，空闲key，bigkey,删除相关key 或 热点key等等。这是在使用过程遇到问题，总结一下。">
 <meta name="keywords" content="redis,python">
 <meta property="og:type" content="article">
 <meta property="og:title" content="redis python环境安装">
 <meta property="og:url" content="/2017/08/22/9.3 redis运维-python环境安装/index.html">
 <meta property="og:site_name" content="Meteor">
-<meta property="og:description" content="redis-python环境安装这里使用python脚本主要是为了提供提供redis小工具使用，包括扫描 特定key，空闲key，bigkey,删除相关key 或 热点key等等。这是在使用过程遇到问题，总结一下。 相关依赖包准备python不同版本支持 redis redisclutser好像有些不一样，这里先统一环境：  redis 3.0.7安装   wget http://download">
+<meta property="og:description" content="redis-python环境安装这里使用python脚本主要是为了提供提供redis小工具使用，包括扫描 特定key，空闲key，bigkey,删除相关key 或 热点key等等。这是在使用过程遇到问题，总结一下。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-08-23T07:37:35.000Z">
+<meta property="og:updated_time" content="2017-08-30T09:38:59.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="redis python环境安装">
-<meta name="twitter:description" content="redis-python环境安装这里使用python脚本主要是为了提供提供redis小工具使用，包括扫描 特定key，空闲key，bigkey,删除相关key 或 热点key等等。这是在使用过程遇到问题，总结一下。 相关依赖包准备python不同版本支持 redis redisclutser好像有些不一样，这里先统一环境：  redis 3.0.7安装   wget http://download">
+<meta name="twitter:description" content="redis-python环境安装这里使用python脚本主要是为了提供提供redis小工具使用，包括扫描 特定key，空闲key，bigkey,删除相关key 或 热点key等等。这是在使用过程遇到问题，总结一下。">
 
 
 
@@ -338,21 +338,29 @@
 
       
         <h1 id="redis-python环境安装"><a href="#redis-python环境安装" class="headerlink" title="redis-python环境安装"></a>redis-python环境安装</h1><p>这里使用python脚本主要是为了提供提供redis小工具使用，包括扫描 特定key，空闲key，bigkey,删除相关key 或 热点key等等。这是在使用过程遇到问题，总结一下。</p>
+<a id="more"></a>
 <h2 id="相关依赖包准备"><a href="#相关依赖包准备" class="headerlink" title="相关依赖包准备"></a>相关依赖包准备</h2><p>python不同版本支持 redis redisclutser好像有些不一样，这里先统一环境：</p>
 <ul>
-<li><p>redis 3.0.7安装</p>
-<p>  wget <a href="http://download.redis.io/releases/redis-3.0.7.tar.gz" target="_blank" rel="external">http://download.redis.io/releases/redis-3.0.7.tar.gz</a><br>  tar -xvf redis-3.0.7.tar.gz<br>  cd redis-3.0.7<br>  make<br>  make install<br>  redis-server -v</p>
-</li>
-<li><p>Python 2.7.3</p>
-</li>
+<li>redis 3.0.7安装</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">wget http://download.redis.io/releases/redis-3.0.7.tar.gz</div><div class="line">tar -xvf redis-3.0.7.tar.gz</div><div class="line">cd redis-3.0.7</div><div class="line">make </div><div class="line">make install</div><div class="line">redis-server -v</div></pre></td></tr></table></figure>
+<ul>
+<li>Python 2.7.3安装</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">1.下载python：</div><div class="line">	wget https://www.python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2</div><div class="line"></div><div class="line">2.安装：</div><div class="line">	./confiugre</div><div class="line">	make  </div><div class="line">	make install</div><div class="line"></div><div class="line">2.查看python安装目录：which python  /usr/local/bin/python</div><div class="line"></div><div class="line">3.建立软链接：(覆盖操作系统python版本)</div><div class="line">	cd /usr/local/bin</div><div class="line">	ln -s /usr/local/bin/python2.7 python</div><div class="line"></div><div class="line">	[@fl bin]# ll | grep python</div><div class="line">	lrwxrwxrwx 1 root root      24 Aug 22 16:20 python -&gt; /usr/local/bin/python2.7</div><div class="line">	lrwxrwxrwx 1 root root       9 Feb 13  2016 python2 -&gt; python2.7</div><div class="line">	-rwxr-xr-x 1 root root 6162257 Feb 13  2016 python2.7</div><div class="line"></div><div class="line">4.查看python版本</div><div class="line">	python -V</div><div class="line">	Python 2.7.3</div></pre></td></tr></table></figure>
+<h2 id="python-redis模块安装"><a href="#python-redis模块安装" class="headerlink" title="python redis模块安装"></a>python redis模块安装</h2><ul>
+<li>安装python支持redis库</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">wget https://github.com/andymccurdy/redis-py/archive/2.10.5.zip</div><div class="line">unzip redis-2.10.5.zip</div><div class="line">cd redis-2.10.5</div><div class="line">python setup.py install</div></pre></td></tr></table></figure>
+<ul>
+<li>安装python支持rediscluster库</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">wget https://github.com/Grokzen/redis-py-cluster/releases/download/1.3.4/redis-py-cluster-1.3.4.tar.gz</div><div class="line">tar -xvf redis-py-cluster-1.3.4.tar.gz</div><div class="line">cd redis-py-cluster-1.3.4</div><div class="line">python setup.py install</div></pre></td></tr></table></figure>
 <ul>
 <li>python添加redis依赖</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">import redis</div><div class="line">import rediscluster</div></pre></td></tr></table></figure>
-<a id="more"></a>
-<h2 id="python相关模块"><a href="#python相关模块" class="headerlink" title="python相关模块"></a>python相关模块</h2>
+
       
     </div>
 
@@ -464,7 +472,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">36</span>
+              <span class="site-state-item-count">38</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -472,7 +480,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">24</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -539,7 +547,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#redis-python环境安装"><span class="nav-number">1.</span> <span class="nav-text">redis-python环境安装</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#相关依赖包准备"><span class="nav-number">1.1.</span> <span class="nav-text">相关依赖包准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#python相关模块"><span class="nav-number">1.2.</span> <span class="nav-text">python相关模块</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#redis-python环境安装"><span class="nav-number">1.</span> <span class="nav-text">redis-python环境安装</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#相关依赖包准备"><span class="nav-number">1.1.</span> <span class="nav-text">相关依赖包准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#python-redis模块安装"><span class="nav-number">1.2.</span> <span class="nav-text">python redis模块安装</span></a></li></ol></li></ol></div>
             
           </div>
         </section>

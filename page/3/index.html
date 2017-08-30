@@ -267,6 +267,415 @@
             
               
                 
+                <a class="post-title-link" href="/2016/05/03/(5.3).server-nginx/" itemprop="url">
+                  nginx
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-05-03T10:52:03+08:00" content="2016-05-03">
+              2016-05-03
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/server/" itemprop="url" rel="index">
+                    <span itemprop="name">server</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/05/02/(5.2).web-logback/" itemprop="url">
+                  logback使用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-05-02T10:52:03+08:00" content="2016-05-02">
+              2016-05-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/web/" itemprop="url" rel="index">
+                    <span itemprop="name">web</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="logback"><a href="#logback" class="headerlink" title="logback"></a>logback</h3><h4 id="logback配置解析"><a href="#logback配置解析" class="headerlink" title="logback配置解析"></a>logback配置解析</h4><blockquote>
+<p>线上配置文件</p>
+</blockquote>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;gbk&quot;?&gt;
+&lt;!--
+  Example LOGBACK Configuration File
+  http://logback.qos.ch/manual/configuration.html
+  --&gt;
+&lt;configuration scan=&quot;true&quot; scanPeriod=&quot;30 seconds&quot; debug=&quot;false&quot;&gt;
+
+    &lt;contextName&gt;${proojectName}&lt;/contextName&gt;
+
+    &lt;!--  console --&gt;
+    &lt;appender name=&quot;STDOUT&quot; class=&quot;ch.qos.logback.core.ConsoleAppender&quot;&gt;
+        &lt;encoder&gt;
+            &lt;pattern&gt;%d{yyyy-MM-dd HH:mm:ss.SSS}-[%thread] %-5level %logger{60}[%line] - %msg%n&lt;/pattern&gt;
+        &lt;/encoder&gt;
+    &lt;/appender&gt;
+
+    &lt;appender name=&quot;FILE-INFO&quot; class=&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;&gt;
+         &lt;filter class=&quot;ch.qos.logback.classic.filter.ThresholdFilter&quot;&gt;
+            &lt;level&gt;INFO&lt;/level&gt;
+        &lt;/filter&gt;
+        &lt;file&gt;${stdout.log}&lt;/file&gt;
+
+        &lt;rollingPolicy class=&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;&gt;
+            &lt;fileNamePattern&gt;${stdout.log}.%d{yyyy-MM-dd}&lt;/fileNamePattern&gt;
+            &lt;maxHistory&gt;${log.maxnum}&lt;/maxHistory&gt;
+        &lt;/rollingPolicy&gt;
+        &lt;encoder&gt;
+            &lt;pattern&gt;%d{yyyy-MM-dd HH:mm:ss.SSS}-[%thread] %-5level %logger{60}[%line] - %msg%n&lt;/pattern&gt;
+        &lt;/encoder&gt;
+    &lt;/appender&gt;
+
+    &lt;appender name=&quot;FILE-ERROR&quot; class=&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;&gt;
+        &lt;filter class=&quot;ch.qos.logback.classic.filter.ThresholdFilter&quot;&gt;
+            &lt;level&gt;ERROR&lt;/level&gt;
+        &lt;/filter&gt;
+        &lt;file&gt;${stderr.log}&lt;/file&gt;
+        &lt;rollingPolicy class=&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;&gt;
+            &lt;fileNamePattern&gt;${stderr.log}.%d{yyyy-MM-dd}&lt;/fileNamePattern&gt;
+            &lt;maxHistory&gt;${log.maxnum}&lt;/maxHistory&gt;
+        &lt;/rollingPolicy&gt;
+        &lt;encoder&gt;
+            &lt;pattern&gt;%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60}[%line] - %msg%n&lt;/pattern&gt;
+        &lt;/encoder&gt;
+    &lt;/appender&gt;
+
+    &lt;!-- build log --&gt;
+    &lt;appender name=&quot;Builder&quot; class=&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;&gt;
+
+        &lt;file&gt;${build.log}&lt;/file&gt;
+        &lt;rollingPolicy class=&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;&gt;
+            &lt;fileNamePattern&gt;${build.log}.%d{yyyy-MM-dd}&lt;/fileNamePattern&gt;
+            &lt;maxHistory&gt;${log.maxnum}&lt;/maxHistory&gt;
+        &lt;/rollingPolicy&gt;
+        &lt;encoder&gt;
+            &lt;pattern&gt;%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60}[%line] - %msg%n&lt;/pattern&gt;
+        &lt;/encoder&gt;
+    &lt;/appender&gt;
+
+    &lt;logger name=&quot;com.sohu.tv.cms.builder&quot; level=&quot;DEBUG&quot; addtivity=&quot;true&quot;&gt;
+        &lt;appender-ref ref=&quot;Builder&quot;/&gt;
+    &lt;/logger&gt;
+
+    &lt;root level=&quot;${log.level}&quot;&gt;
+        &lt;appender-ref ref=&quot;STDOUT&quot;/&gt;
+        &lt;appender-ref ref=&quot;FILE-INFO&quot;/&gt;
+        &lt;appender-ref ref=&quot;FILE-ERROR&quot;/&gt;
+    &lt;/root&gt;
+
+&lt;/configuration&gt;
+</code></pre><blockquote>
+<p>元素</p>
+</blockquote>
+<ul>
+<li><p>根节点 configuration</p>
+<pre><code>scan:
+当此属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true。
+scanPeriod:
+设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当scan为true时，此属性生效。默认的时间间隔为1分钟。
+debug:
+当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。
+
+例如： 
+&lt;configuration scan=&quot;true&quot; scanPeriod=&quot;60 seconds&quot; debug=&quot;false&quot;&gt;  
+      &lt;!-- 其他配置省略--&gt;  
+&lt;/configuration&gt; 
+</code></pre></li>
+<li><p>appender/logger/root子节点</p>
+<p>  <img src="http://logback.qos.ch/manual/images/chapters/configuration/basicSyntax.png" alt=""></p>
+<ul>
+<li><p>logger节点    </p>
+<pre><code>用来设置某一个包或者具体的某一个类的日志打印级别、以及指定&lt;appender&gt;。&lt;loger&gt;仅有一个name属性，一个可选的level和一个可选的addtivity属性。
+name:
+用来指定受此loger约束的某一个包或者具体的某一个类。
+level:
+用来设置打印级别，大小写无关：TRACE, DEBUG, INFO, WARN, ERROR, ALL 和 OFF，还有一个特俗值INHERITED或者同义词NULL，代表强制执行上级的级别。
+如果未设置此属性，那么当前loger将会继承上级的级别。
+addtivity:
+是否向上级loger传递打印信息。默认是true。
+&lt;loger&gt;可以包含零个或多个&lt;appender-ref&gt;元素，标识这个appender将会添加到这个loger。
+</code></pre></li>
+<li><p>root节点</p>
+<pre><code>也是&lt;loger&gt;元素，但是它是根loger。只有一个level属性，应为已经被命名为&quot;root&quot;.
+level:
+用来设置打印级别，大小写无关：TRACE, DEBUG, INFO, WARN, ERROR, ALL 和 OFF，不能设置为INHERITED或者同义词NULL。
+默认是DEBUG。
+&lt;root&gt;可以包含零个或多个&lt;appender-ref&gt;元素，标识这个appender将会添加到这个loger。
+</code></pre></li>
+<li><p>appender节点</p>
+<p>  <img src="http://logback.qos.ch/manual/images/chapters/configuration/appenderSyntax.png" alt=""></p>
+</li>
+</ul>
+</li>
+</ul>
+<p>appender是configuration的子节点，是负责写日志的组件。<br>appender有两个必要属性name和class。name指定appender名称，class指定appender的全限定名。</p>
+<blockquote>
+<p>ConsoleAppender:</p>
+</blockquote>
+<p><strong>输出到日志添加到控制台</strong>，有以下子节点：</p>
+<p><encoder>：对日志进行格式化。（具体参数稍后讲解 ）</encoder></p>
+<p><target>：字符串 System.out 或者 System.err ，默认 System.out ；</target></p>
+<pre><code>&lt;configuration&gt;  
+
+  &lt;appender name=&quot;STDOUT&quot; class=&quot;ch.qos.logback.core.ConsoleAppender&quot;&gt;  
+    &lt;encoder&gt;  
+      &lt;pattern&gt;%-4relative [%thread] %-5level %logger{35} - %msg %n&lt;/pattern&gt;  
+    &lt;/encoder&gt;  
+  &lt;/appender&gt;  
+
+  &lt;root level=&quot;DEBUG&quot;&gt;  
+    &lt;appender-ref ref=&quot;STDOUT&quot; /&gt;  
+  &lt;/root&gt;  
+&lt;/configuration&gt; 
+</code></pre><blockquote>
+<p>FileAppender</p>
+</blockquote>
+<p><strong>输出到日志添加到文件</strong>，有以下子节点：</p>
+<pre><code>&lt;file&gt;：被写入的文件名，可以是相对目录，也可以是绝对目录，如果上级目录不存在会自动创建，没有默认值。
+&lt;append&gt;：如果是 true，日志被追加到文件结尾，如果是 false，清空现存文件，默认是true。
+&lt;encoder&gt;：对记录事件进行格式化。（具体参数稍后讲解 ）
+&lt;prudent&gt;：如果是 true，日志会被安全的写入文件，即使其他的FileAppender也在向此文件做写入操作，效率低，默认是 false。
+
+&lt;configuration&gt;  
+
+  &lt;appender name=&quot;FILE&quot; class=&quot;ch.qos.logback.core.FileAppender&quot;&gt;  
+    &lt;file&gt;testFile.log&lt;/file&gt;  
+    &lt;append&gt;true&lt;/append&gt;  
+    &lt;encoder&gt;  
+      &lt;pattern&gt;%-4relative [%thread] %-5level %logger{35} - %msg%n&lt;/pattern&gt;  
+    &lt;/encoder&gt;  
+  &lt;/appender&gt;  
+
+  &lt;root level=&quot;DEBUG&quot;&gt;  
+    &lt;appender-ref ref=&quot;FILE&quot; /&gt;  
+  &lt;/root&gt;  
+&lt;/configuration&gt; 
+</code></pre><blockquote>
+<p>RollingFileAppender:</p>
+</blockquote>
+<p><strong>输出到滚动记录文件</strong>，先将日志记录到指定文件，当符合某个条件时，将日志记录到其他文件。有以下子节点：</p>
+<pre><code>&lt;file&gt;：被写入的文件名，可以是相对目录，也可以是绝对目录，如果上级目录不存在会自动创建，没有默认值。
+&lt;append&gt;：如果是 true，日志被追加到文件结尾，如果是 false，清空现存文件，默认是true。
+&lt;encoder&gt;：对记录事件进行格式化。（具体参数稍后讲解 ）
+&lt;rollingPolicy&gt;:当发生滚动时，决定 RollingFileAppender 的行为，涉及文件移动和重命名。
+&lt;triggeringPolicy &gt;: 告知 RollingFileAppender 合适激活滚动。
+&lt;prudent&gt;：当为true时，不支持FixedWindowRollingPolicy。支持TimeBasedRollingPolicy，但是有两个限制，1不支持也不允许文件压缩，2不能设置file属性，必须留空。
+
+-----------------------------------------------------------------------------
+rollingPolicy:
+    TimeBasedRollingPolicy： 最常用的滚动策略，它根据时间来制定滚动策略，既负责滚动也负责出发滚动。
+    FixedWindowRollingPolicy： 根据固定窗口算法重命名文件的滚动策略
+
+encoder：
+    负责两件事，一是把日志信息转换成字节数组，二是把字节数组写入到输出流。
+    目前PatternLayoutEncoder 是唯一有用的且默认的encoder ，有一个&lt;pattern&gt;节点，
+    用来设置日志的输入格式。使用“%”加“转换符”方式，如果要输出“%”，则必须用“\”对“\%”进行转义。
+
+例如：
+&lt;encoder&gt;   
+   &lt;pattern&gt;%-4relative [%thread] %-5level %logger{35} - %msg%n&lt;/pattern&gt;   
+&lt;/encoder  
+</code></pre><h4 id="logback类图"><a href="#logback类图" class="headerlink" title="logback类图"></a>logback类图</h4><p><img src="http://dl2.iteye.com/upload/attachment/0055/5497/91743e11-7bbb-38d5-b7a0-0501a65968a6.jpg" alt="logback类图"></p>
+<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><p>博客：<a href="http://blog.csdn.net/haidage/article/details/6794509" target="_blank" rel="external">http://blog.csdn.net/haidage/article/details/6794509</a><br>博客：<a href="http://czj4451.iteye.com/blog/1984259" target="_blank" rel="external">http://czj4451.iteye.com/blog/1984259</a></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/05/01/(5.1).web-字符编码/" itemprop="url">
                   字符集编码
                 </a>
@@ -1422,123 +1831,6 @@ volatile V value;
             
               
                 
-                <a class="post-title-link" href="/2016/03/04/(3.6).liunx-ϵͳĿ¼/" itemprop="url">
-                  Liunx目录结构
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-03-04T16:37:35+08:00" content="2016-03-04">
-              2016-03-04
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/liunx/" itemprop="url" rel="index">
-                    <span itemprop="name">liunx</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Linux文件系统目录结构"><a href="#Linux文件系统目录结构" class="headerlink" title="Linux文件系统目录结构"></a>Linux文件系统目录结构</h2><h3 id="文件系统"><a href="#文件系统" class="headerlink" title="文件系统"></a>文件系统</h3><p>文件系统的是用来组织和排列文件存取的，当在使用Linux的时候，如果您通过ls –l / 就会发现，在/下包涵很多的目录，比如etc、usr、var、bin … … 等目录，linux文件系统的最顶端是/，我们称/为Linux的root，也就是 Linux操作系统的文件系统。</p>
-<p><img src="http://i3.itc.cn/20160824/aac_2c1d4226_a8db_5810_7d73_6fc9960c88d6_1.png" alt=""></p>
-<h3 id="FHS标准"><a href="#FHS标准" class="headerlink" title="FHS标准"></a>FHS标准</h3><p>由于linux是开放源代码，各大公司和团体根据linux的核心代码做各自的操作，编程。这样就造成在根下的目录的不同。这样就造成个人不能使用他人的linux系统的PC。因为你根本不知道一些基本的配置，文件在哪里。。。这就造成了混乱。这就是FHS（Filesystem Hierarchy Standard ）机构诞生的原因。根据FHS(<a href="http://www.pathname.com/fhs/)的官方文件指出，" target="_blank" rel="external">http://www.pathname.com/fhs/)的官方文件指出，</a> 他们的主要目的是希望让使用者可以了解到已安装软件通常放置于那个目录下， 所以他们希望独立的软件开发商、操作系统制作者、以及想要维护系统的用户，都能够遵循FHS的标准。</p>
-<p><img src="http://i0.itc.cn/20160824/aac_2c1d4226_a8db_5810_7d73_6fc9960c88d6_2.png" alt=""></p>
-<p>参考 ：<a href="http://www.cnblogs.com/peida/archive/2012/11/21/2780075.html" target="_blank" rel="external">http://www.cnblogs.com/peida/archive/2012/11/21/2780075.html</a></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2016/03/04/(3.3).java-JMX/" itemprop="url">
                   JMX
                 </a>
@@ -1717,8 +2009,8 @@ jvm配置
             
               
                 
-                <a class="post-title-link" href="/2016/03/02/(3.5).java-设计模式/" itemprop="url">
-                  设计模式
+                <a class="post-title-link" href="/2016/03/04/(3.6).liunx-ϵͳĿ¼/" itemprop="url">
+                  Liunx目录结构
                 </a>
               
             
@@ -1731,228 +2023,8 @@ jvm配置
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-03-02T11:54:52+08:00" content="2016-03-02">
-              2016-03-02
-            </time>
-          </span>
-
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="设计模式概述"><a href="#设计模式概述" class="headerlink" title="设计模式概述"></a>设计模式概述</h3><h4 id="简述"><a href="#简述" class="headerlink" title="简述"></a>简述</h4><p>设计模式（Design pattern）是一套被反复使用、多数人知晓的、经过分类编目的、代码设计经验的总结。使用设计模式是为了可重用代码、让代码更容易被他人理解、保证代码可靠性。</p>
-<ul>
-<li>反复出现问题的解决方案</li>
-<li>增强软件的灵活性</li>
-<li>适应软件不断变化</li>
-</ul>
-<h4 id="UML图的几种关系"><a href="#UML图的几种关系" class="headerlink" title="UML图的几种关系"></a>UML图的几种关系</h4><blockquote>
-<p>泛化(继承) Generalization </p>
-</blockquote>
-<p>是一种继承关系，表示一般与特殊的关系，它指定了子类如何特化父类的所有特征和行为,通过<strong>关键字extends</strong>明确标识.</p>
-<p><img src="http://i3.itc.cn/20160711/aac_249477e7_ecf3_fb09_b354_9f82ed082d6e_6.png" alt=""></p>
-<blockquote>
-<p>实现     Realization</p>
-</blockquote>
-<p>是一种类与接口的关系，表示类是接口所有特征和行为的实现,通过<strong>关键字implements</strong>明确标识.</p>
-<p><img src="http://i3.itc.cn/20160711/aac_249477e7_ecf3_fb09_b354_9f82ed082d6e_3.png" alt=""></p>
-<blockquote>
-<p>依赖     Dependency</p>
-</blockquote>
-<p>是一种使用的关系，具有偶然性的、、临时性的、非常弱.<br>代码表现：<strong>局部变量、方法的参数</strong>等</p>
-<p><img src="http://i0.itc.cn/20160711/aac_249477e7_ecf3_fb09_b354_9f82ed082d6e_2.png" alt=""></p>
-<blockquote>
-<p>关联  Association</p>
-</blockquote>
-<p>是一种拥有的关系，关系比依赖更强.<br>代码体现：<strong>成员变量</strong></p>
-<p><img src="http://i2.itc.cn/20160711/aac_249477e7_ecf3_fb09_b354_9f82ed082d6e_7.png" alt=""></p>
-<blockquote>
-<p>聚合     Aggregation</p>
-</blockquote>
-<p>是整体与部分的关系，且部分可以离开整体而单独存在.<strong>体现has-a的关系</strong><br><img src="http://i2.itc.cn/20160711/aac_249477e7_ecf3_fb09_b354_9f82ed082d6e_5.png" alt=""></p>
-<blockquote>
-<p>组合    Composition</p>
-</blockquote>
-<p>是整体与部分的关系，但部分不能离开整体而单独存在.<strong>体现contains-a的关系</strong></p>
-<p><img src="http://i2.itc.cn/20160711/aac_249477e7_ecf3_fb09_b354_9f82ed082d6e_1.png" alt=""></p>
-<h4 id="uml经典例题"><a href="#uml经典例题" class="headerlink" title="uml经典例题"></a>uml经典例题</h4><p><img src="http://i3.itc.cn/20160711/aac_249477e7_ecf3_fb09_b354_9f82ed082d6e_4.png" alt=""></p>
-<h3 id="JDK中常用的设计模式及理解"><a href="#JDK中常用的设计模式及理解" class="headerlink" title="JDK中常用的设计模式及理解"></a>JDK中常用的设计模式及理解</h3><h4 id="单例模式-singleton"><a href="#单例模式-singleton" class="headerlink" title="单例模式 singleton"></a>单例模式 singleton</h4><p>所谓单例模式，简单来说，就是在整个应用中保证只有一个类的实例存在。类似Spring中的IOC 配置，bean实例化默认都是单例模式的。<br> 单例的四种写法：</p>
-<ul>
-<li>饿汉式单例</li>
-</ul>
-<p>优点：此写法是线程安全的</p>
-<p>缺点：会增大初始化类和创建对象的开销</p>
-<pre><code>//饿汉式  
-public class Singleton{  
-  //1.私有的唯一的静态实例变量,在类加载的时候就创建好单例对象    
-  private static final Singletion instance= new Singleton();  
-  //2.私有的构造函数,确保不能在类的外部访问该类的构造函数    
-  private Singleton{}  
-  //3.通过静态工厂方法返回类的唯一实例  
-  private static Singletion getInstance(){  
-    return instance;  
-  }  
-}  
-</code></pre><ul>
-<li>懒汉式</li>
-</ul>
-<p>优点： 延时加载，只有在使用的时候进行初始化</p>
-<p>问题：同步锁粒度在多线程进行获取实例的时候会出现阻塞，加大了因锁竞争的性能开销</p>
-<pre><code>public class Singleton {  
-  //1.一个私有的指向自己的静态变量    
-　private static Singleton instance = null;  
-  // 2.私有的构造方法,保证不能从外部创建对象  
-  private Singleton{}  
-  //3.真正获取实例的时候才进行初始化，如果多线程访问 synchronized会阻塞其他线程  
-　public static synchronized Singleton getInstance() {  
-　　if (instance == null)  
-　　　instance = new Singleton(); // lazy load  
-　　return instance;  
-　}   
-}  
-</code></pre><ul>
-<li>double-check双重检查锁定</li>
-</ul>
-<p>优点： 用双重验证的方式，降低因多线程因为同步锁而造成的开销,同步锁保证模块执行的原子性，volatile保证实例可见性</p>
-<p>缺点：同步锁模块内部方法体instance ＝ new Singleton();并不是原子性操作(像count++也不是原子性操作) 还是可能造成JIT编译器对代码进行重排序 导致对象的值不正确</p>
-<pre><code>public class Singleton {   
-  //1.volatile保证可见性  
-　private static volatile Singleton instance = null;  
-  // 2.私有的构造方法,保证不能从外部创建对象  
-  private Singleton{}  
-　public static Singleton getInstance() {   
-     //3.instance使用volatile标识可以保证所有线程访问同一共享变量的可见性问题  
- 　　if (instance == null) {// double check (jdk1.5+)  
-      //4.synchronized虽然保证了原子性，但不能保证 同步方法里面的顺序性  
-      //5. instance = new Singletion(),其实由三步组成    
-      //   1).分配对象内存空间 2).初始化对象  3).设置instance指向刚分配的内存地址   
-      //6.由于不同cpu的内核，JMM重排序粒度不一样，instance在第2，3步见可能会被重排序  
-      //  执行过程中instance不为null,但获取对象 并不是真正赋值对象(旧值或空值)  
-　　　synchronized (Singleton.class)  
-　　　　if (instance == null){  
-　　　　　instance ＝ new Singleton();  
-        }  
-      }  
-　　return instance; 　　  
-　}   
-}   
-</code></pre><ul>
-<li>静态内部类写法</li>
-</ul>
-<p>优点：线程安全的，且在使用时才会被进行初始化操作，优于上面三种方式</p>
-<pre><code>public class Singleton {   
-  //1.在第一次被引用时被加载   
-　private static class Holder { // lazy class  
-　　static final Singleton instance = new Singleton();  
-　}  
-  //2.保证不能进行构造  
-  private Singleton(){ }   
-  //3.通过静态方法获取  
-　public static Singleton getInstance() {  
-　　return Holder.instance; 　　  
-　}   
-}   
-</code></pre><ul>
-<li><p>枚举写法</p>
-<pre><code>public enum SingletonEnum {  
-
-    instance;  
-    /* 
-     * do something 
-     */  
-    public void doSomething(){  
-        System.out.println(&quot;do something&quot;);  
-    }  
-}  
-</code></pre></li>
-</ul>
-<p>总之，懒汉，恶汉，双重校验锁，静态内部类，枚举。<br>恶汉：因为加载类的时候就创建实例，所以线程安全(多个ClassLoader存在时例外)。缺点是不能延时加载。<br>懒汉：需要加锁才能实现多线程同步，但是效率会降低。优点是延时加载。<br>双重校验锁：麻烦，在当前Java内存模型中不一定都管用，某些平台和编译器甚至是错误的，因为instance = new Singletion()这种代码在不同编译器上的行为和实现方式不可预知。<br>静态内部类：延迟加载，减少内存开销。因为用到的时候才加载，避免了静态field在单例类加载时即进入到堆内存的permanent代而永远得不到回收的缺点(大多数垃圾回收算法是这样)。<br>枚举：很好，不仅能避免多线程同步问题，而且还能防止反序列化重新创建新的对象。但是失去了类的一些特性，没有延迟加载，用的人也太少了.</p>
-<h4 id="工厂模式-factory"><a href="#工厂模式-factory" class="headerlink" title="工厂模式 factory"></a>工厂模式 factory</h4><h4 id="动态代理模式-proxy"><a href="#动态代理模式-proxy" class="headerlink" title="动态代理模式 proxy"></a>动态代理模式 proxy</h4><h4 id="观察者模式-observer"><a href="#观察者模式-observer" class="headerlink" title="观察者模式  observer"></a>观察者模式  observer</h4><h4 id="模板模式-template"><a href="#模板模式-template" class="headerlink" title="模板模式 template"></a>模板模式 template</h4>
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/03/01/(3.4).java-反射及动态代理/" itemprop="url">
-                  java反射
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-03-01T16:57:26+08:00" content="2016-03-01">
-              2016-03-01
+            <time itemprop="dateCreated" datetime="2016-03-04T16:37:35+08:00" content="2016-03-04">
+              2016-03-04
             </time>
           </span>
 
@@ -1965,8 +2037,8 @@ public class Singleton{
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
+                  <a href="/categories/liunx/" itemprop="url" rel="index">
+                    <span itemprop="name">liunx</span>
                   </a>
                 </span>
 
@@ -2000,7 +2072,12 @@ public class Singleton{
       
         
           
-            
+            <h2 id="Linux文件系统目录结构"><a href="#Linux文件系统目录结构" class="headerlink" title="Linux文件系统目录结构"></a>Linux文件系统目录结构</h2><h3 id="文件系统"><a href="#文件系统" class="headerlink" title="文件系统"></a>文件系统</h3><p>文件系统的是用来组织和排列文件存取的，当在使用Linux的时候，如果您通过ls –l / 就会发现，在/下包涵很多的目录，比如etc、usr、var、bin … … 等目录，linux文件系统的最顶端是/，我们称/为Linux的root，也就是 Linux操作系统的文件系统。</p>
+<p><img src="http://i3.itc.cn/20160824/aac_2c1d4226_a8db_5810_7d73_6fc9960c88d6_1.png" alt=""></p>
+<h3 id="FHS标准"><a href="#FHS标准" class="headerlink" title="FHS标准"></a>FHS标准</h3><p>由于linux是开放源代码，各大公司和团体根据linux的核心代码做各自的操作，编程。这样就造成在根下的目录的不同。这样就造成个人不能使用他人的linux系统的PC。因为你根本不知道一些基本的配置，文件在哪里。。。这就造成了混乱。这就是FHS（Filesystem Hierarchy Standard ）机构诞生的原因。根据FHS(<a href="http://www.pathname.com/fhs/)的官方文件指出，" target="_blank" rel="external">http://www.pathname.com/fhs/)的官方文件指出，</a> 他们的主要目的是希望让使用者可以了解到已安装软件通常放置于那个目录下， 所以他们希望独立的软件开发商、操作系统制作者、以及想要维护系统的用户，都能够遵循FHS的标准。</p>
+<p><img src="http://i0.itc.cn/20160824/aac_2c1d4226_a8db_5810_7d73_6fc9960c88d6_2.png" alt=""></p>
+<p>参考 ：<a href="http://www.cnblogs.com/peida/archive/2012/11/21/2780075.html" target="_blank" rel="external">http://www.cnblogs.com/peida/archive/2012/11/21/2780075.html</a></p>
+
           
         
       
@@ -2073,7 +2150,7 @@ public class Singleton{
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">36</span>
+              <span class="site-state-item-count">38</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -2081,7 +2158,7 @@ public class Singleton{
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">24</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

@@ -84,18 +84,24 @@
 
 
 
-<meta name="description" content="redis常用工具1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556环境准备:（注:不同redis版本可能会有差异）1.redis-server -vRedis server v=3.0.7 sha=00000000:0 malloc=jema">
+<meta name="description" content="常见的redis超时分析123456(1). 网络原因：比如是否存在跨机房、网络割接等等。(2). 慢查询，因为redis是单线程，如果有慢查询的话，会阻塞住之后的操作。 (3). value值过大？比如value几十兆，当然这种情况比较少，其实也可以看做是慢查询的一种(4). aof重写/rdb fork发生？瞬间会堵一下Redis服务器。(5). redis自身阻塞（swap fsync 磁盘">
 <meta name="keywords" content="redis">
 <meta property="og:type" content="article">
-<meta property="og:title" content="redis常用工具">
-<meta property="og:url" content="/2016/08/22/9.2).redis工具使用/index.html">
+<meta property="og:title" content="redis客户端超时分析">
+<meta property="og:url" content="/2016/08/29/9.4) redis-客户端超时问题/index.html">
 <meta property="og:site_name" content="Meteor">
-<meta property="og:description" content="redis常用工具1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556环境准备:（注:不同redis版本可能会有差异）1.redis-server -vRedis server v=3.0.7 sha=00000000:0 malloc=jema">
+<meta property="og:description" content="常见的redis超时分析123456(1). 网络原因：比如是否存在跨机房、网络割接等等。(2). 慢查询，因为redis是单线程，如果有慢查询的话，会阻塞住之后的操作。 (3). value值过大？比如value几十兆，当然这种情况比较少，其实也可以看做是慢查询的一种(4). aof重写/rdb fork发生？瞬间会堵一下Redis服务器。(5). redis自身阻塞（swap fsync 磁盘">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-08-23T06:12:47.000Z">
+<meta property="og:image" content="http://i0.itc.cn/20170830/aac_bd5f86a3_734f_be66_d18d_19d61d581987_1.png">
+<meta property="og:image" content="http://i2.itc.cn/20170830/aac_8fd6226a_8bf1_221f_7fe3_32e0ba1790e2_2.png">
+<meta property="og:image" content="http://i0.itc.cn/20170830/aac_8fd6226a_8bf1_221f_7fe3_32e0ba1790e2_1.png">
+<meta property="og:image" content="http://i0.itc.cn/20170830/aac_8fd6226a_8bf1_221f_7fe3_32e0ba1790e2_4.jpg">
+<meta property="og:image" content="http://i0.itc.cn/20170830/aac_5f264f90_4351_e9c3_106d_d1828ae4aa2f_1.png">
+<meta property="og:updated_time" content="2017-08-30T10:57:48.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="redis常用工具">
-<meta name="twitter:description" content="redis常用工具1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556环境准备:（注:不同redis版本可能会有差异）1.redis-server -vRedis server v=3.0.7 sha=00000000:0 malloc=jema">
+<meta name="twitter:title" content="redis客户端超时分析">
+<meta name="twitter:description" content="常见的redis超时分析123456(1). 网络原因：比如是否存在跨机房、网络割接等等。(2). 慢查询，因为redis是单线程，如果有慢查询的话，会阻塞住之后的操作。 (3). value值过大？比如value几十兆，当然这种情况比较少，其实也可以看做是慢查询的一种(4). aof重写/rdb fork发生？瞬间会堵一下Redis服务器。(5). redis自身阻塞（swap fsync 磁盘">
+<meta name="twitter:image" content="http://i0.itc.cn/20170830/aac_bd5f86a3_734f_be66_d18d_19d61d581987_1.png">
 
 
 
@@ -113,7 +119,7 @@
   };
 </script>
 
-  <title> redis常用工具 | Meteor </title>
+  <title> redis客户端超时分析 | Meteor </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -266,7 +272,7 @@
             
             
               
-                redis常用工具
+                redis客户端超时分析
               
             
           </h1>
@@ -278,8 +284,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-22T16:37:35+08:00" content="2016-08-22">
-              2016-08-22
+            <time itemprop="dateCreated" datetime="2016-08-29T09:37:35+08:00" content="2016-08-29">
+              2016-08-29
             </time>
           </span>
 
@@ -294,18 +300,6 @@
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
                   <a href="/categories/redis/" itemprop="url" rel="index">
                     <span itemprop="name">redis</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
                   </a>
                 </span>
 
@@ -337,35 +331,94 @@
       
 
       
-        <h1 id="redis常用工具"><a href="#redis常用工具" class="headerlink" title="redis常用工具"></a>redis常用工具</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line">环境准备:（注:不同redis版本可能会有差异）</div><div class="line"></div><div class="line">1.redis-server -v</div><div class="line">Redis server v=3.0.7 sha=00000000:0 malloc=jemalloc-3.6.0 bits=64 build=fde71d6d37f8bceb</div><div class="line"></div><div class="line">2.python -V </div><div class="line">Python 2.7.3</div><div class="line">下载：wget https://www.python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2</div><div class="line">(下载:wget http://index.tv.sohuno.com/software/Python-2.7.3.tar.bz2)</div><div class="line">which python:查看python安装目录</div><div class="line">/usr/local/bin/python</div><div class="line"></div><div class="line">[@fl bin]# python -V</div><div class="line">Python 3.4.1</div><div class="line">[@fl bin]# cd /usr/bin</div><div class="line">[@fl bin]# ll | grep python</div><div class="line">-rwxr-xr-x    1 root root      10920 May 16  2012 abrt-action-analyze-python</div><div class="line">lrwxrwxrwx    1 root root         24 Aug 22 16:19 python -&gt; /usr/local/bin/python2.7</div><div class="line">lrwxrwxrwx.   1 root root          6 Sep 26  2014 python2 -&gt; python</div><div class="line">-rwxr-xr-x    2 root root       9032 May  2  2012 python2.6</div><div class="line">-rwxr-xr-x    2 root root       9032 May  2  2012 python2.6.6</div><div class="line">[@fl bin]# which python</div><div class="line">/usr/local/bin/python</div><div class="line">[@fl bin]# cd /usr/local/bin/</div><div class="line">[@fl bin]# ll | grep python</div><div class="line">lrwxrwxrwx 1 root root      24 Feb 22  2016 python -&gt; /usr/local/bin/python3.4</div><div class="line">lrwxrwxrwx 1 root root       9 Feb 13  2016 python2 -&gt; python2.7</div><div class="line">-rwxr-xr-x 1 root root 6162257 Feb 13  2016 python2.7</div><div class="line">-rwxr-xr-x 1 root root    1624 Feb 13  2016 python2.7-config</div><div class="line">lrwxrwxrwx 1 root root      16 Feb 13  2016 python2-config -&gt; python2.7-config</div><div class="line">lrwxrwxrwx 1 root root       9 Feb 22  2016 python3 -&gt; python3.4</div><div class="line">-rwxr-xr-x 2 root root 8773578 Feb 22  2016 python3.4</div><div class="line">lrwxrwxrwx 1 root root      17 Feb 22  2016 python3.4-config -&gt; python3.4m-config</div><div class="line">-rwxr-xr-x 2 root root 8773578 Feb 22  2016 python3.4m</div><div class="line">-rwxr-xr-x 1 root root    3049 Feb 22  2016 python3.4m-config</div><div class="line">lrwxrwxrwx 1 root root      16 Feb 22  2016 python3-config -&gt; python3.4-config</div><div class="line">lrwxrwxrwx 1 root root      14 Feb 13  2016 python-config -&gt; python2-config</div><div class="line">[@fl bin]# rm -f python</div><div class="line">[@fl bin]# ln -s /usr/local/bin/python2.7</div><div class="line">python2.7         python2.7-config</div><div class="line">[@fl bin]# ln -s /usr/local/bin/python2.7 python</div><div class="line">[@fl bin]# python -V</div><div class="line">Python 2.7.3</div><div class="line"></div><div class="line">3.python redis安装 rediscluster安装</div><div class="line"></div><div class="line">wget https://github.com/andymccurdy/redis-py/archive/2.10.5.zip</div><div class="line">wget https://github.com/Grokzen/redis-py-cluster/releases/download/1.3.4/redis-py-cluster-1.3.4.tar.gz</div><div class="line"></div><div class="line">python setup.py install</div><div class="line"></div><div class="line">4. 导入包</div><div class="line"></div><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div></pre></td></tr></table></figure>
-<h2 id="python工具使用"><a href="#python工具使用" class="headerlink" title="python工具使用"></a>python工具使用</h2><hr>
-<p>扫描scan key</p>
-<hr>
-<ul>
-<li>单机</li>
+        <h1 id="常见的redis超时分析"><a href="#常见的redis超时分析" class="headerlink" title="常见的redis超时分析"></a>常见的redis超时分析</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">(1). 网络原因：比如是否存在跨机房、网络割接等等。</div><div class="line">(2). 慢查询，因为redis是单线程，如果有慢查询的话，会阻塞住之后的操作。 </div><div class="line">(3). value值过大？比如value几十兆，当然这种情况比较少，其实也可以看做是慢查询的一种</div><div class="line">(4). aof重写/rdb fork发生？瞬间会堵一下Redis服务器。</div><div class="line">(5). redis自身阻塞（swap fsync 磁盘io hugePage内存页未关闭）</div><div class="line">(5). 其他..................</div></pre></td></tr></table></figure>
+<a id="more"></a>
+<h2 id="情形一-客户端connectionTimeout设置小了"><a href="#情形一-客户端connectionTimeout设置小了" class="headerlink" title="情形一:客户端connectionTimeout设置小了"></a>情形一:客户端connectionTimeout设置小了</h2><ul>
+<li>现象或日志</li>
 </ul>
-<p>格式:python scankey.py ip port pattern password</p>
-<p>python scankey.py 10.16.14.182 6380 hash<em> “”<br>python scankey.py 10.16.14.182 6380 hash</em> “123”</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div><div class="line"></div><div class="line">def findInstancePatternKeys(host, port, pattern, password):</div><div class="line">    client = redis.StrictRedis(host=host, port=port, password=password)</div><div class="line">    pipeline = client.pipeline(transaction=False)</div><div class="line">    cursor = 0</div><div class="line">    print &quot;====================check &#123;host&#125;:&#123;port&#125;&quot;.format(host=host,port=port)</div><div class="line">    while True:</div><div class="line">        currentCursor, keys = client.scan(cursor=cursor, match=pattern, count=100)</div><div class="line">        if len(keys) &gt; 0:</div><div class="line">            for key in keys:</div><div class="line">              print &quot;key=&#123;key&#125;&quot;.format(key=key)</div><div class="line">            pipeline.execute()</div><div class="line">        cursor = currentCursor</div><div class="line">        if cursor == 0:</div><div class="line">            break</div><div class="line"></div><div class="line">findInstancePatternKeys(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4])</div></pre></td></tr></table></figure>
+<p>本地连接调用 远程redis集群 执行hset命令报错</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">redis.clients.jedis.exceptions.JedisConnectionException: no reachable node in cluster</div><div class="line"></div><div class="line">	at redis.clients.jedis.JedisSlotBasedConnectionHandler.getConnection(JedisSlotBasedConnectionHandler.java:54)</div><div class="line">	at redis.clients.jedis.JedisClusterCommand.runWithRetries(JedisClusterCommand.java:113)</div><div class="line">	at redis.clients.jedis.JedisClusterCommand.runWithRetries(JedisClusterCommand.java:131)</div><div class="line">	at redis.clients.jedis.JedisClusterCommand.run(JedisClusterCommand.java:30)</div><div class="line">	at redis.clients.jedis.JedisCluster.hset(JedisCluster.java:351)</div><div class="line">	at com.sohu.index.cachecloud.redis.test.cluster.ClusterTest2.clusterSetTest(ClusterTest2.java:105)</div></pre></td></tr></table></figure>
 <ul>
-<li>集群</li>
+<li>问题分析</li>
 </ul>
-<p>格式:python scankey.py ip port pattern password</p>
-<p>python cluster-scankey.py 10.16.14.182 6380 hash<em> “”<br>python cluster-scankey.py 10.16.14.182 6380 hash</em> “123”</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div><div class="line"></div><div class="line">def findClusterPatternKey(startupNodes, pattern,password):</div><div class="line">    clusterClient = rediscluster.StrictRedisCluster(startup_nodes=startupNodes,password=password, decode_responses=True)</div><div class="line">    clusterInfos = clusterClient.cluster_nodes()</div><div class="line">    for clusternode in clusterInfos:</div><div class="line">        slots = clusternode[&quot;slots&quot;]</div><div class="line">        # only check master</div><div class="line">        if len(slots) &gt; 0:</div><div class="line">            print &quot;========= check &#123;host&#125;:&#123;port&#125;&quot;.format(host=clusternode[&quot;host&quot;],port=clusternode[&quot;port&quot;])</div><div class="line">            findInstancePatternKeys(clusternode[&quot;host&quot;], clusternode[&quot;port&quot;], pattern, password)</div><div class="line"></div><div class="line">def findInstancePatternKeys(host, port, pattern, password):</div><div class="line">    client = redis.StrictRedis(host=host, port=port, password=password)</div><div class="line">    pipeline = client.pipeline(transaction=False)</div><div class="line">    cursor = 0</div><div class="line">    while True:</div><div class="line">        currentCursor, keys = client.scan(cursor=cursor, match=pattern, count=100)</div><div class="line">        if len(keys) &gt; 0:</div><div class="line">            for key in keys:</div><div class="line">                print &quot;key=&#123;key&#125;&quot;.format(key=key)</div><div class="line">            pipeline.execute()</div><div class="line">        cursor = currentCursor</div><div class="line">        if cursor == 0:</div><div class="line">            break</div><div class="line"></div><div class="line">startupNodes = [&#123;&quot;host&quot;:sys.argv[1],&quot;port&quot;:int(sys.argv[2])&#125;]</div><div class="line">findClusterPatternKey(startupNodes, sys.argv[3],sys.argv[4])</div></pre></td></tr></table></figure>
-<hr>
-<p>扫描 idle key</p>
-<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">1.配置ip:host列表出错,导致获取有问题集群列表问题 </div><div class="line">2.客户端配置问题,比如timeout(connectTimeout 连接超时/ soTimeOut 读取超时)</div><div class="line">  参考源码：JedisSlotBasedConnectionHandler 创建pipelinecluster时候</div><div class="line">  public JedisSlotBasedConnectionHandler(Set&lt;HostAndPort&gt; nodes, 		GenericObjectPoolConfig poolConfig, int timeout) &#123;</div><div class="line">	        this(nodes, poolConfig, timeout, timeout);</div><div class="line">	    &#125;</div><div class="line">    public JedisSlotBasedConnectionHandler(Set&lt;HostAndPort&gt; nodes, GenericObjectPoolConfig poolConfig, int connectionTimeout, int soTimeout) &#123;</div><div class="line">        super(nodes, poolConfig, connectionTimeout, soTimeout);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>客户端配置</p>
+</blockquote>
+<pre><code>private final static int TIME_OUT = 5;//5s  socket连接超时
+
+public static GenericObjectPoolConfig getCommonPoolConfig() {
+       GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
+       poolConfig.setMaxTotal(GenericObjectPoolConfig.DEFAULT_MAX_TOTAL * 10);
+       poolConfig.setMaxIdle(GenericObjectPoolConfig.DEFAULT_MAX_IDLE * 5);
+       poolConfig.setMinIdle(GenericObjectPoolConfig.DEFAULT_MAX_IDLE * 2);
+       // JedisPool.borrowObject最大等待时间
+       poolConfig.setMaxWaitMillis(5000L);
+       // 开启jmx
+       poolConfig.setJmxEnabled(true);
+       return poolConfig;
+   }
+</code></pre><blockquote>
+<p>代码跟踪</p>
+</blockquote>
 <ul>
-<li>单机</li>
+<li><p>redis执行过程<br>  创建socket连接(?) –&gt; 发送redis命令 –&gt; 服务器返回响应结果</p>
+</li>
+<li><p>堆栈跟踪：JedisSlotBasedConnectionHandler.getConnection 获取连接</p>
+</li>
+<li><p>创建连接:GenericObjectPool borrowObject  准备获取连接</p>
+</li>
+<li><p>断点跟踪：(jedisfactory makeObject创建新的连接)<br><img src="http://i0.itc.cn/20170830/aac_bd5f86a3_734f_be66_d18d_19d61d581987_1.png" alt=""></p>
+</li>
+<li><p>最终抛出异常的地方：socket创建过程</p>
+</li>
 </ul>
-<p>格式:python scankey.py ip port idleDay password</p>
-<p>python scankey.py 10.16.14.182 6380 1 “”<br>python scankey.py 10.16.14.182 6380 1 “123”</p>
+<pre><code>public void connect() {
+    if(!this.isConnected()) {
+        try {
+            this.socket = new Socket();
+            this.socket.setReuseAddress(true);
+            this.socket.setKeepAlive(true);
+            this.socket.setTcpNoDelay(true);
+            this.socket.setSoLinger(true, 0);
+            this.socket.connect(new InetSocketAddress(this.host, this.port), this.connectionTimeout);
+            this.socket.setSoTimeout(this.soTimeout);
+            this.outputStream = new RedisOutputStream(this.socket.getOutputStream());
+            this.inputStream = new RedisInputStream(this.socket.getInputStream());
+        } catch (IOException var2) {
+               //此处抛出异常
+            this.broken = true;
+            throw new JedisConnectionException(var2);
+        }
+    }
+
+}
+</code></pre><ul>
+<li><p>解决</p>
+<p>  本地访问服务器，可能存在connect/read timeout，之前设置的timeout时间是5s，可能会存在连接超时调大为20s，批量hset远程服务器正常。</p>
+</li>
+</ul>
+<h2 id="情形二-客户端不定期抛出-readtimeoutException"><a href="#情形二-客户端不定期抛出-readtimeoutException" class="headerlink" title="情形二:客户端不定期抛出 readtimeoutException"></a>情形二:客户端不定期抛出 readtimeoutException</h2><ul>
+<li>现象或日志</li>
+</ul>
+<p>重试maxDirection失败<br><img src="http://i2.itc.cn/20170830/aac_8fd6226a_8bf1_221f_7fe3_32e0ba1790e2_2.png" alt=""><br>异常readTimeoutException:<br><img src="http://i0.itc.cn/20170830/aac_8fd6226a_8bf1_221f_7fe3_32e0ba1790e2_1.png" alt=""></p>
 <ul>
-<li>集群</li>
+<li>问题分析</li>
 </ul>
-<p>格式:python scankey.py ip port pattern password</p>
-<p>python scankey.py 10.16.14.182 6380 hash<em> “”<br>python scankey.py 10.16.14.182 6380 hash</em> “123”</p>
+<blockquote>
+<p>查看client list</p>
+</blockquote>
+<p>发现大量的连接的age都很小，很可能客户端设置timeout过小，导致age过快被回收<br><img src="http://i0.itc.cn/20170830/aac_8fd6226a_8bf1_221f_7fe3_32e0ba1790e2_4.jpg" alt=""></p>
+<blockquote>
+<p>客户端配置</p>
+</blockquote>
+<p>timeout:100  （&lt;100 单位为ms 也就是 connecttimeout soTimeout 都是100ms）</p>
+<p><img src="http://i0.itc.cn/20170830/aac_5f264f90_4351_e9c3_106d_d1828ae4aa2f_1.png" alt=""><br>超时很有规律。</p>
+<p>timeout指连接超时和等待命令执行超时。连接超时太短了，而连接池周期性地剔除连接。所以会周期性的报超时错误。</p>
+<ul>
+<li>解决</li>
+</ul>
+<p>客户端设置timeout=2s ,由于设置timeout较小 导致连接很容易被关闭，在服务 qps较高或者请求响应稍微偏慢就有可能抛出超时。</p>
 
       
     </div>
@@ -396,8 +449,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/08/06/(8.5).JAVA虚拟机(五)-JVM性能调优及故障排查/" rel="next" title="java虚拟机-故障排查">
-                <i class="fa fa-chevron-left"></i> java虚拟机-故障排查
+              <a href="/2016/08/23/9.2).redis工具使用/" rel="next" title="redis常用工具">
+                <i class="fa fa-chevron-left"></i> redis常用工具
               </a>
             
           </div>
@@ -480,7 +533,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">36</span>
+              <span class="site-state-item-count">38</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -488,7 +541,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">24</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -555,7 +608,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#redis常用工具"><span class="nav-number">1.</span> <span class="nav-text">redis常用工具</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#python工具使用"><span class="nav-number">1.1.</span> <span class="nav-text">python工具使用</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#常见的redis超时分析"><span class="nav-number">1.</span> <span class="nav-text">常见的redis超时分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#情形一-客户端connectionTimeout设置小了"><span class="nav-number">1.1.</span> <span class="nav-text">情形一:客户端connectionTimeout设置小了</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#情形二-客户端不定期抛出-readtimeoutException"><span class="nav-number">1.2.</span> <span class="nav-text">情形二:客户端不定期抛出 readtimeoutException</span></a></li></ol></li></ol></div>
             
           </div>
         </section>
