@@ -1,0 +1,811 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="springcloud,netflix," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="hystrix-dashboard使用搭建dashboard 直接启动  123$ git clone https://github.com/Netflix/Hystrix.git$ cd Hystrix/hystrix-dashboard$ ../gradlew appRun dashboard地址:http://localhost:7979/hystrix-dashboard  后台启动  1">
+<meta name="keywords" content="springcloud,netflix">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hystrix使用">
+<meta property="og:url" content="/2017/10/21/10.4) netflix-hystrix熔断/index.html">
+<meta property="og:site_name" content="Meteor">
+<meta property="og:description" content="hystrix-dashboard使用搭建dashboard 直接启动  123$ git clone https://github.com/Netflix/Hystrix.git$ cd Hystrix/hystrix-dashboard$ ../gradlew appRun dashboard地址:http://localhost:7979/hystrix-dashboard  后台启动  1">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://i3.itc.cn/20171024/aac_12264e27_e85d_67d4_bc49_5db5c608fa7f_2.png">
+<meta property="og:image" content="http://i2.itc.cn/20171024/aac_12264e27_e85d_67d4_bc49_5db5c608fa7f_1.png">
+<meta property="og:updated_time" content="2017-10-24T07:20:52.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="hystrix使用">
+<meta name="twitter:description" content="hystrix-dashboard使用搭建dashboard 直接启动  123$ git clone https://github.com/Netflix/Hystrix.git$ cd Hystrix/hystrix-dashboard$ ../gradlew appRun dashboard地址:http://localhost:7979/hystrix-dashboard  后台启动  1">
+<meta name="twitter:image" content="http://i3.itc.cn/20171024/aac_12264e27_e85d_67d4_bc49_5db5c608fa7f_2.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> hystrix使用 | Meteor </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Meteor</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                hystrix使用
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-10-21T10:11:00+08:00" content="2017-10-21">
+              2017-10-21
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/hystrix/" itemprop="url" rel="index">
+                    <span itemprop="name">hystrix</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="hystrix-dashboard使用"><a href="#hystrix-dashboard使用" class="headerlink" title="hystrix-dashboard使用"></a>hystrix-dashboard使用</h2><h3 id="搭建dashboard"><a href="#搭建dashboard" class="headerlink" title="搭建dashboard"></a>搭建dashboard</h3><ul>
+<li>直接启动</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ git clone https://github.com/Netflix/Hystrix.git</div><div class="line">$ cd Hystrix/hystrix-dashboard</div><div class="line">$ ../gradlew appRun</div></pre></td></tr></table></figure>
+<p><code>dashboard地址:</code><a href="http://localhost:7979/hystrix-dashboard" target="_blank" rel="external">http://localhost:7979/hystrix-dashboard</a></p>
+<ul>
+<li>后台启动</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">java -jar -DserverPort=8080 -DbindAddress=192.168.1.100 standalone-hystrix-dashboard-&#123;VERSION&#125;-all.jar</div><div class="line"></div><div class="line">serverPort	The port that the server will listen to.   7979</div><div class="line">bindAddress	The address that the server will bind to.  0.0.0.0</div><div class="line">disableCompression	Flag to disable compression support for the metrics stream. enable</div></pre></td></tr></table></figure>
+<h3 id="dashboard配置"><a href="#dashboard配置" class="headerlink" title="dashboard配置"></a>dashboard配置</h3><p><code>hystrix-dashboard后台</code>:<a href="http://127.0.0.1:7979/hystrix-dashboard/" target="_blank" rel="external">http://127.0.0.1:7979/hystrix-dashboard/</a></p>
+<p><img src="http://i3.itc.cn/20171024/aac_12264e27_e85d_67d4_bc49_5db5c608fa7f_2.png" alt=""></p>
+<p><code>客户端数据流</code>:<a href="http://10.7.36.64:7771/hystrix.stream" target="_blank" rel="external">http://10.7.36.64:7771/hystrix.stream</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">data: &#123;&quot;type&quot;:&quot;HystrixCommand&quot;,&quot;name&quot;:&quot;getTime&quot;,&quot;group&quot;:&quot;RestServiceImpl&quot;,&quot;currentTime&quot;:1508827134796,&quot;isCircuitBreakerOpen&quot;:false,&quot;errorPercentage&quot;:0,&quot;errorCount&quot;:0,&quot;requestCount&quot;:0,&quot;rollingCountBadRequests&quot;:0,&quot;rollingCountCollapsedRequests&quot;:0,&quot;rollingCountEmit&quot;:0,&quot;rollingCountExceptionsThrown&quot;:0,&quot;rollingCountFailure&quot;:0,&quot;rollingCountFallbackEmit&quot;:0,&quot;rollingCountFallbackFailure&quot;:0,&quot;rollingCountFallbackMissing&quot;:0,&quot;rollingCountFallbackRejection&quot;:0,&quot;rollingCountFallbackSuccess&quot;:0,&quot;rollingCountResponsesFromCache&quot;:0,&quot;rollingCountSemaphoreRejected&quot;:0,&quot;rollingCountShortCircuited&quot;:0,&quot;rollingCountSuccess&quot;:0,&quot;rollingCountThreadPoolRejected&quot;:0,&quot;rollingCountTimeout&quot;:0,&quot;currentConcurrentExecutionCount&quot;:0,&quot;rollingMaxConcurrentExecutionCount&quot;:0,&quot;latencyExecute_mean&quot;:0,&quot;latencyExecute&quot;:&#123;&quot;0&quot;:0,&quot;25&quot;:0,&quot;50&quot;:0,&quot;75&quot;:1,&quot;90&quot;:1,&quot;95&quot;:1,&quot;99&quot;:1,&quot;99.5&quot;:1,&quot;100&quot;:1&#125;,&quot;latencyTotal_mean&quot;:0,&quot;latencyTotal&quot;:&#123;&quot;0&quot;:0,&quot;25&quot;:0,&quot;50&quot;:0,&quot;75&quot;:1,&quot;90&quot;:1,&quot;95&quot;:1,&quot;99&quot;:1,&quot;99.5&quot;:1,&quot;100&quot;:1&#125;,&quot;propertyValue_circuitBreakerRequestVolumeThreshold&quot;:20,&quot;propertyValue_circuitBreakerSleepWindowInMilliseconds&quot;:5000,&quot;propertyValue_circuitBreakerErrorThresholdPercentage&quot;:50,&quot;propertyValue_circuitBreakerForceOpen&quot;:false,&quot;propertyValue_circuitBreakerForceClosed&quot;:false,&quot;propertyValue_circuitBreakerEnabled&quot;:true,&quot;propertyValue_executionIsolationStrategy&quot;:&quot;THREAD&quot;,&quot;propertyValue_executionIsolationThreadTimeoutInMilliseconds&quot;:1000,&quot;propertyValue_executionTimeoutInMilliseconds&quot;:1000,&quot;propertyValue_executionIsolationThreadInterruptOnTimeout&quot;:true,&quot;propertyValue_executionIsolationThreadPoolKeyOverride&quot;:null,&quot;propertyValue_executionIsolationSemaphoreMaxConcurrentRequests&quot;:10,&quot;propertyValue_fallbackIsolationSemaphoreMaxConcurrentRequests&quot;:10,&quot;propertyValue_metricsRollingStatisticalWindowInMilliseconds&quot;:10000,&quot;propertyValue_requestCacheEnabled&quot;:true,&quot;propertyValue_requestLogEnabled&quot;:true,&quot;reportingHosts&quot;:1,&quot;threadPool&quot;:&quot;RestServiceImpl&quot;&#125;</div><div class="line">data: &#123;&quot;type&quot;:&quot;HystrixThreadPool&quot;,&quot;name&quot;:&quot;RestServiceImpl&quot;,&quot;currentTime&quot;:1508827134796,&quot;currentActiveCount&quot;:0,&quot;currentCompletedTaskCount&quot;:5,&quot;currentCorePoolSize&quot;:10,&quot;currentLargestPoolSize&quot;:5,&quot;currentMaximumPoolSize&quot;:10,&quot;currentPoolSize&quot;:5,&quot;currentQueueSize&quot;:0,&quot;currentTaskCount&quot;:5,&quot;rollingCountThreadsExecuted&quot;:0,&quot;rollingMaxActiveThreads&quot;:0,&quot;rollingCountCommandRejections&quot;:0,&quot;propertyValue_queueSizeRejectionThreshold&quot;:5,&quot;propertyValue_metricsRollingStatisticalWindowInMilliseconds&quot;:10000,&quot;reportingHosts&quot;:1&#125;</div><div class="line">....</div></pre></td></tr></table></figure>
+<p><code>开启monitor</code></p>
+<p><img src="http://i2.itc.cn/20171024/aac_12264e27_e85d_67d4_bc49_5db5c608fa7f_1.png" alt=""></p>
+<h2 id="hystrix客户端配置"><a href="#hystrix客户端配置" class="headerlink" title="hystrix客户端配置"></a>hystrix客户端配置</h2><ul>
+<li>pom依赖</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"> &lt;!-- hystrix --&gt;</div><div class="line">&lt;dependency&gt;</div><div class="line">    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;</div><div class="line">    &lt;artifactId&gt;spring-cloud-starter-hystrix&lt;/artifactId&gt;</div><div class="line">&lt;/dependency&gt;</div></pre></td></tr></table></figure>
+<ul>
+<li>启动类注解 @EnableCircuitBreaker</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@SpringBootApplication</span></div><div class="line"><span class="meta">@EnableDiscoveryClient</span></div><div class="line"><span class="meta">@EnableFeignClients</span></div><div class="line"><span class="meta">@EnableCircuitBreaker</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ClientApplication</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        <span class="keyword">new</span> SpringApplication().run(ClientApplication.class,args);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Bean</span></div><div class="line">    <span class="meta">@LoadBalanced</span></div><div class="line">    <span class="function">RestTemplate <span class="title">restTemplate</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> RestTemplate();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>service配置hystrix降级 @HystrixCommand</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Service</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RestServiceImpl</span> <span class="keyword">implements</span> <span class="title">RestService</span></span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Autowired</span></div><div class="line">    RestTemplate restTemplate;</div><div class="line"></div><div class="line">    <span class="meta">@HystrixCommand</span>(fallbackMethod = <span class="string">"getTimeFallback"</span>)</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getTime</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> restTemplate.getForEntity(<span class="string">"http://test.server1/get"</span>,String.class).getBody();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getTimeFallback</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="string">"fallback return : 2017-10-24 00:00:00"</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>结果调试</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">http://10.7.36.64:7771/c3/get</div><div class="line"></div><div class="line">正常返回:s1client execute get 1,time=1508829619207</div><div class="line">降级返回:fallback return : 2017-10-24 00:00:00</div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springcloud/" rel="tag">#springcloud</a>
+          
+            <a href="/tags/netflix/" rel="tag">#netflix</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/20/10.2) springcloud-eureka使用/" rel="next" title="spring eureka使用">
+                <i class="fa fa-chevron-left"></i> spring eureka使用
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/10/21/10.3) springcloud-rpc使用/" rel="prev" title="springcloud rpc使用">
+                springcloud rpc使用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/metor.ico"
+               alt="Pedestrian" />
+          <p class="site-author-name" itemprop="name">Pedestrian</p>
+          <p class="site-description motion-element" itemprop="description">study for goal</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">46</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/yanan0628" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://carlosfu.github.io/" target="_blank" title="fudada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  fudada
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://jolinzhangg.github.io/" target="_blank" title="xiaodada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  xiaodada
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#hystrix-dashboard使用"><span class="nav-number">1.</span> <span class="nav-text">hystrix-dashboard使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#搭建dashboard"><span class="nav-number">1.1.</span> <span class="nav-text">搭建dashboard</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dashboard配置"><span class="nav-number">1.2.</span> <span class="nav-text">dashboard配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hystrix客户端配置"><span class="nav-number">2.</span> <span class="nav-text">hystrix客户端配置</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pedestrian</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+                            
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').mousedown(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+  
+
+  
+
+  
+
+</body>
+</html>

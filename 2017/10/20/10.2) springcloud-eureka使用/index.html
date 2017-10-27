@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="cachecloud运维," />
+  <meta name="keywords" content="springcloud," />
 
 
 
@@ -84,18 +84,18 @@
 
 
 
-<meta name="description" content="cachecloud在线升级密码过程##">
-<meta name="keywords" content="cachecloud运维">
+<meta name="description" content="euraka server构建erueka注册中心 1.pom依赖  12345&amp;lt;dependency&amp;gt;	&amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt;	&amp;lt;artifactId&amp;gt;spring-cloud-starter-eureka-server&amp;lt;/artifactId&amp;gt;&amp;lt;/dependen">
+<meta name="keywords" content="springcloud">
 <meta property="og:type" content="article">
-<meta property="og:title" content="cachecloud在线升级密码过程">
-<meta property="og:url" content="/2017/08/11/9.4) redis运维-升级redis密码过程/index.html">
+<meta property="og:title" content="spring eureka使用">
+<meta property="og:url" content="/2017/10/20/10.2) springcloud-eureka使用/index.html">
 <meta property="og:site_name" content="Meteor">
-<meta property="og:description" content="cachecloud在线升级密码过程##">
+<meta property="og:description" content="euraka server构建erueka注册中心 1.pom依赖  12345&amp;lt;dependency&amp;gt;	&amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt;	&amp;lt;artifactId&amp;gt;spring-cloud-starter-eureka-server&amp;lt;/artifactId&amp;gt;&amp;lt;/dependen">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-08-30T11:00:43.000Z">
+<meta property="og:updated_time" content="2017-10-20T09:10:18.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="cachecloud在线升级密码过程">
-<meta name="twitter:description" content="cachecloud在线升级密码过程##">
+<meta name="twitter:title" content="spring eureka使用">
+<meta name="twitter:description" content="euraka server构建erueka注册中心 1.pom依赖  12345&amp;lt;dependency&amp;gt;	&amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt;	&amp;lt;artifactId&amp;gt;spring-cloud-starter-eureka-server&amp;lt;/artifactId&amp;gt;&amp;lt;/dependen">
 
 
 
@@ -113,7 +113,7 @@
   };
 </script>
 
-  <title> cachecloud在线升级密码过程 | Meteor </title>
+  <title> spring eureka使用 | Meteor </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -266,7 +266,7 @@
             
             
               
-                cachecloud在线升级密码过程
+                spring eureka使用
               
             
           </h1>
@@ -278,8 +278,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-08-11T16:37:35+08:00" content="2017-08-11">
-              2017-08-11
+            <time itemprop="dateCreated" datetime="2017-10-20T10:11:00+08:00" content="2017-10-20">
+              2017-10-20
             </time>
           </span>
 
@@ -292,20 +292,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/cachecloud/" itemprop="url" rel="index">
-                    <span itemprop="name">cachecloud</span>
+                  <a href="/categories/eureka/" itemprop="url" rel="index">
+                    <span itemprop="name">eureka</span>
                   </a>
                 </span>
 
@@ -337,8 +325,55 @@
       
 
       
-        <h1 id="cachecloud在线升级密码过程"><a href="#cachecloud在线升级密码过程" class="headerlink" title="cachecloud在线升级密码过程"></a>cachecloud在线升级密码过程</h1><p>## </p>
+        <h2 id="euraka-server"><a href="#euraka-server" class="headerlink" title="euraka server"></a>euraka server</h2><h3 id="构建erueka注册中心"><a href="#构建erueka注册中心" class="headerlink" title="构建erueka注册中心"></a>构建erueka注册中心</h3><ul>
+<li>1.pom依赖</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-eureka-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<ul>
+<li>2.eureka服务启动类 ServerApplication</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">package com.sohu.index.springcloud.learn;</div><div class="line"></div><div class="line">import org.springframework.boot.SpringApplication;</div><div class="line">import org.springframework.boot.autoconfigure.SpringBootApplication;</div><div class="line">import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;</div><div class="line"></div><div class="line">/**</div><div class="line"> * Created by chenshi on 2017/10/20.</div><div class="line"> */</div><div class="line">@SpringBootApplication</div><div class="line">@EnableEurekaServer</div><div class="line">public class ServerApplication &#123;</div><div class="line"></div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        new SpringApplication().run(ServerApplication.class,args);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>3.application.yml配置文件</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="attr">server:</span></div><div class="line"><span class="attr">  port:</span> <span class="number">9191</span></div><div class="line"><span class="attr">eureka:</span></div><div class="line"><span class="attr">  client:</span></div><div class="line"><span class="attr">    register-with-eureka:</span> <span class="literal">false</span></div><div class="line"><span class="attr">    fetch-registry:</span> <span class="literal">false</span></div><div class="line"><span class="attr">    service-url:</span></div><div class="line"><span class="attr">      defaultZone:</span> <span class="attr">http://localhost:$&#123;server.port&#125;/eureka/</span></div></pre></td></tr></table></figure>
+<ul>
+<li>4.启动服务</li>
+</ul>
+<p>eureka地址:<a href="http://127.0.0.1:9191/" target="_blank" rel="external">http://127.0.0.1:9191/</a>    </p>
+<h3 id="eureka注册中心权限"><a href="#eureka注册中心权限" class="headerlink" title="eureka注册中心权限"></a>eureka注册中心权限</h3><ul>
+<li>1.pom依赖</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&lt;dependency&gt;</div><div class="line">	&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</div><div class="line">	&lt;artifactId&gt;spring-boot-starter-security&lt;/artifactId&gt;</div><div class="line">&lt;/dependency&gt;</div></pre></td></tr></table></figure>
+<ul>
+<li>2.全局配置bootstrap.yml</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">security:</div><div class="line">    basic:</div><div class="line">      enabled: true</div><div class="line">    user:</div><div class="line">      name: admin</div><div class="line">      password: 123</div></pre></td></tr></table></figure>
+<h2 id="eureka-client"><a href="#eureka-client" class="headerlink" title="eureka client"></a>eureka client</h2><h3 id="客户端服务注册"><a href="#客户端服务注册" class="headerlink" title="客户端服务注册"></a>客户端服务注册</h3><ul>
+<li>1.pom依赖</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&lt;!-- eureka client --&gt;</div><div class="line">&lt;dependency&gt;</div><div class="line">    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;</div><div class="line">    &lt;artifactId&gt;spring-cloud-starter-eureka&lt;/artifactId&gt;</div><div class="line">&lt;/dependency&gt;</div></pre></td></tr></table></figure>
+<ul>
+<li>2.启动类ClientApplication</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">package com.sohu.index.springcloud.learn;</div><div class="line"></div><div class="line">import org.springframework.boot.autoconfigure.SpringBootApplication;</div><div class="line">import org.springframework.boot.builder.SpringApplicationBuilder;</div><div class="line">import org.springframework.cloud.client.discovery.EnableDiscoveryClient;</div><div class="line"></div><div class="line">/**</div><div class="line"> * Created by chenshi on 2017/8/9.</div><div class="line"> */</div><div class="line">@SpringBootApplication</div><div class="line">@EnableDiscoveryClient</div><div class="line">public class ClientAppllication &#123;</div><div class="line"></div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        new SpringApplicationBuilder(ClientAppllication.class).web(true).run(args);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>3.application.yml配置</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="attr">spring:</span></div><div class="line"><span class="attr">  application:</span></div><div class="line"><span class="attr">    name:</span> <span class="string">test.client1</span></div><div class="line"><span class="attr">server:</span></div><div class="line"><span class="attr">  port:</span> <span class="number">8881</span></div><div class="line"><span class="attr">eureka:</span></div><div class="line"><span class="attr">  client:</span></div><div class="line"><span class="attr">    service-url:</span></div><div class="line"><span class="attr">      defaultZone:</span> <span class="attr">http://127.0.0.1:9191/eureka/</span></div></pre></td></tr></table></figure>
+<ul>
+<li><p>4.web服务相关配置</p>
+<ul>
+<li><p>pom依赖</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">&lt;!-- web --&gt;</div><div class="line">&lt;dependency&gt;</div><div class="line">    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</div><div class="line">    &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;</div><div class="line">&lt;/dependency&gt;</div><div class="line"></div><div class="line">&lt;!-- actuator端点 info env  --&gt;</div><div class="line">&lt;dependency&gt;</div><div class="line">    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</div><div class="line">    &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;</div><div class="line">&lt;/dependency&gt;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<pre><code>- 相关端点
 
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">系统环境:http://10.7.36.64:8881/env</div><div class="line">自动配置:http://10.7.36.64:8881/autoconfig</div></pre></td></tr></table></figure>
+</code></pre>
       
     </div>
 
@@ -359,7 +394,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/cachecloud运维/" rel="tag">#cachecloud运维</a>
+            <a href="/tags/springcloud/" rel="tag">#springcloud</a>
           
         </div>
       
@@ -368,16 +403,16 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/08/06/(8.5).JAVA虚拟机(五)-JVM性能调优及故障排查/" rel="next" title="java虚拟机-故障排查">
-                <i class="fa fa-chevron-left"></i> java虚拟机-故障排查
+              <a href="/2017/09/18/10.1).spring-boot使用/" rel="next" title="spring boot使用和接入">
+                <i class="fa fa-chevron-left"></i> spring boot使用和接入
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/08/21/9.1).redis运维-docker机器用户权限篡改/" rel="prev" title="docker机器篡改用户uid">
-                docker机器篡改用户uid <i class="fa fa-chevron-right"></i>
+              <a href="/2017/10/21/10.4) netflix-hystrix熔断/" rel="prev" title="hystrix使用">
+                hystrix使用 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -452,7 +487,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">38</span>
+              <span class="site-state-item-count">46</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -460,7 +495,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">24</span>
+                <span class="site-state-item-count">33</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -469,7 +504,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">50</span>
+                <span class="site-state-item-count">51</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -527,7 +562,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#cachecloud在线升级密码过程"><span class="nav-number">1.</span> <span class="nav-text">cachecloud在线升级密码过程</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#euraka-server"><span class="nav-number">1.</span> <span class="nav-text">euraka server</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#构建erueka注册中心"><span class="nav-number">1.1.</span> <span class="nav-text">构建erueka注册中心</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#eureka注册中心权限"><span class="nav-number">1.2.</span> <span class="nav-text">eureka注册中心权限</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#eureka-client"><span class="nav-number">2.</span> <span class="nav-text">eureka client</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#客户端服务注册"><span class="nav-number">2.1.</span> <span class="nav-text">客户端服务注册</span></a></li></ol></li></ol></div>
             
           </div>
         </section>

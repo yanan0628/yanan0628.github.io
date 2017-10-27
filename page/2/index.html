@@ -267,6 +267,1629 @@
             
               
                 
+                <a class="post-title-link" href="/2017/08/22/9.3) redis运维-python环境安装/" itemprop="url">
+                  redis python环境安装
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-08-22T10:52:03+08:00" content="2017-08-22">
+              2017-08-22
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h1 id="redis-python环境安装"><a href="#redis-python环境安装" class="headerlink" title="redis-python环境安装"></a>redis-python环境安装</h1><p>这里使用python脚本主要是为了提供提供redis小工具使用，包括扫描 特定key，空闲key，bigkey,删除相关key 或 热点key等等。这是在使用过程遇到问题，总结一下。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/08/22/9.3) redis运维-python环境安装/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/08/21/9.1).redis运维-docker机器用户权限篡改/" itemprop="url">
+                  docker机器篡改用户uid
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-08-21T10:37:35+08:00" content="2017-08-21">
+              2017-08-21
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/cachecloud/" itemprop="url" rel="index">
+                    <span itemprop="name">cachecloud</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h1 id="docker机器篡改用户uid"><a href="#docker机器篡改用户uid" class="headerlink" title="docker机器篡改用户uid"></a>docker机器篡改用户uid</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">1.原因描述：</div><div class="line">cachecloud管理机器：默认创建用户 cachecloud 内网(cachecloud-open 开源用户)，系统默认分配uid为500以上，位于同一台物理机的容器同样的uid用户太多就会超出用户资源资源超出了，系统就会去修改原来的uid。最好指定下吧，范围最好是500以内的，docker这个用户隔离做的弱。</div><div class="line"></div><div class="line">2.查看用户名的uid</div><div class="line">cat /etc/passwd | grep cachecloud  </div><div class="line">cachecloud:x:504:504::/home/cachecloud:/bin/bash （cachecloud与uid=507绑定）</div><div class="line">启动redis实例 则以cachecloud用户进程启动，ps 查看第一列其实就是以504 uid启动</div><div class="line">[@expon-9 /data/cachecloud]# ps -ef | grep redis</div><div class="line">504       3724     1  0 May25 ?        01:36:07 redis-server 0.0.0.0:6381 [cluster]</div><div class="line">504       4705     1  0 Jun12 ?        01:55:42 redis-server *:6385 [sentinel]</div><div class="line">504       7647     1  0 May25 ?        01:50:45 redis-server 0.0.0.0:6383 [cluster]</div><div class="line">504       7695     1  0 May25 ?        01:57:46 redis-server 0.0.0.0:6384 [cluster]</div><div class="line"></div><div class="line">3.指定uid</div><div class="line">创建指定用户uid:useradd -u $&#123;uid&#125;</div><div class="line">修改指定用户uid:usermod -u $&#123;uid&#125;</div></pre></td></tr></table></figure>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/08/21/9.1).redis运维-docker机器用户权限篡改/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/08/11/9.5) redis运维-升级redis密码过程/" itemprop="url">
+                  cachecloud在线升级密码
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-08-11T16:37:35+08:00" content="2017-08-11">
+              2017-08-11
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/cachecloud/" itemprop="url" rel="index">
+                    <span itemprop="name">cachecloud</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="cachecloud在线升级密码"><a href="#cachecloud在线升级密码" class="headerlink" title="cachecloud在线升级密码"></a>cachecloud在线升级密码</h1><h2 id="在线升级过程"><a href="#在线升级过程" class="headerlink" title="在线升级过程"></a>在线升级过程</h2><ul>
+<li>1.【cc客户端】1.确认依赖该appid服务升级，可以先逐步升级cachecloud-client-redis 1.7.0-SNAPSHOT版本，不影响客户端正常使用(无密码连接)</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&lt;dependency&gt; </div><div class="line">    &lt;groupId&gt;com.sohu.tv&lt;/groupId&gt; </div><div class="line">    &lt;artifactId&gt;cachecloud-client-redis&lt;/artifactId&gt; </div><div class="line">    &lt;version&gt;1.7.0-SNAPSHOT&lt;/version&gt; </div><div class="line">&lt;/dependency&gt;</div></pre></td></tr></table></figure>
+<ul>
+<li>2.客户端依赖检查</li>
+</ul>
+<p>确保升级版本cachecloud-client-redis 1.7.0-SNAPSHOT,jedis 2.9.0-CC-3-SNAPSHOT,jedis-common 1.2.2-SNAPSHOT,cachecloud-client-basic 1.1-SNAPSHOT</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[INFO]\- com.sohu.tv:cachecloud-client-redis:jar:1.7.0-SNAPSHOT:compile</div><div class="line">[INFO]    +- redis.clients:jedis:jar:2.9.0-CC-3-SNAPSHOT:compile</div><div class="line">[INFO]    |  +- org.apache.commons:commons-pool2:jar:2.4.2:compile</div><div class="line">[INFO]    |  \- com.sohu.tv:jedis-common:jar:1.2.2-SNAPSHOT:compile</div><div class="line">[INFO]    \- com.sohu.tv:cachecloud-client-basic:jar:1.1-SNAPSHOT:compile</div><div class="line">[INFO]       \- com.alibaba:fastjson:jar:1.2.28:compile</div></pre></td></tr></table></figure>
+<ul>
+<li><p>3.【cc客户端】3.如果客户端依赖跨机房redis:请升级cachecloud-client-crossroom-redis到1.3-SNAPSHOT</p>
+</li>
+<li><p>4.【cc客户端】4.提交申请密码配置工单，应用首页-申请修改配置  里注明即可(“申请配置应用密码“)</p>
+</li>
+<li><p>5.【cc后台】5.cachechcloud确认所有客户端最新上报版本以及redis版本，准备配置密码 观察日志</p>
+</li>
+</ul>
+<p>运维对密码修改:<br><img src="http://i2.itc.cn/20170920/aac_68fe4d07_8bee_c0e8_0e16_6f573477609e_1.png" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">更新:这个过程是对当前redis所有实例进行密码配置</div><div class="line">校验:这个过程是为校验每个redis实例上密码是否和设置密码一致</div><div class="line"></div><div class="line">密码设置规则: md5(key+&#123;appId&#125;)</div></pre></td></tr></table></figure>
+<ul>
+<li><p>6.【cc后台】6.后台配置密码后,appid对应cluster/sentinel/standalone所有redis节点密码生效，客户端jedis连接异常后会自动重连 拉取埋点密码重试成功(重连成功后为有密码连接)</p>
+</li>
+<li><p>7.客户端可在应用首页查看应用密码<br><img src="http://i0.itc.cn/20170920/aac_68fe4d07_8bee_c0e8_0e16_6f573477609e_2.png" alt=""></p>
+</li>
+</ul>
+<h2 id="jedis源码改造"><a href="#jedis源码改造" class="headerlink" title="jedis源码改造"></a>jedis源码改造</h2><blockquote>
+<p>1.改造Jedis</p>
+</blockquote>
+<p>优点:升级sdk支持在线切换，数据没有丢失。缺点：只支持Jedis，其他接入方式需要手动修改修改密码，密码生成过程固定。</p>
+<ul>
+<li>a.standalone 模式: 改造JeidsPool.makeObject.</li>
+<li>b.cluster 模式: 集群内所有节点使用同一密码，防止failover失败。Jedis改造<br>JedisClusterConnectionHandler.initializeSlotsCache 方法。</li>
+<li>c.sentinel模式:  主从所有节点必须使用同一个密码。改造JedisSentinelPool.initPool </li>
+<li>d.支持失败判定：NOAUTH Authentication required 异常后，中断连接下次重连。</li>
+</ul>
+<blockquote>
+<p>2.RESTful请求携带密码。</p>
+</blockquote>
+<p>优点:不需要改造客户端，密码生成规则灵活 缺点：升级协同困难。</p>
+<ul>
+<li>a.RESTful数据中密码字段使用对称加密，防止直接传输明文。</li>
+<li>b.客户端sdk加入判断是否设置密码功能。</li>
+</ul>
+<blockquote>
+<p>3.在线修改密码:</p>
+</blockquote>
+<ul>
+<li>a.redis客户端连接未使用密码时，修改密码后报错需要重连。</li>
+<li>b.redis客户端连接使用密码连接时，修改密码原有连接继续可用。</li>
+</ul>
+<h2 id="升级过程问题"><a href="#升级过程问题" class="headerlink" title="升级过程问题"></a>升级过程问题</h2><ul>
+<li><ol>
+<li>为什么要升级到cachecloud-client-redis 1.7.0-SNAPSHOT?</li>
+</ol>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">1.jedis客户端相关代码改造以及cachecloud相关依赖改造，需要重新获取依赖，才能支持密码在线升级。</div><div class="line">2.提前埋点到RESTful-API: 可支持无密码/默认密码/动态密码模式。</div></pre></td></tr></table></figure>
+<ul>
+<li><ol>
+<li>如何实现在线升级支持redis密码？</li>
+</ol>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">1.客户端更新服务依赖后重启服务，此时cachecloud-client-redis 1.7.0-SNAPSHOT可以支持密码功能。</div><div class="line">2.cc后台设置密码，appid对应所有redis实例密码生效，此时客户端原来无密码连接报错。</div><div class="line">3.客户端抛出异常后会重试，新建连接会获取埋点默认密码，重新连接redis。</div></pre></td></tr></table></figure>
+<ul>
+<li><ol>
+<li>cachecloud-client-redis已经升级到1.7.0-SNAPSHOT，但是上报cachecloud版本仍然是1.4?</li>
+</ol>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">10.10.193.153 - - [28/Aug/2017:10:58:34 +0800] &quot;GET /cache/client/redis/cluster/10380.json?clientVersion=1.4-SNAPSHOT HTTP/1.1&quot; 200 298 &quot;-&quot; &quot;Java/1.8.0_101&quot; &quot;-&quot; &quot;0.010&quot; &quot;0.011&quot;</div><div class="line">10.10.193.153 - - [28/Aug/2017:14:45:10 +0800] &quot;GET /cache/client/redis/cluster/10380.json?clientVersion=1.4-SNAPSHOT HTTP/1.1&quot; 200 298 &quot;-&quot; &quot;Java/1.8.0_101&quot; &quot;-&quot; &quot;0.010&quot; &quot;0.011&quot;</div><div class="line">10.10.193.153 - - [28/Aug/2017:14:59:16 +0800] &quot;GET /cache/client/redis/cluster/10380.json?clientVersion=1.4-SNAPSHOT HTTP/1.1&quot; 200 298 &quot;-&quot; &quot;Java/1.8.0_101&quot; &quot;-&quot; &quot;0.011&quot; &quot;0.013&quot;</div><div class="line">10.10.193.153 - - [28/Aug/2017:15:57:28 +0800] &quot;GET /cache/client/redis/cluster/10380.json?clientVersion=1.4-SNAPSHOT HTTP/1.1&quot; 200 298 &quot;-&quot; &quot;Java/1.8.0_101&quot; &quot;-&quot; &quot;4.009&quot; &quot;4.010&quot;</div><div class="line"></div><div class="line">a.如果是只是依赖cachecloud-client-redis1.7.0-SNAPSHOT ，确认cachecloud-client-basic</div><div class="line">是否为1.1-SNAPSHOT,不是的话 需要做mvn -U 重新拉取下依赖.</div><div class="line"></div><div class="line">b.如果依赖cachecloud-client-redis1.7.0-SNAPSHOT 还依赖跨机房包cachecloud-client-</div><div class="line">crossroom-redis，会有cachecloud-client-basic包冲突，请检查crossroom-redis版本是否升</div><div class="line">级到1.3-SNAPSHOT</div></pre></td></tr></table></figure>
+<ul>
+<li><ol>
+<li>使用sentinel pool,在线升级密码之后客户端一直抛出jedisConnectionException NOAUTH异常?</li>
+</ol>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">检查客户端使用sentinelPool 关闭连接的方式 确保使用的下面第2种方式：</div><div class="line">try &#123;</div><div class="line">    //获取连接</div><div class="line">    jedis = sentinelPool.getResource();</div><div class="line">    String key = &quot;test&quot;;</div><div class="line">    System.out.println(&quot;get &quot; + key + &quot; ,value =&quot; + jedis.get(key));</div><div class="line">&#125; catch (Exception e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125; finally &#123;</div><div class="line">    // 第1种.不支持中断的归还连接 （问题在这）</div><div class="line">    // jedisSentinelPool.returnResource(jedis);</div><div class="line">    // 第2种.支持中断的归还连接</div><div class="line">    if (jedis != null) &#123;</div><div class="line">        jedis.close();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li><ol>
+<li>master-slave 主从结构在升级密码期间，会发生什么?</li>
+</ol>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line">master：10.10.193.189:6380  slave:10.10.193.148:6381</div><div class="line"></div><div class="line">a.master设置密码后，slave与master为断开,master redis log:</div><div class="line">27192:M 19 Sep 10:01:36.554 # Disconnecting timedout slave: 10.10.193.148:6381</div><div class="line">27192:M 19 Sep 10:01:36.554 # Connection with slave 10.10.193.148:6381 lost.</div><div class="line">1).master添加密码成功,slave表现为断开状态</div><div class="line">27192:M 19 Sep 10:01:36.982 * Slave 10.10.193.148:6381 asks for synchronization</div><div class="line">27192:M 19 Sep 10:01:36.982 * Unable to partial resync with slave 10.10.193.148:6381 for lack of backlog (Slave request was: 188517104780).</div><div class="line">27192:M 19 Sep 10:01:36.982 # Warning: slave 10.10.193.148:6381 tried to PSYNC with an offset that is greater than the master replication offset.</div><div class="line">4).slave请求同步master,master返回不能进行部分复制,原因是slave复制偏移量大于master偏移量)</div><div class="line">27192:M 19 Sep 10:01:36.982 * Starting BGSAVE for SYNC with target: disk</div><div class="line">27192:M 19 Sep 10:01:37.026 * Background saving started by pid 23211</div><div class="line">7).master做全量复制，fork子进程 开始生成rdb文件</div><div class="line">23211:C 19 Sep 10:01:47.077 * DB saved on disk</div><div class="line">23211:C 19 Sep 10:01:47.118 * RDB: 52 MB of memory used by copy-on-write</div><div class="line">27192:M 19 Sep 10:01:47.181 * Background saving terminated with success</div><div class="line">8).rdb文件生成，copyonwrite内存开销为52M，开始同步</div><div class="line">27192:M 19 Sep 10:01:54.237 * Synchronization with slave 10.10.193.148:6381 succeeded</div><div class="line">10).数据发送slave成功</div><div class="line"></div><div class="line">b.slave密码设置成功,slave redis log:</div><div class="line"></div><div class="line">27928:S 19 Sep 10:01:36.555 # Connection with master lost.</div><div class="line">27928:S 19 Sep 10:01:36.555 * Caching the disconnected master state.</div><div class="line">2).由于slave表现为断开</div><div class="line">27928:S 19 Sep 10:01:36.982 * Connecting to MASTER 10.10.193.189:6380</div><div class="line">27928:S 19 Sep 10:01:36.982 * MASTER &lt;-&gt; SLAVE sync started</div><div class="line">27928:S 19 Sep 10:01:36.982 * Non blocking connect for SYNC fired the event.</div><div class="line">27928:S 19 Sep 10:01:36.983 * Master replied to PING, replication can continue...</div><div class="line">27928:S 19 Sep 10:01:36.983 * Trying a partial resynchronization (request 0434b4b3476903d92c67bdb3615bce8e456afbf3:188517104780).</div><div class="line">3).slave密码设置成功，开始重连master节点,发起部分复制请求</div><div class="line">27928:S 19 Sep 10:01:37.027 * Full resync from master: 0434b4b3476903d92c67bdb3615bce8e456afbf3:188517104247</div><div class="line">27928:S 19 Sep 10:01:37.027 * Discarding previously cached master state.</div><div class="line">6).master返回状态 需要全量复制,master runid offset:0434b4b3476903d92c67bdb3615bce8e456afbf3:188517104247</div><div class="line">27928:S 19 Sep 10:01:47.182 * MASTER &lt;-&gt; SLAVE sync: receiving 538594334 bytes from master</div><div class="line">9).接收master数据:538MB</div><div class="line">27928:S 19 Sep 10:01:54.294 * MASTER &lt;-&gt; SLAVE sync: Flushing old data</div><div class="line">27928:S 19 Sep 10:02:01.721 * MASTER &lt;-&gt; SLAVE sync: Loading DB in memory</div><div class="line">27928:S 19 Sep 10:02:30.924 * MASTER &lt;-&gt; SLAVE sync: Finished with success</div><div class="line">11).加载rdb数据到内存成功</div><div class="line">27928:S 19 Sep 10:02:30.958 * Background append only file rewriting started by pid 31740</div><div class="line">27928:S 19 Sep 10:02:35.288 * AOF rewrite child asks to stop sending diffs.</div><div class="line">31740:C 19 Sep 10:02:35.288 * Parent agreed to stop sending diffs. Finalizing AOF...</div><div class="line">31740:C 19 Sep 10:02:35.288 * Concatenating 0.40 MB of AOF diff received from parent.</div><div class="line">31740:C 19 Sep 10:02:35.289 * SYNC append only file rewrite performed</div><div class="line">31740:C 19 Sep 10:02:35.325 * AOF rewrite: 117 MB of memory used by copy-on-write</div><div class="line">27928:S 19 Sep 10:02:35.472 * Background AOF rewrite terminated with success</div><div class="line">12).fork子进程做bgrewriteAof,重写aof文件</div><div class="line">27928:S 19 Sep 10:02:35.473 * Residual parent diff successfully flushed to the rewritten AOF (0.00 MB)</div><div class="line">27928:S 19 Sep 10:02:35.473 * Background AOF rewrite finished successfully</div><div class="line">13).AOF重写缓冲区增量新数据同步成功(copyonwrite复制技术，子进程只能共享fork操作时的内存数据aof_buffer，增量数据在aof_rewrite_buffer)</div></pre></td></tr></table></figure>
+<p>主从密码升级过程中，slave在添加密码过程，master会做一次全量复制.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Warning: slave 10.10.193.148:6381 tried to PSYNC with an offset that is </div><div class="line">greater than the master replication offset.</div></pre></td></tr></table></figure></p>
+<p>看master日志,slave在请求部分复制失败，master返回全量复制状态，这个问题好像是redis的一个bug,主节点设置完密码后，从节点的slave_repl_offset在自己增长，slave_repl_offset代表slave缓存的主节 点的offset。</p>
+<p>github查下相关问题:<br><a href="https://github.com/antirez/redis/issues/3" target="_blank" rel="external">https://github.com/antirez/redis/issues/3</a> </p>
+<p><a href="https://github.com/antirez/redis/issues/1969" target="_blank" rel="external">https://github.com/antirez/redis/issues/1969</a></p>
+<ul>
+<li>6.在线加密码后，客户端抛出jedisConnectionException NOAUTH异常原因?</li>
+</ul>
+<p><strong>客户端异常信息</strong>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">2017-09-19 10:00:44,046 [DataComponentCommand.java:65] [ERROR] NOAUTH Authentication required.</div><div class="line">redis.clients.jedis.exceptions.JedisConnectionException: NOAUTH Authentication required.</div><div class="line">        at redis.clients.jedis.Protocol.processError(Protocol.java:131) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.Protocol.process(Protocol.java:167) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.Protocol.read(Protocol.java:221) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.Connection.readProtocolWithCheckingBroken(Connection.java:328) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.Connection.getIntegerReply(Connection.java:274) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.Jedis.hdel(Jedis.java:842) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisCluster$35.execute(JedisCluster.java:445) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisCluster$35.execute(JedisCluster.java:442) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisClusterCommand.runWithRetries(JedisClusterCommand.java:128) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisClusterCommand.runWithRetries(JedisClusterCommand.java:149) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisClusterCommand.runWithRetries(JedisClusterCommand.java:149) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisClusterCommand.runWithRetries(JedisClusterCommand.java:149) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisClusterCommand.runWithRetries(JedisClusterCommand.java:149) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisClusterCommand.run(JedisClusterCommand.java:36) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisCluster.hdel(JedisCluster.java:447) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at com.sohu.tv.cachecloud.client.redis.crossroom.impl.RedisClusterCrossRoomClientImpl$33.writeMinor(RedisClusterCrossRoomClientImpl.java:724) ~[cachecloud-client-crossroo</div><div class="line">m-redis-1.3-20170829.034859-7.jar:na]</div><div class="line">        at com.sohu.tv.cachecloud.client.redis.crossroom.impl.RedisClusterCrossRoomClientImpl$33.writeMinor(RedisClusterCrossRoomClientImpl.java:716) ~[cachecloud-client-crossroo</div><div class="line">m-redis-1.3-20170829.034859-7.jar:na]</div></pre></td></tr></table></figure>
+<blockquote>
+<p>首先需要理解redis通讯过程: 1.建立socket连接 2.发送命名等待返回</p>
+</blockquote>
+<p>大部分客户端使用的redis cluster，以set命令为例:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">public String set(final String key, final String value) &#123;</div><div class="line">    return (String)(new JedisClusterCommand(this.connectionHandler, this.maxAttempts) &#123;</div><div class="line">        public String execute(Jedis connection) &#123;</div><div class="line">            return connection.set(key, value);</div><div class="line">        &#125;</div><div class="line">    &#125;).run(key);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>过程1:建立socket连接过程 JedisClusterCommand 包一层 执行run</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line">核心代码:</div><div class="line">private T runWithRetries(byte[] key, int attempts, boolean tryRandomNode, boolean asking) &#123;</div><div class="line">    if(attempts &lt;= 0) &#123;</div><div class="line">        JedisClusterMaxRedirectionsException connection1 = new JedisClusterMaxRedirectionsException(&quot;Too many Cluster redirections? key=&quot; + SafeEncoder.encode(key));</div><div class="line">        ....</div><div class="line">        throw connection1;</div><div class="line">    &#125; else &#123;</div><div class="line">    	 // 创建socket connection过程</div><div class="line">        Jedis connection = null;</div><div class="line"></div><div class="line">        Object var7;</div><div class="line">        try &#123;</div><div class="line">            if(asking) &#123;</div><div class="line">                connection = (Jedis)this.askConnection.get();</div><div class="line">                connection.asking();</div><div class="line">                asking = false;</div><div class="line">            &#125; else if(tryRandomNode) &#123;</div><div class="line">                connection = this.connectionHandler.getConnection();</div><div class="line">            &#125; else &#123;</div><div class="line">                connection = this.connectionHandler.getConnectionFromSlot(JedisClusterCRC16.getSlot(key));</div><div class="line">            &#125;</div><div class="line">            Object jre = this.execute(connection);</div><div class="line">            return jre;</div><div class="line">        &#125; catch (JedisNoReachableClusterNodeException var13) &#123;</div><div class="line">            throw var13;</div><div class="line">        &#125; catch (JedisConnectionException var14) &#123;</div><div class="line">            this.releaseConnection(connection);</div><div class="line">            connection = null;</div><div class="line">            if(attempts &lt;= 1) &#123;</div><div class="line">                this.connectionHandler.renewSlotCache();</div><div class="line">                throw var14;</div><div class="line">            &#125;</div><div class="line">            var7 = this.runWithRetries(key, attempts - 1, tryRandomNode, asking);</div><div class="line">        &#125; catch (JedisRedirectionException var15) &#123;</div><div class="line">            .....</div><div class="line">        &#125; finally &#123;</div><div class="line">            this.releaseConnection(connection);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        return var7;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>过程2:发送命令等待返回：connection.set(key, value);</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">public String set(String key, String value) &#123;</div><div class="line">    this.checkIsInMultiOrPipeline();</div><div class="line">    this.client.set(key, value);</div><div class="line">    return this.client.getStatusCodeReply();</div><div class="line">&#125;</div><div class="line"></div><div class="line">protected Object readProtocolWithCheckingBroken() &#123;</div><div class="line">        Object o = null;</div><div class="line">        boolean var10 = false;</div><div class="line"></div><div class="line">        Object exc;</div><div class="line">        try &#123;</div><div class="line">            // 等待流返回结果</div><div class="line">            var10 = true;</div><div class="line">            o = Protocol.read(this.inputStream);</div><div class="line">            exc = o;</div><div class="line">            var10 = false;</div><div class="line">        &#125; catch (JedisConnectionException var11) &#123;</div><div class="line">           ....</div><div class="line">        &#125; finally &#123;</div><div class="line">            ...</div><div class="line">        &#125;</div><div class="line">        ....</div><div class="line">        return exc;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>分析原因:</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">redis.clients.jedis.Connection.readProtocolWithCheckingBroken(Connection.java:328) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div></pre></td></tr></table></figure>
+<p>根据异常日志，发现连接在建立是没有问题，但是执行命令返回抛出异常，也就是在加密码过程中 过程1 ok ，过程二 执行命令 需要密码报错。<br>过程1:建立socket报错，cluster自身默认5次重试，重试失败抛出Too many Cluster redirections?<br>过程2:建立socket连接，执行命令读取报错，则抛出以上异常信息。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/08/06/(8.5).JAVA虚拟机(五)-JVM性能调优及故障排查/" itemprop="url">
+                  java虚拟机-故障排查
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-08-06T16:37:35+08:00" content="2016-08-06">
+              2016-08-06
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="JVM常见问题及性能分析"><a href="#JVM常见问题及性能分析" class="headerlink" title="JVM常见问题及性能分析"></a>JVM常见问题及性能分析</h2><p>你遇到过这些问题吗？</p>
+<pre><code>OOM: Heap, Stack, Perm
+系统频繁GC
+Java进程占用CPU过高
+Java占用内存增长很快
+远程调用timeout
+系统响应时间变长，越来越慢
+……
+</code></pre><h3 id="方法一：GC-log"><a href="#方法一：GC-log" class="headerlink" title="方法一：GC log"></a>方法一：GC log</h3><ul>
+<li>1.开启GC日志：-XX:+PrintGCDetails (包含-XX:+PrintGC -verbose:gc )</li>
+<li>2.GC触发时间：-XX:+PrintGCDateStamps/-XX:+PrintGCTimeStamps </li>
+<li><p>3.日志存放位置：-Xloggc:/path/gc.log</p>
+<pre><code>配置JVM参数：
+-XX:+UseConcMarkSweepGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps 
+-Xloggc:D:/logs/gc/gc.log 
+</code></pre></li>
+</ul>
+<p>输出日志：</p>
+<p>2016-03-08T16:11:05.446+0800: 8.861: [GC2016-03-08T16:11:05.446+0800: 8.861: [ParNew: 46080K-&gt;5120K(46080K), 0.0177669 secs] 66765K-&gt;28892K(97280K), 0.0178659 secs] [Times: user=0.03 sys=0.00, real=0.02 secs]<br>2016-03-08T17:01:01.930+0800: 375.874: [Full GC2016-03-08T17:01:01.930+0800: 375.874: [CMS: 40535K-&gt;40535K(51200K), 0.1600130 secs] 79475K-&gt;59991K(97280K), [CMS Perm : 36535K-&gt;36535K(51200K)], 0.1601362 secs] [Times: user=0.16 sys=0.00, real=0.16 secs] </p>
+<p>可参考：</p>
+<p>官网：<a href="https://blogs.oracle.com/poonam/entry/understanding_cms_gc_logs" target="_blank" rel="external">https://blogs.oracle.com/poonam/entry/understanding_cms_gc_logs</a></p>
+<p>并发编程网：<a href="http://ifeve.com/jvm-cms-log/" target="_blank" rel="external">http://ifeve.com/jvm-cms-log/</a></p>
+<h3 id="方法二：jdk自带命令"><a href="#方法二：jdk自带命令" class="headerlink" title="方法二：jdk自带命令"></a>方法二：jdk自带命令</h3><pre><code>jps  ： jps可以理解为java的ps，用于显示java进程 ,-v 输出虚拟机启动的时的参数   
+        jps –v pid       
+jinfo：jinfo查看和调整虚拟机的各项参数   
+        jinfo  pid
+jmap ：jmap生成堆转存快照文件
+        jmap –heap pid显示Java堆详细信息，如使用哪种回收器，参数配置、分代状况
+jstat：jstat 统计信息监视工具
+       jstat –gcutil pid  主要关注已使用空间占总空间的百分比
+jstack：jstack生成当前时刻线程快照
+        jstack pid 
+         检测cpu使用率飙高时三个步骤： 
+           1.查该进程最高的线程  top –Hp pid
+           2.转换最高线程id 为16进程
+           3.查看堆栈对应线程id的堆栈信息
+</code></pre><blockquote>
+<p>性能调试：</p>
+</blockquote>
+<pre><code>cd `dirname $0`
+PID=$1
+BIN_DIR=`pwd`
+cd $BIN_DIR
+DUMP_DIR=./
+DUMP_DATE=`date +%Y%m%d%H%M%S`
+DATE_DIR=$DUMP_DIR/$DUMP_DATE
+if [ ! -d $DATE_DIR ]; then
+        mkdir $DATE_DIR
+fi
+
+echo -e &quot;Dumping the jdump ...\c&quot;
+jstack $PID &gt; $DATE_DIR/jstack-$PID.dump 2&gt;&amp;1
+echo -e &quot;.\c&quot;
+jinfo $PID &gt; $DATE_DIR/jinfo-$PID.dump 2&gt;&amp;1
+echo -e &quot;.\c&quot;
+jstat -gcutil $PID &gt; $DATE_DIR/jstat-gcutil-$PID.dump 2&gt;&amp;1
+echo -e &quot;.\c&quot;
+jstat -gccapacity $PID &gt; $DATE_DIR/jstat-gccapacity-$PID.dump 2&gt;&amp;1
+echo -e &quot;.\c&quot;
+jmap $PID &gt; $DATE_DIR/jmap-$PID.dump 2&gt;&amp;1
+echo -e &quot;.\c&quot;
+jmap -heap $PID &gt; $DATE_DIR/jmap-heap-$PID.dump 2&gt;&amp;1
+echo -e &quot;.\c&quot;
+jmap -histo $PID &gt; $DATE_DIR/jmap-histo-$PID.dump 2&gt;&amp;1
+echo -e &quot;.\c&quot;
+if [ -r /usr/sbin/lsof ]; then
+/usr/sbin/lsof -p $PID &gt; $DATE_DIR/lsof-$PID.dump
+echo -e &quot;.\c&quot;
+fi
+
+if [ -r /bin/netstat ]; then
+/bin/netstat -an &gt; $DATE_DIR/netstat.dump 2&gt;&amp;1
+echo -e &quot;.\c&quot;
+fi
+if [ -r /usr/bin/iostat ]; then
+/usr/bin/iostat &gt; $DATE_DIR/iostat.dump 2&gt;&amp;1
+echo -e &quot;.\c&quot;
+fi
+if [ -r /usr/bin/mpstat ]; then
+/usr/bin/mpstat -P ALL &gt; $DATE_DIR/mpstat.dump 2&gt;&amp;1
+echo -e &quot;.\c&quot;
+fi
+if [ -r /usr/bin/vmstat ]; then
+/usr/bin/vmstat &gt; $DATE_DIR/vmstat.dump 2&gt;&amp;1
+echo -e &quot;.\c&quot;
+fi
+if [ -r /usr/bin/free ]; then
+/usr/bin/free -t &gt; $DATE_DIR/free.dump 2&gt;&amp;1
+echo -e &quot;.\c&quot;
+fi
+if [ -r /usr/bin/sar ]; then
+/usr/bin/sar &gt; $DATE_DIR/sar.dump 2&gt;&amp;1
+echo -e &quot;.\c&quot;
+fi
+if [ -r /usr/bin/uptime
+</code></pre><h3 id="方法三：java工具分析"><a href="#方法三：java工具分析" class="headerlink" title="方法三：java工具分析"></a>方法三：java工具分析</h3><p>Jconsole/JvisualVM/Jprofile/Jmc 等工具对 操作系统(cpu/线程数/内存) 以及jvm分代消耗 gc情况 或 死锁 或 Mbean jmx监控 着手分析</p>
+<h2 id="如何进行系统调优"><a href="#如何进行系统调优" class="headerlink" title="如何进行系统调优"></a>如何进行系统调优</h2><h3 id="考虑哪些方面"><a href="#考虑哪些方面" class="headerlink" title="考虑哪些方面"></a>考虑哪些方面</h3><ul>
+<li>硬件:<br>  网卡/网络是否通/交换机</li>
+<li>操作系统:<br>  负载load/内存mem/swap/io</li>
+<li>运行环境软件:<br>  Nginx/Apache/Resin<br>  JVM参数</li>
+<li>应用本身<br>  Java程序</li>
+</ul>
+<pre><code>调查系统现状/寻找性能瓶颈/定位问题
+    请求次数
+    响应时间
+资源消耗：CPU/内存/文件/网络
+    确定调优目标
+    单机用户量=用户量/机器数
+     并发目标：如95%用户500ms响应
+定位资源消耗
+    -在哪里
+        CPU/内存/文件/网络
+    -什么类型
+        线程调度太频繁
+        线程load太高
+        Full GC太频繁
+        Full GC时间过长
+        文件读写太慢、堵塞
+定位问题代码
+    使用Java工具分析内存、线程
+    优化问题代码
+    未来：编写高效代码 
+</code></pre><h3 id="系统分析"><a href="#系统分析" class="headerlink" title="系统分析"></a>系统分析</h3><blockquote>
+<p>cpu消耗分析</p>
+</blockquote>
+<p>上下文切换：文件IO、网络IO、锁、Sleep<br>运行队列（load）：每个核任务队列，最好1~3<br>利用率（关键指标）：进程、内核、中断处理、IO等待、空闲<br>top命令<br>top按进程显示<br>top –p 29974按进程ID显示<br>top1按核显示<br>topshift+h按线程显示<br>vmstat采样<br>vmstat -1每1秒采样</p>
+<p>tsar历史消耗对比</p>
+<pre><code>top参数意义
+ us用户进程任务：高是线程粒度太大，线程一直处于可运行状态Runabble
+     原因1：线程无阻塞、循环、大计算（正则、纯粹大运算）
+     原因2：频繁GC(Eden/Old小，新对象占用内存多，YoungGC/Full GC)
+定位线程：top -5650shift+h找到线程号26697， 0x6849
+       一个线程总占用高： jstack 26697 | grep ‘nid=0x6849’
+    多个线程来回切换无法定位：jstack 26697
+sy内核线程切换：高是线程太多粒度太小
+原因：不断阻塞切换、锁等待、IO等待
+定位线程： jstack -l 26697，分析等待状态、锁竞争过多线程
+ni为nice改变优先级，id空闲时间
+wa等待io：大文件
+hi硬件中断：网卡接收数据频繁等
+si软件中断
+
+top - 16:57:02 up 98 days,  1:40,  9 users,  load average: 7.71, 9.08, 11.05
+Tasks: 279 total,   1 running, 277 sleeping,   0 stopped,   1 zombie
+Cpu(s): 27.4%us,  5.1%sy,  0.0%ni, 65.6%id,  1.8%wa,  0.0%hi,  0.0%si,  0.0%st
+Mem:  65981472k total, 49901984k used, 16079488k free,  4359276k buffers
+Swap:  4192956k total,        0k used,  4192956k free, 23197812k cached
+</code></pre><blockquote>
+<p>内存消耗分析</p>
+</blockquote>
+<p>vmstat<br>swpd已用虚拟内存kb：过高表示物理内存不够用<br>原因：JVM内存设置过大，Java线程过多，ByteBuffer过多—-即可定位<br>free空闲物理内存<br>buff用作缓冲内存<br>cache用作缓存内存<br>si每秒从disk读至内存数据量<br>so每秒从内存挟制disk数据量</p>
+<pre><code>procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu------
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 0  3      0 15973668 4359360 23257704    0    0     0   123    0    0 27  5 66  2  0
+ 0  2      0 15974188 4359360 23257732    0    0     0  5092 1878 3922  0  0 93  6  0
+
+swap相关：kbswpfree,kbswpused
+物理内存：kbmemfree,kbmemused
+实际可用=kbmemfree+kbfuffers缓冲+kbcached缓存
+
+10时00分01秒 kbmemfree kbmemused  %memused kbbuffers  kbcached kbswpfree kbswpused  %swpused  kbswpcad
+10时10分01秒  18004796  47976676     72.71   4354120  21700168   4192956         0      0.00         0
+10时20分01秒  17919088  48062384     72.84   4354152  21746360   4192956         0      0.00         0
+
+top：显示的是实际占用内存=Heap+Stack+Perm+ByteBuffer
+
+vmstat/sar/top对比
+sar优点：比vmstat，可分析历史
+vmstat/sar弱点：不能分析进程内存，top可以
+top弱点：不易分析实际占用内存
+</code></pre><blockquote>
+<p>文件IO消耗分析</p>
+</blockquote>
+<p>iostat -x<br>iowait每次IO等待CPU比例，高是因为一直等不到IO<br>原因1：文件读写文件占用时间长，多个线程需要大量写入（如频繁写日志）<br>原因2：磁盘设备处理速度慢<br>原因3：文件系统慢<br>原因4：操作文件太大<br>定位线程：jstack找到runnable中的线程<br>tps每秒IO请求数<br>Blk_read/s每秒读区块数(512byte)<br>Blk_wrtn/s每秒写区块数<br>Blk_read读区块总数<br>Blk_wrtn写区块总数</p>
+<pre><code>avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           2.54    0.00    0.55    0.03    0.00   96.87
+
+Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+sda              11.17        41.40       417.44  436437014 4400574548
+sda1              1.11         0.13        37.17    1356426  391818168
+sda2              0.00         0.00         0.00       1424          0
+sda3              2.64         1.02        35.43   10714778  373487500
+sda4              0.00         0.00         0.00          8          0
+sda5              0.65         0.66        23.25    6921378  245057640
+sda6              6.78        39.60       321.60  417442456 3390211240
+
+采样iostat -x xvda 3 5
+r/s每秒读的请求数
+r/s每秒写的请求书
+avgqu-sz等待请求队列的平均长度
+await每次IO等待时间ms
+svctm平均每次设备执行IO操作时间
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+       2.54    0.00    0.55    0.03    0.00   96.87
+
+Device:         rrqm/s   wrqm/s   r/s   w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util
+sda               0.13    41.63  0.61 10.56    41.39   417.55    41.07     0.03    2.58   0.32   0.36
+sda1              0.01     3.54  0.00  1.11     0.13    37.17    33.58     0.00    1.01   0.31   0.03
+sda2              0.00     0.00  0.00  0.00     0.00     0.00    54.77     0.00    5.08   4.62   0.00
+sda3              0.02     1.81  0.02  2.62     1.02    35.43    13.83     0.00    0.30   0.20   0.05
+sda4              0.00     0.00  0.00  0.00     0.00     0.00     2.00     0.00   12.00  12.00   0.00
+sda5              0.01     2.29  0.03  0.62     0.66    23.25    36.71     0.00    0.98   0.37   0.02
+sda6              0.10    33.99  0.56  6.22    39.59   321.69    53.32     0.03    3.88   0.42   0.28
+</code></pre><blockquote>
+<p>网络IO消耗分析</p>
+</blockquote>
+<p>cat /proc/interrupts：查看网卡中断是否均衡分配到各CPU<br>只分配到一个CPU：修改kernel，或用支持MSI-X网卡<br>tcpdump -i eth0 -s 0 -l -w - dst port 11214 | strings | grep test_<br>sar -n ALL 1 2：统计收发包成功失败数量<br>网卡成功接包、发包信息<br>网卡失败接包、发包信息(ping)<br>socket统计信息</p>
+<pre><code>18时38分08秒     IFACE   rxpck/s   txpck/s   rxbyt/s   txbyt/s   rxcmp/s   txcmp/s  rxmcst/s
+18时38分09秒        lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+18时38分09秒      eth0    581.00    703.00 107914.00  89316.00      0.00      0.00      0.00
+18时38分09秒      eth1      8.00      0.00    512.00      0.00      0.00      0.00      0.00
+18时38分09秒      usb0      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+
+18时38分08秒     IFACE   rxerr/s   txerr/s    coll/s  rxdrop/s  txdrop/s  txcarr/s  rxfram/s  rxfifo/s  txfifo/s
+18时38分09秒        lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+18时38分09秒      eth0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+18时38分09秒      eth1      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+18时38分09秒      usb0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+
+18时38分08秒    call/s retrans/s    read/s   write/s  access/s  getatt/s
+18时38分09秒      0.00      0.00      0.00      0.00      0.00      0.00
+</code></pre><h2 id="命令分析"><a href="#命令分析" class="headerlink" title="命令分析"></a>命令分析</h2><p>堆栈分析线程状态(blocked，time_waiting, Waiting)<br>可参考：<a href="http://www.cnblogs.com/zhengyun_ustc/archive/2013/03/18/tda.html" target="_blank" rel="external">http://www.cnblogs.com/zhengyun_ustc/archive/2013/03/18/tda.html</a></p>
+<h3 id="线程状态查看"><a href="#线程状态查看" class="headerlink" title="线程状态查看"></a>线程状态查看</h3><p>jstack 21415 | grep -i “java.lang.Thread.State” | sort | uniq -c</p>
+<pre><code>13    java.lang.Thread.State: BLOCKED (on object monitor)
+ 21    java.lang.Thread.State: RUNNABLE
+ 70    java.lang.Thread.State: TIMED_WAITING (on object monitor)
+  4    java.lang.Thread.State: TIMED_WAITING (parking)
+  6    java.lang.Thread.State: TIMED_WAITING (sleeping)
+ 13    java.lang.Thread.State: WAITING (on object monitor)
+</code></pre><h3 id="输出jstack日志"><a href="#输出jstack日志" class="headerlink" title="输出jstack日志"></a>输出jstack日志</h3><p>jstack 21415 &gt; jstack.log</p>
+<h3 id="查看jstack-BLOCKED状态的锁"><a href="#查看jstack-BLOCKED状态的锁" class="headerlink" title="查看jstack BLOCKED状态的锁"></a>查看jstack BLOCKED状态的锁</h3><p>vim jstack.log</p>
+<pre><code>&quot;http--8082-16$1500284796&quot; daemon prio=10 tid=0x00002aabd5f57000 nid=0x5902 waiting for monitor entry [0x0000000043829000]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at java.net.PlainSocketImpl.accept(PlainSocketImpl.java:388)
+        - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
+        at java.net.ServerSocket.implAccept(ServerSocket.java:453)
+        at java.net.ServerSocket.accept(ServerSocket.java:421)
+        at com.caucho.vfs.QServerSocketWrapper.accept(QServerSocketWrapper.java:91)
+        at com.caucho.server.port.Port.accept(Port.java:1179)
+        at com.caucho.server.port.TcpConnection.run(TcpConnection.java:659)
+        at com.caucho.util.ThreadPool$Item.runTasks(ThreadPool.java:743)
+        at com.caucho.util.ThreadPool$Item.run(ThreadPool.java:662)
+        at java.lang.Thread.run(Thread.java:619)
+</code></pre><h3 id="查看锁的状态-0x00002aab14c63d10"><a href="#查看锁的状态-0x00002aab14c63d10" class="headerlink" title="查看锁的状态 0x00002aab14c63d10"></a>查看锁的状态 0x00002aab14c63d10</h3><pre><code>[@zjm_106_165 ~]# cat jstack.log.20160719 | grep 0x00002aab14c63d10
+    - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
+    - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
+    - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
+    - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
+    - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
+    - locked &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
+    - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
+    - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
+    - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
+</code></pre><h2 id="工具使用"><a href="#工具使用" class="headerlink" title="工具使用"></a>工具使用</h2><h3 id="tsar"><a href="#tsar" class="headerlink" title="tsar"></a>tsar</h3><h3 id="iftop"><a href="#iftop" class="headerlink" title="iftop"></a>iftop</h3>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/08/05/(8.6).JAVA虚拟机(六)-JMM内存模型/" itemprop="url">
+                  JMM内存模型
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-08-05T16:37:35+08:00" content="2016-08-05">
+              2016-08-05
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/08/04/(8.4).JAVA虚拟机(四)-G1垃圾回收器/" itemprop="url">
+                  G1 Heap Stucture
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-08-04T16:37:35+08:00" content="2016-08-04">
+              2016-08-04
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="The-G1-Garbage-Collector-垃圾优先型垃圾回收器"><a href="#The-G1-Garbage-Collector-垃圾优先型垃圾回收器" class="headerlink" title="The G1 Garbage Collector(垃圾优先型垃圾回收器)"></a>The G1 Garbage Collector(垃圾优先型垃圾回收器)</h3><p>The Garbage-First (G1) collector is a server-style garbage collector, targeted for multi-processor machines with large memories. It meets garbage collection (GC) pause time goals with a high probability, while achieving high throughput. The G1 garbage collector is fully supported in Oracle JDK 7 update 4 and later releases. The G1 collector is designed for applications that:</p>
+<ul>
+<li><p>Can operate concurrently with applications threads like the CMS collector.</p>
+<p>  G1像cms收集器一样能够将收集线程和用户线程一起并发处理</p>
+</li>
+<li><p>Compact free space without lengthy GC induced pause times.</p>
+<p>  GC在停顿时间内收集无需要更多的空间    </p>
+</li>
+<li><p>Need more predictable GC pause durations.</p>
+<p>  提供更可靠的GC停顿时间预测</p>
+</li>
+<li><p>Do not want to sacrifice a lot of throughput performance.</p>
+<p>  不想牺牲太多的吞吐量</p>
+</li>
+<li><p>Do not require a much larger Java heap.</p>
+<p>  G1需要一个更大的堆空间，关键建议6G以上</p>
+</li>
+</ul>
+<p>G1 is planned as the long term replacement for the Concurrent Mark-Sweep Collector (CMS). Comparing G1 with CMS, there are differences that make G1 a better solution. One difference is that G1 is a compacting collector. G1 compacts sufficiently to completely avoid the use of fine-grained free lists for allocation, and instead relies on regions. This considerably simplifies parts of the collector, and mostly eliminates potential fragmentation issues. Also, G1 offers more predictable garbage collection pauses than the CMS collector, and allows users to specify desired pause targets.</p>
+<p>释义：G1使用并发和并行阶段实现其目标暂停时间，并保持良好的吞吐量,与CMS收集器不同的是，G1回收算法采取的并发-整理 ；它可以解决传统的parNew+CMS垃圾收集算法中,有很多晋代失败(promotion failed)/并发失败(concurrent mode failure),然后做Full gc的问题；G1提供更可预测的垃圾收集停顿比CMS收集器，并允许用户指定所需的停顿的目标。</p>
+<blockquote>
+<p>相关解释：</p>
+</blockquote>
+<p>G1收集器之所以能建立可预测的停顿时间模型，是因为他可以<strong>有计划的避免在整个java堆中进行全局与的垃圾收集</strong>。G1跟踪各个region里面垃圾堆积的价值大小(回收所获得的空间大小以及回收所需要时间的经验值)，在后台维护一个优先列表，每次根据允许收集时间，优先回收价值最大的region（这也就是Garbage-First名称的由来）</p>
+<ul>
+<li>并行和并发：适合并充分利用多CPU，多核环境</li>
+<li>分代收集：分region去收集，可避免碎片化问题</li>
+<li>空间整合：G1整体是基于Mark-compact 标记-整理，但是从局部 两个 region之间是基于”复制”算法实现</li>
+<li>可预测停顿：建立可预测停顿时间，明确指定在一个长度为M毫秒的时间片内，消耗在垃圾收集上的时间不超过N毫秒</li>
+</ul>
+<h3 id="G1适合场景及特点"><a href="#G1适合场景及特点" class="headerlink" title="G1适合场景及特点"></a>G1适合场景及特点</h3><h4 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h4><ul>
+<li>1)适用在big heap(6GB or larger)场景,不能容忍长时间停顿(Full GC)的服务器场景.</li>
+<li>2)有大量存活对象(超过50%)的场景.例如:数据服务器场景.Hbase，Cassandra等.</li>
+<li>3)解决传统的parNew+CMS垃圾收集算法中,有很多晋代失败(promotion failed)/并发失败(concurrent mode failure),然后做Full gc..</li>
+</ul>
+<h4 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h4><ul>
+<li>1).G1可以控制最长停顿时间(-XX:MaxGCPauseMillis),这是个预计值,G1会根据这个时间制定回收策略,但是设置过低停顿回造成低吞吐。</li>
+<li>2).G1基于复制的算法，回收过程不会产生碎片,这是相比CMS最大的优势.</li>
+<li>3).G1把heap分割成很多大小相等的区域(region),不再使用固定空间分代的方式，采用逻辑分代:Eden,Survivor,Old。每个逻辑分代含有若干区域且数量可以动态调整.</li>
+</ul>
+<h4 id="查看分代情况"><a href="#查看分代情况" class="headerlink" title="查看分代情况"></a>查看分代情况</h4><pre><code>通过使用jmap -heap 得到的堆统计信息可以更好的理解逻辑分代:
+
+    Heap Configuration:
+       MinHeapFreeRatio = 40
+       MaxHeapFreeRatio = 70
+       MaxHeapSize      = 25769803776 (24576.0MB)
+       NewSize          = 1363144 (1.2999954223632812MB)
+       MaxNewSize       = 17592186044415 MB
+       OldSize          = 5452592 (5.1999969482421875MB)
+       NewRatio         = 2
+       SurvivorRatio    = 6
+       PermSize         = 100663296 (96.0MB)
+       MaxPermSize      = 100663296 (96.0MB)
+       G1HeapRegionSize = 8388608 (8.0MB)
+    G1 Heap:
+       regions  = 3072
+       capacity = 25769803776 (24576.0MB)
+       used     = 11232244096 (10711.902709960938MB)
+       free     = 14537559680 (13864.097290039062MB)
+       43.58684370915095% used
+    G1 Young Generation:
+    Eden Space:
+       regions  = 29
+       capacity = 1233125376 (1176.0MB)
+       used     = 243269632 (232.0MB)
+       free     = 989855744 (944.0MB)
+       19.727891156462587% used
+    Survivor Space:
+       regions  = 14
+       capacity = 117440512 (112.0MB)
+       used     = 117440512 (112.0MB)
+       free     = 0 (0.0MB)
+       100.0% used
+    G1 Old Generation:
+       regions  = 1298
+       capacity = 24419237888 (23288.0MB)
+       used     = 10871533952 (10367.902709960938MB)
+       free     = 13547703936 (12920.097290039062MB)
+       44.52036546702567% used
+</code></pre><h3 id="G1回收过程"><a href="#G1回收过程" class="headerlink" title="G1回收过程"></a>G1回收过程</h3><h4 id="G1-Heap-Structure"><a href="#G1-Heap-Structure" class="headerlink" title="G1 Heap Structure"></a>G1 Heap Structure</h4><ul>
+<li>1). G1 Heap Structure<br><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide8.png" alt=""></li>
+</ul>
+<p>Region size is chosen by the JVM at startup. The JVM generally targets around 2000 regions varying in size from 1 to 32Mb.</p>
+<p>G1 GC 启动后把堆被划分成大小相同的多个区域(Region)。区域的大小由(-XX:G1HeapRegionSize)指定,不指定区域大小会从1MB到32MB自动制定,区域大小确定后不会做动态调整.</p>
+<ul>
+<li><p>2). G1 Heap Allacation<br><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide9.png" alt=""><br>The heap is partitioned into a set of equal-sized heap regions, each a contiguous range of virtual memory. Certain region sets are assigned the same roles (eden, survivor, old) as in the older collectors, but there is not a fixed size for them. This provides greater flexibility in memory usage.</p>
+<p>  整个heap划分为Eden,Survivor,Old三个不连续的逻辑区域。<br>运行过程中,G1会为每个Region使用Remembered Set来维护对象引用,<br>应用程序在对Reference类型的数据进行写操作时会产生一个Write Barrier暂时中断写操作，<br>检查Reference引用的对象是否处于不同的Region之中，如果是，便通过CardTable把相关引用信息记录到被引用对象所属的Region的Remembered Set之中。<br>当进行内存回收时，在GC根节点的枚举范围中加入Remembered Set来避免对全堆扫描.</p>
+</li>
+</ul>
+<h4 id="几个概念"><a href="#几个概念" class="headerlink" title="几个概念"></a>几个概念</h4><p>G1 Footprint:<br>If you migrate from the ParallelOldGC or CMS collector to G1, you will likely see a larger JVM process size. This is largely related to “accounting” data structures such as Remembered Sets and Collection Sets.</p>
+<ul>
+<li><p><strong>Remembered Sets</strong>：or RSets track object references into a given region. There is one RSet per region in the heap. The RSet enables the parallel and independent collection of a region. <em>The overall footprint impact of RSets is less than 5%.</em></p>
+</li>
+<li><p><strong>Collection Sets</strong>:or CSets the set of regions that will be collected in a GC. All live data in a CSet is evacuated (copied/moved) during a GC. Sets of regions can be Eden, survivor, and/or old generation.<em> CSets have a less than 1% impact on the size of the JVM</em></p>
+</li>
+</ul>
+<h4 id="G1收集过程"><a href="#G1收集过程" class="headerlink" title="G1收集过程"></a>G1收集过程</h4><p><img src="http://i3.itc.cn/20160904/aac_cc6377ea_e867_65d5_f0e4_03b27c6f52be_1.jpg" alt=""></p>
+<ul>
+<li>初始标记(inital Marking)</li>
+<li>并发标记(Concurrent Marking)</li>
+<li>最终标记(Final Marking)</li>
+<li>筛选回收(live Data counting and Evacuation）</li>
+</ul>
+<p><img src="http://i2.itc.cn/20160904/aac_3d000bc6_44db_e229_78cd_6cde550ccd66_1.png" alt=""></p>
+<p>回收过程按回收区域集合(CollectionSets/CSets)划分.CSets可以包含(Eden,survivor/old)中的region,CSets占用内存一般小于整个jvm的1%;<br>年轻代垃圾回收:<br>G1 Young GC同时回收eden区域和上次垃圾回收的存活区域。Eden 和survivor的存活对象被疏散(复制/移动)到新的区域集。<br>被疏散对象的目标区域取决于对象的年龄,达到晋升年龄的对象疏散到老年代区域,<br>否则疏散到存活区,并将它包含在下一次年轻代或混合垃圾回收的CSet中。<br>混合垃圾回收:<br>G1 Mixd GC同时回收Eden,survivor,old的存活区域。当成功完成并发标记周期后，G1 GC从执行年轻代垃圾回收切换为执行混合垃圾回收。<br>在混合垃圾回收期间,G1GC 将一些旧的区域添加到 eden 和存活区供将来回收。G1GC 回收了足够的旧区域后（经过多次混合垃圾回收），<br>G1将恢复执行年轻代垃圾回收,直到下一次标记周期完成。</p>
+<h4 id="G1-YoungGC"><a href="#G1-YoungGC" class="headerlink" title="G1 YoungGC"></a>G1 YoungGC</h4><ul>
+<li>1.The heap is split into approximately 2000 regions. Minimum size is 1Mb and maximum size is 32Mb. Blue regions hold old generation objects and green regions hold young generation objects.</li>
+</ul>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide10.png" alt=""></p>
+<ul>
+<li>2.Live objects are evacuated (i.e., copied or moved) to one or more survivor regions. If the aging threshold is met, some of the objects are promoted to old generation regions.</li>
+</ul>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide11.png" alt=""><br>This is a stop the world (STW) pause. Eden size and survivor size is calculated for the next young GC. Accounting information is kept to help calculate the size. Things like the pause time goal are taken into consideration.<br>This approach makes it very easy to resize regions, making them bigger or smaller as needed.</p>
+<ul>
+<li>3.End of a Young GC with G1,Live objects have been evacuated to survivor regions or to old generation regions.</li>
+</ul>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide12.png" alt=""></p>
+<p>Recently promoted objects are shown in dark blue. Survivor regions in green.<br>In summary, the following can be said about the young generation in G1:</p>
+<ul>
+<li>The heap is a single memory space split into regions.</li>
+<li>Young generation memory is composed of a set of non-contiguous regions. This makes it easy to resize when needed.</li>
+<li>Young generation garbage collections, or young GCs, are stop the world events. All application threads are stopped for the operation.</li>
+<li>The young GC is done in parallel using multiple threads.</li>
+<li>Live objects are copied to new survivor or old generation regions.</li>
+</ul>
+<h4 id="G1-OldGc"><a href="#G1-OldGc" class="headerlink" title="G1 OldGc"></a>G1 OldGc</h4><ul>
+<li><ol>
+<li><strong>Initial Marking Phase:</strong>Initial marking of live object is piggybacked on a young generation garbage collection. In the logs this is noted as GC pause (young)(inital-mark).</li>
+</ol>
+</li>
+</ul>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide13.png" alt=""></p>
+<ul>
+<li>2.<strong>Concurrent Marking Phase:</strong>If empty regions are found (as denoted by the “X”), they are removed immediately in the Remark phase. Also, “accounting” information that determines liveness is calculated.</li>
+</ul>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide14.png" alt=""></p>
+<ul>
+<li>3.<strong>Remark Phase:</strong>Empty regions are removed and reclaimed. Region liveness is now calculated for all regions.</li>
+</ul>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide15.png" alt=""></p>
+<ul>
+<li><p>4.<strong> Copying/Cleanup Phase:</strong>G1 selects the regions with the lowest “liveness”, those regions which can be collected the fastest. Then those regions are collected at the same time as a young GC. This is denoted in the logs as [GC pause (mixed)]. So both young and old generations are collected at the same time.</p>
+</li>
+<li><p>5.<strong>After Copying/Cleanup Phase:</strong>The regions selected have been collected and compacted into the dark blue region and the dark green region shown in the diagram.</p>
+</li>
+</ul>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide17.png" alt=""></p>
+<ul>
+<li><p>6.<strong>Summary of Old Generation GC：</strong></p>
+<p>  In summary, there are a few key points we can make about the G1 garbage collection on the old generation：</p>
+<p>  <strong>Concurrent Marking Phase</strong></p>
+<ul>
+<li>Liveness information is calculated concurrently while the application is running.</li>
+<li>This liveness information identifies which regions will be best to reclaim during an evacuation pause.</li>
+<li><p>There is no sweeping phase like in CMS.</p>
+<p><strong>Remark Phase</strong></p>
+</li>
+<li>Uses the Snapshot-at-the-Beginning (SATB) algorithm which is much faster then what was used with CMS.</li>
+<li><p>Completely empty regions are reclaimed.</p>
+<p><strong>Copying/Cleanup</strong> </p>
+</li>
+<li><p>PhaseYoung generation and old generation are reclaimed at the same time.</p>
+</li>
+<li>Old generation regions are selected based on their liveness.</li>
+</ul>
+</li>
+</ul>
+<h3 id="G1相关参数"><a href="#G1相关参数" class="headerlink" title="G1相关参数"></a>G1相关参数</h3><p>-XX:G1HeapRegionSize=n</p>
+<pre><code>设置的 G1 区域的大小。值是 2 的幂，范围是 1 MB 到 32 MB 之间。目标是根据最小的 
+Java 堆大小划分出约 2048 个区域。
+</code></pre><p>-XX:MaxGCPauseMillis=200</p>
+<pre><code>为所需的最长暂停时间设置目标值。默认值是 200 毫秒。指定的值不适用于您的堆大小。
+</code></pre><p>-XX:ParallelGCThreads=cpus</p>
+<pre><code>设置年轻代垃圾回收(STW)工作线程数的值。将 n 的值设置为逻辑处理器的数量。n 的值
+与逻辑处理器的数量相同,G1根据cpu数量设置不同的初始值。
+</code></pre><p>-XX:ConcGCThreads=cpus/4</p>
+<pre><code>设置并发标记的线程数。将n设置为并行垃圾回收线程数 (ParallelGCThreads) 的 1/4 左右。
+</code></pre><p>-XX:InitiatingHeapOccupancyPercent=45</p>
+<pre><code>设置触发标记周期的Java堆占用率阈值。默认占用率是整个 Java 堆的 45%。
+</code></pre><p>-XX:G1HeapWastePercent=10</p>
+<pre><code>设置G1愿意浪费的堆百分比。如果可回收百分比小于堆废物百分比。默认值是 10%。
+</code></pre><p>-XX:G1MixedGCCountTarget=8</p>
+<pre><code>设置标记周期完成后，对旧区域执行混合垃圾回收的目标次数。默认值是 8 次混合垃圾回收。
+混合回收的目标是控制在此目标次数以内。
+</code></pre><p>-XX:G1ReservePercent=10</p>
+<pre><code>设置作为空闲空间的预留内存百分比，以降低目标空间溢出的风险。默认值是 10%。增加或
+减少百分比时,需要评估Java堆的量。
+</code></pre><h3 id="G1优化建议"><a href="#G1优化建议" class="headerlink" title="G1优化建议"></a>G1优化建议</h3><ul>
+<li><p>1:不要使用-Xmn/-XX:NewRatio等设置年轻代大小,G1使用逻辑分代,年轻代大小是动态调整的.且固定年轻代的大小会覆盖暂停时间目标</p>
+</li>
+<li><p>2:暂停时间目标(-XX:MaxGCPauseMillis):设置所需的软实时目标，G1GC 会尽量满足.当对垃圾回收进行评估或调优时,都会涉及到延迟与吞吐量的取舍。需要G1高吞吐量时,暂停时间目标不要太严苛。</p>
+</li>
+<li><p>3:调优混合垃圾回收时，需合理调整以下参数:<br>-XX:InitiatingHeapOccupancyPercent 用于更改标记阈值。更小的值意味着更快的触发标记周期。<br>-XX:G1MixedGCCountTarget 用于调整Old区域的CSet集合。</p>
+</li>
+<li><p>4:G1溢出/耗尽引发的FullGc<br>2014-03-06T10:01:28.216+0800: 67998.279: [GC pause (mixed) (to-space exhausted), 13.8681600 secs]<br>2014-03-04T10:01:42.086+0800: 68012.149: [GC pause (mixed) (to-space overflow), 3.0012670 secs]<br>优化参数:<br>增加-XX:G1ReservePercent 选项的值（并相应增加总的堆大小,为”目标空间”预留更多内存空间。<br>减少 -XX:InitiatingHeapOccupancyPercent 提前启动标记周期。<br>增加 -XX:ConcGCThreads 选项的值来增加并行标记线程的数目,加快标记速度。</p>
+</li>
+<li><p>5:避免巨型对象<br>G1对于任何超过区域一半大小的对象都被视为“巨型对象”,巨型区域直接被分配到老年代中.<br>巨型区域是一个连续的区域集。StartsHumongous 标记该连续集的开始，ContinuesHumongous 标记它的延续.<br>所以没有使用的巨型对象的终点与上个区域的终点之间的空间无法被使用,<br>如果对象只是略大于堆区域大小的倍数，未使用的空间可能会导致堆碎片化。<br>巨型对象也可能分配导致连续的并发周期，并且此类分配导致老年代碎片化<br>通过增加-XX:G1HeapRegionSize的值,提高巨型对象的门槛(G1HeapRegionSize/2)。</p>
+</li>
+</ul>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>G1日志分析参考：<a href="https://blogs.oracle.com/poonam/entry/understanding_g1_gc_logs" target="_blank" rel="external">https://blogs.oracle.com/poonam/entry/understanding_g1_gc_logs</a></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/08/03/(8.3).JAVA虚拟机(三)-CMS垃圾回收器/" itemprop="url">
+                  CMS Heap Stucture
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-08-03T16:37:35+08:00" content="2016-08-03">
+              2016-08-03
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="概念认知"><a href="#概念认知" class="headerlink" title="概念认知"></a>概念认知</h3><h4 id="枚举根节点-GC-root"><a href="#枚举根节点-GC-root" class="headerlink" title="枚举根节点 GC root"></a>枚举根节点 GC root</h4><p>可达性分析对执行时间的敏感体现在GC停顿上，这项工作分析必须确保能在”一致性”的快照进行操作，(冻结某个时间点上对象引用关系以及任何对象引用变更)，这也是为什么会产生Stop The Word.</p>
+<p>在HotSpot虚拟机实现中，是有办法直接获取哪些地方(OopMap的数据结构)存放着对象的引用。当虚拟机在类加载完成的时候，HotSpot就把对象内什么偏移量上是什么数据类型计算出来，再JIT编译过程中，也会在特定的位置记录下栈和寄存器中哪些位置是被引用的。</p>
+<h4 id="安全点-safe-point"><a href="#安全点-safe-point" class="headerlink" title="安全点 safe point"></a>安全点 safe point</h4><p>在OopMap的协助下，HotSpot可快速且准确的完成GC roots枚举，但是有一个问题：引用关系变化会比较频繁会造成OopMap内容变化指令非常多，那样会需要大量的额外空间，这样GC空间成本会很高。</p>
+<p><em>但实际上HotSpot，只是会”特定的位置”记录这些信息，这些位置简称<strong>安全点-safepoint</strong>，即程序执行时并非在所有地方都能停顿下来开始GC，只有达到安全点时才能暂停。</em></p>
+<p>如何在GC发生时让所有线程，都”跑”到最近安全点上停顿下来，两种方案：</p>
+<ul>
+<li>抢断式中断</li>
+</ul>
+<p>不需要线程的执行代码主动配合，在gc发生时，首先把所有线程全部中断，如果发现有线程中断的地方不在安全点上，就恢复线程，就让”该线程跑到”安全点上。</p>
+<ul>
+<li>主动式中断 (hotspot)</li>
+</ul>
+<p>当GC需要中断线程的时候，不需要对线程操作，仅仅简单的设置一个标志位，各个线程执行时 主动去轮训这个标志，发现中断标志位为真，才让线程挂起。</p>
+<h4 id="安全区域-safe-region"><a href="#安全区域-safe-region" class="headerlink" title="安全区域 safe region"></a>安全区域 safe region</h4><p>safepoint似乎已经完美解决如何进入GC的问题，但实际情况不一样。safepoint机制是保证程序执行时，在不太久时间内就会遇到可进入GC的safepoint,但是程序 “不执行”的时候呢?</p>
+<ul>
+<li>程序没有获取到cpu的时间片</li>
+<li>线程处于sleep或bolcked状态<br>这些情况线程是无法响应JVM的中断请求，无法”跑到”安全的地方去中断挂起，这里就需要用到 <em>安全区域safe-region</em>来解决。</li>
+</ul>
+<p><strong>安全区域safe-region</strong>指的是在一段代码片段中，引用关系不会发生变化。在这个区域的任意地方开始GC都是安全的，可以把它看做是safe-point的扩展。</p>
+<p>在线程执行到safe Region的代码时，首先标识自己已经进入了Safe Region,那样，当JVM要发起GC时，就不用管标识自己为safe region状态的线程，当线程离开safe region时，就需要检查系统 是否已经完成 根节点枚举，如果完成就继续执行，否则它就必须等待直到收到可以离开safe region的信号为止。</p>
+<h4 id="吞吐量"><a href="#吞吐量" class="headerlink" title="吞吐量"></a>吞吐量</h4><p>吞吐量 = 运行用户代码时间/（运行用户代码时间+垃圾收集时间）</p>
+<p>虚拟机总共运行100分钟，其中垃圾收集花掉1分钟，那么吞吐量是 99%。</p>
+<h4 id="并行-并发收集区别"><a href="#并行-并发收集区别" class="headerlink" title="并行/并发收集区别"></a>并行/并发收集区别</h4><ul>
+<li>并行（parallel）：只多条垃圾收集线程并行工作，但此时用户线程任然处于等待状态。</li>
+<li>并发(Concurent)：指用户线程与垃圾收集线程同时执行(不一定是并行的，可能需要交替执行)，垃圾收集程序运行另外一个Cpu上。(收集线程数=(cpu数量+3)/4 ,不足4个 对用户程序影响可能变大)</li>
+</ul>
+<h3 id="Reviewing-Generational-GC-and-CMS"><a href="#Reviewing-Generational-GC-and-CMS" class="headerlink" title="Reviewing Generational GC and CMS"></a>Reviewing Generational GC and CMS</h3><p>The Concurrent Mark Sweep (CMS) collector (also referred to as the concurrent low pause collector) collects the tenured generation. It attempts to minimize the pauses due to garbage collection by doing most of the garbage collection work concurrently with the application threads. Normally the concurrent low pause collector does not copy or compact the live objects. A garbage collection is done without moving the live objects. If fragmentation becomes a problem, allocate a larger heap.  </p>
+<p>大致意思：CMS垃圾回收器是回收堆中老年代对象。它与应用线程并行做垃圾回收以减少最小停顿时间，它的最小停顿时间不是因为 复制或整理存活对象，最主要问题是因为碎片化，所以需要分配一个较大的堆。</p>
+<p>特点：</p>
+<ul>
+<li>牺牲吞吐量换取最小停顿时间 </li>
+<li>并发标记清除垃圾回收算法</li>
+<li>需要一个较大的堆空间</li>
+</ul>
+<p>问题：</p>
+<ul>
+<li>产生碎片化</li>
+</ul>
+<blockquote>
+<p>Heap Structure for Cms Collector</p>
+</blockquote>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide1.png" alt=""></p>
+<h3 id="CMS-Collection-Phase-CMS收集阶段"><a href="#CMS-Collection-Phase-CMS收集阶段" class="headerlink" title="CMS Collection Phase(CMS收集阶段)"></a>CMS Collection Phase(CMS收集阶段)</h3><p>CMS收集器有几个缺点：</p>
+<ul>
+<li><p>cms收集器占用cpu资源，总吞吐量会降低</p>
+<p>  在并发阶段，它虽然不会导致用户线程停顿，但是占用可一部分线程(或者说CPU资源)，从而导致应用程序变慢。</p>
+</li>
+<li><p>cms收集器无法处理”浮动垃圾”</p>
+<p>  由于cms并发清理阶段，用户线程还在运行着，伴随着程序运行自然会产生新的垃圾，这一部分垃圾在标记过程中，无法再这一次GC处理，需要等待下一次GC是再清理掉。这一部分垃圾成为<strong>浮动垃圾</strong>。可以适当调整老年代回收百分比参数：-XX:CMSInitiationgOccupancyFraction ,<strong>还可能会造成Concurrent Mode Failure失败导致另一次FullGC产生。</strong><br>  jdk1.5 老年代触发 百分比68%，JDK1.6 老年代触发百分比 92%</p>
+</li>
+<li><p>cms收集器会产生空间碎片，可能会造成额外FULL GC触发</p>
+<p>  由于CMS是基于”标记-清除”算法实现，意味着收集结束会产生大量空碎片空间，如果碎片过多时，将会给大对象分配带来很大麻烦，此时往往老年代还有很多空间剩余，会造成提前一次进行FULL gc的触发，为解决这个问题，cms提供一个参数 +useCmsCompactAtFullCollection（碎片整理，默认开启），内存整理肯定就增加了停顿时间，虚拟器还提供一个参数-XX:CMSFullGCBeforeCompaction,这个参数 用于设置执行多少次不压缩的Full Gc后，跟着来一次带压缩的(默认值为0，表示每次进入Full GC都要进行碎片整理)</p>
+</li>
+</ul>
+<blockquote>
+<p>CMS收集过程</p>
+</blockquote>
+<p><img src="http://dl2.iteye.com/upload/attachment/0115/7590/5e899581-4025-3895-bc08-d702fc71dff5.png" alt=""></p>
+<p>初始标记仅仅是标记一下GC Roots能直接关联到的对象，速度很快，并发标记就是进行<br>GC Roots Trancing的过程，而重新标记阶段则是为了修正并发标记期间因用户程序继<br>续运行而导致标记产生变动那一部分对象的标记记录，这个阶段的停顿时间比初始标记稍<br>长一些，但远比并发标记时间短。</p>
+<p><img src="http://i2.itc.cn/20160904/aac_6f45a003_baef_f7c1_93fb_a261e84665e3_1.png" alt=""></p>
+<h3 id="How-YoungGC-works-with-GC-CMS年轻代回收过程"><a href="#How-YoungGC-works-with-GC-CMS年轻代回收过程" class="headerlink" title="How YoungGC works with GC(CMS年轻代回收过程)"></a>How YoungGC works with GC(CMS年轻代回收过程)</h3><p>使用算法：copying算法(速度快 存活对象少)</p>
+<ul>
+<li>1.The young generation is colored light green and the old generation in blue. This is what the CMS might look like if your application has been running for a while. Objects are scattered around the old generation area.</li>
+</ul>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide2.png" alt=""></p>
+<ul>
+<li>2.Live objects are copied from the Eden space and survivor space to the other survivor space. Any older objects that have reached their aging threshold are promoted to old generation.</li>
+</ul>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide3.png" alt=""></p>
+<ul>
+<li>3.After a young GC, the Eden space is cleared and one of the survivor spaces is cleared.</li>
+</ul>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide4.png" alt=""><br>Newly promoted objects are shown in dark blue on the diagram. The green objects are surviving young generation objects that have not yet been promoted to old generation. </p>
+<h3 id="Old-Generation-Collection-With-CMS（CMS老年代垃圾回收）"><a href="#Old-Generation-Collection-With-CMS（CMS老年代垃圾回收）" class="headerlink" title="Old Generation Collection With CMS（CMS老年代垃圾回收）"></a>Old Generation Collection With CMS（CMS老年代垃圾回收）</h3><ul>
+<li>1.Two stop the world events take place: initial mark and remark. When the old generation reaches a certain occupancy rate, the CMS is kicked off。</li>
+</ul>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide5.png" alt=""><br>(1) Initial mark is a short pause phase where live (reachable) objects are marked. (2) Concurrent marking finds live objects while the application continues to execute. Finally, in the (3) remark phase, objects are found that were missed during (2) concurrent marking in the previous phase.</p>
+<ul>
+<li>2.Objects that were not marked in the previous phase are deallocated in place. There is no compaction.</li>
+</ul>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide6.png" alt=""><br>Note: Unmarked objects == Dead Objects</p>
+<ul>
+<li>3.After the (4) Sweeping phase, you can see that a lot of memory has been freed up. You will also notice that no compaction has been done.</li>
+</ul>
+<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide7.png" alt=""><br>Finally, the CMS collector will move through the (5) resetting phase and wait for the next time the GC threshold is reached..</p>
+<h3 id="CMS参数解释"><a href="#CMS参数解释" class="headerlink" title="CMS参数解释"></a>CMS参数解释</h3><p>-XX：+UseConcMarkSweepGC</p>
+<pre><code>激活CMS收集器。默认HotSpot JVM使用的是并行收集器
+</code></pre><p>-XX：UseParNewGC</p>
+<pre><code>当使用-XX：+UseConcMarkSweepGC时，-XX：UseParNewGC会自动开启。因此，
+如果年轻代的并行GC不想开启，可以通过设置-XX：-UseParNewGC来关掉。
+</code></pre><p>-XX：+CMSConcurrentMTEnabled</p>
+<pre><code>当该标志被启用时，并发的CMS阶段将以多线程执行
+(因此，多个GC线程会与所有的应用程序线程并行工作)。该标志已经默认开启，
+如果顺序执行更好，这取决于所使用的硬件，多线程执行可以通过-XX：-CMSConcurremntMTEnabled禁用。
+</code></pre><p>-XX：ConcGCThreads</p>
+<pre><code>标志-XX：ConcGCThreads=&lt;value&gt;(早期JVM版本也叫-XX:ParallelCMSThreads)定义并发CMS
+过程运行时的线程数。比如value=4意味着CMS周期的所有阶段都以4个线程来执行。尽管更多的线
+程会加快并发CMS过程，但其也会带来额外的同步开销。因此，对于特定的应用程序，应该通过测试
+来判断增加CMS线程数是否真的能够带来性能的提升。如果还标志未设置，JVM会根据并行收集器中
+的-XX：ParallelGCThreads参数的值来计算出默认的并行CMS线程数。该公式是ConcGCThreads
+ = (ParallelGCThreads + 3)/4。因此，对于CMS收集器， -XX:ParallelGCThreads标志不
+仅影响“stop-the-world”垃圾收集阶段，还影响并发阶段。
+</code></pre><p>-XX:CMSInitiatingOccupancyFraction</p>
+<pre><code>当堆满之后，并行收集器便开始进行垃圾收集，例如，当没有足够的空间来容纳新分配或提升的对
+象,JVM会在一开始执行CMS周期前作一些线索查找。该线索由 -
+XX:CMSInitiatingOccupancyFraction=&lt;value&gt;来设置，该值代表老年代堆空间的使用率.
+</code></pre><p>-XX：+UseCMSInitiatingOccupancyOnly</p>
+<pre><code>触发fullGC的空间百分比，jdk5 默认68%  jdk6 默认92%
+</code></pre><p>-XX:+CMSClassUnloadingEnabled</p>
+<pre><code>相对于并行收集器，CMS收集器默认不会对永久代进行垃圾回收。如果希望对永久代进行垃圾回收，
+可用设置标志-XX:+CMSClassUnloadingEnabled。
+</code></pre><p>-XX:+UseCMSCompactAtFullCollection</p>
+<pre><code>打开对年老代的压缩.可能会影响性能,但是可以消除碎片,由于并发收集器不对内存空间进行压缩,
+整理,所以运行一段时间以后会产生&quot;碎片&quot;,使得运行效率降低.此值设置运行多少次GC以后对内存
+空间进行压缩,整理.
+</code></pre><p>-XX:+ExplicitGCInvokesConcurrent and </p>
+<p>-XX:+ExplicitGCInvokesConcurrentAndUnloadsClasses</p>
+<p>-XX:+DisableExplicitGC</p>
+<p>该标志将告诉JVM完全忽略系统的GC调用(不管使用的收集器是什么类型)</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>oracle官网cms垃圾回收：<a href="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/index.html" target="_blank" rel="external">http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/index.html</a></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/08/02/(8.2).JAVA虚拟机(二)-GC介绍及垃圾回收算法/" itemprop="url">
+                  GC介绍及垃圾回收算法
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-08-02T16:37:35+08:00" content="2016-08-02">
+              2016-08-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="GC介绍"><a href="#GC介绍" class="headerlink" title="GC介绍"></a>GC介绍</h2><h3 id="什么是GC-Garbage-Collection"><a href="#什么是GC-Garbage-Collection" class="headerlink" title="什么是GC(Garbage Collection)?"></a>什么是GC(Garbage Collection)?</h3><p>垃圾回收器（Garbage Collection，GC）,顾名思义，垃圾回收就是释放垃圾占用的空间， Java中，程序员不需要去关心内存动态分配和垃圾回收的问题，这一切都交给了JVM来处理。<br>我们需要考虑一下JVM处理垃圾回收三个问题：<br>1).哪些内存需要回收？<br>2).GC什么时候开始回收？<br>3).如何回收?</p>
+<h3 id="垃圾收集的方式？"><a href="#垃圾收集的方式？" class="headerlink" title="垃圾收集的方式？"></a>垃圾收集的方式？</h3><ul>
+<li>引用计数方式</li>
+</ul>
+<p><img src="http://dl2.iteye.com/upload/attachment/0115/7187/5dcb87dd-84b7-3fd4-990e-4ad03fbb23d3.png" alt=""></p>
+<ul>
+<li>对象遍历引用方式</li>
+</ul>
+<p><img src="http://dl2.iteye.com/upload/attachment/0115/7185/d546c4ef-d358-3252-bf83-1cf2a969450d.png" alt=""></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/08/02/(8.2).JAVA虚拟机(二)-GC介绍及垃圾回收算法/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/08/01/(8.1).JAVA虚拟机(一)-java体系结构及hotspot介绍/" itemprop="url">
                   Java体系结构及内存模型
                 </a>
@@ -1001,2145 +2624,11 @@ http://www.cnblogs.com/forfuture1978/archive/2009/12/14/1623599.html
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/07/01/(7.1).分布式架构-dubbo/" itemprop="url">
-                  dubbo架构和源码分析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-07-01T10:52:03+08:00" content="2016-07-01">
-              2016-07-01
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/分布式/" itemprop="url" rel="index">
-                    <span itemprop="name">分布式</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="dubbo架构原理"><a href="#dubbo架构原理" class="headerlink" title="dubbo架构原理"></a>dubbo架构原理</h2><blockquote>
-<h3 id="框架设计"><a href="#框架设计" class="headerlink" title="框架设计"></a>框架设计</h3></blockquote>
-<p><img src="http://i2.itc.cn/20160517/aac_f5d59df3_6197_4d8e_0bd9_908362449c02_2.png" alt="dubbo框架结构"></p>
-<ul>
-<li><code>config，配置层</code>，对外配置接口，以ServiceConfig, ReferenceConfig为中心，可以直接new配置类，也可以通过spring解析配置生成配置类</li>
-<li><code>proxy，服务代理层</code>，服务接口透明代理，生成服务的客户端Stub和服务器端Skeleton，以ServiceProxy为中心，扩展接口为ProxyFactory</li>
-<li><code>registry，注册中心层</code>，封装服务地址的注册与发现，以服务URL为中心，扩展接口为RegistryFactory, Registry, RegistryService</li>
-<li><code>cluster，路由层</code>，封装多个提供者的路由及负载均衡，并桥接注册中心，以Invoker为中心，扩展接口为Cluster, Directory, Router, LoadBalance</li>
-<li><code>monitor，监控层</code>，RPC调用次数和调用时间监控，以Statistics为中心，扩展接口为MonitorFactory, Monitor, MonitorService</li>
-<li><code>protocol，远程调用层</code>，封将RPC调用，以Invocation, Result为中心，扩展接口为Protocol, Invoker, Exporter</li>
-<li><code>exchange，信息交换层</code>，封装请求响应模式，同步转异步，以Request, Response为中心，扩展接口为Exchanger, ExchangeChannel, ExchangeClient, ExchangeServer</li>
-<li><code>transport，网络传输层</code>，抽象mina和netty为统一接口，以Message为中心，扩展接口为Channel, Transporter, Client, Server, Codec</li>
-<li><code>serialize，数据序列化层</code>，可复用的一些工具，扩展接口为Serialization, ObjectInput, ObjectOutput, ThreadPool</li>
-</ul>
-<blockquote>
-<h3 id="依赖关系"><a href="#依赖关系" class="headerlink" title="依赖关系"></a>依赖关系</h3></blockquote>
-<p><img src="http://i3.itc.cn/20160516/aac_ec527bd3_be4b_a20b_eb92_3020fcd4d4f7_4.jpg" alt="dubbo服务端和客户端调用关系"></p>
-<p><strong>节点角色说明：</strong></p>
-<ul>
-<li>Provider: 暴露服务的服务提供方。</li>
-<li>Consumer: 调用远程服务的服务消费方。</li>
-<li>Registry: 服务注册与发现的注册中心。</li>
-<li>Monitor: 统计服务的调用次调和调用时间的监控中心。</li>
-<li>Container: 服务运行容器。</li>
-</ul>
-<p><strong>调用关系说明：</strong></p>
-<ul>
-<li>0-服务容器负责启动，加载，运行服务提供者。</li>
-<li>1-服务提供者在启动时，向注册中心注册自己提供的服务。</li>
-<li>2-服务消费者在启动时，向注册中心订阅自己所需的服务。</li>
-<li>3-注册中心返回服务提供者地址列表给消费者，如果有变更，注册中心将基于长连接推送变更数据给消费者。</li>
-<li>4-服务消费者，从提供者地址列表中，基于软负载均衡算法，选一台提供者进行调用，如果调用失败，再选另一台调用。</li>
-<li>5-服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到监控中心。</li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/07/01/(7.1).分布式架构-dubbo/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/06/14/(6.4).系统故障-单点方案/" itemprop="url">
-                  系统单点故障预案
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-06-14T10:38:55+08:00" content="2016-06-14">
-              2016-06-14
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/故障预案/" itemprop="url" rel="index">
-                    <span itemprop="name">故障预案</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>待补充</p>
-<p>##1.单机服务故障</p>
-<ul>
-<li><p><code>nginx层面</code>：2台nginx+keepalive热备(需要同一网段 )</p>
-</li>
-<li><p><code>server层面</code>：跨网段或机房</p>
-</li>
-<li><p><code>接口依赖层面</code>：对所有依赖进行隔离(mysql、redis、elasticsearch、MQ、依赖接口等等 做服务隔离或降级)</p>
-</li>
-<li><p><code>对外提供接口层面</code>：</p>
-</li>
-<li><p><code>mysql或存储</code>层面:</p>
-</li>
-</ul>
-<p>##2.分布式服务故障</p>
-<ul>
-<li><code>zookeeper层面</code>：需要5各节点以上 做跨机房,注册中心需要不能宕机一半节点，5台的话 2/2/1分3个网段分配</li>
-<li><code>rpc层面</code>: dubbo应该可以跨机房或网段部署</li>
-<li><code>MQ层面</code>：</li>
-<li><code>线程池层面</code>：</li>
-</ul>
-<blockquote>
-<p>故障分析</p>
-</blockquote>
-<pre><code>1.tsar分析：https://github.com/alibaba/tsar/blob/master/info.md
-2.jvm分析：jmap jstack jdump(系统故障前后做jvm的jdump，需要开启gc log)
-    -XX:+PrintGCDetails 
-    -XX:+PrintGCDateStamps 
-    -Xloggc:/data/logs/vrs-es-provider/gc.log 
-    -XX:+PrintClassHistogramBeforeFullGC 
-    -XX+PrintClassHistogramAfterFullGC
-    -XX:+UseCMSCompactAtFullCollection
-</code></pre>
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/06/05/(7.3).分布式架构-RocketMq/" itemprop="url">
-                  消息队列-RocketMq
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-06-05T18:48:02+08:00" content="2016-06-05">
-              2016-06-05
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/MQ/" itemprop="url" rel="index">
-                    <span itemprop="name">MQ</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><h2 id="存储存"><a href="#存储存" class="headerlink" title="存储存"></a>存储存</h2><h2 id="通信存"><a href="#通信存" class="headerlink" title="通信存"></a>通信存</h2><h2 id="NameServer"><a href="#NameServer" class="headerlink" title="NameServer"></a>NameServer</h2><h2 id="broker"><a href="#broker" class="headerlink" title="broker"></a>broker</h2><h2 id="producer"><a href="#producer" class="headerlink" title="producer"></a>producer</h2><h2 id="consumer"><a href="#consumer" class="headerlink" title="consumer"></a>consumer</h2><h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><h2 id="踩坑"><a href="#踩坑" class="headerlink" title="踩坑"></a>踩坑</h2><p>待补充</p>
-<p>kafka:<a href="http://kafka.apache.org/documentation.html" target="_blank" rel="external">http://kafka.apache.org/documentation.html</a></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/06/03/(6.2).网络通讯-IO/" itemprop="url">
-                  (6).网络通讯-IO/NIO/AIO
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-06-03T14:58:01+08:00" content="2016-06-03">
-              2016-06-03
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/IO/" itemprop="url" rel="index">
-                    <span itemprop="name">IO</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>待补充……</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/06/02/(6.3).缓存-redis/" itemprop="url">
-                  redis
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-06-02T10:52:03+08:00" content="2016-06-02">
-              2016-06-02
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/分布式/" itemprop="url" rel="index">
-                    <span itemprop="name">分布式</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/分布式/缓存/" itemprop="url" rel="index">
-                    <span itemprop="name">缓存</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="redis初识"><a href="#redis初识" class="headerlink" title="redis初识"></a>redis初识</h2><h3 id="八大特性"><a href="#八大特性" class="headerlink" title="八大特性"></a>八大特性</h3><blockquote>
-<p>特点:</p>
-</blockquote>
-<ul>
-<li>速度快(c语言编写;数据存储全内存)</li>
-<li>持久化(断电后不丢失数据,对数据的更新将异步地保存到磁盘上)</li>
-<li>支持多种语言（java/php/ruby/lua/nodejs…）</li>
-<li>支持多种数据结构(string/hash/list/set/zset)</li>
-<li>功能丰富(除支持5种数据结构，还支持事务、流水线、发布订阅等)</li>
-<li>“简单”(redis代码精简代码只有几万行；不依赖外部库资源)</li>
-<li>主从复制(数据备份)</li>
-<li>高可用、分布式（支持redis-sentinel高可用、redis-cluster分布式架构）</li>
-</ul>
-<blockquote>
-<p>访问介质开销：</p>
-</blockquote>
-<p><img src="http://i3.itc.cn/20160617/aac_181f16ac_2f7a_1a2a_fc4c_c7047525a146_3.png" alt=""></p>
-<h3 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h3><p><img src="http://i0.itc.cn/20160617/aac_181f16ac_2f7a_1a2a_fc4c_c7047525a146_1.png" alt=""></p>
-<ul>
-<li>String(字符串)</li>
-</ul>
-<p>1).结构：<br><img src="http://i0.itc.cn/20160616/aac_d1bd8f2f_0e3f_f448_3a84_4d70ce62c237_2.png" alt=""></p>
-<p>2).场景：缓存/计数器/分布式锁(单线程执行，QPS最大能达到10w+) </p>
-<p>3).api命令：</p>
-<pre><code>get/set/del (缓存)
-Incr/decr/Incrby/decrby(计数，加+-1/+-n)
-set/setnx/setxx
-mset/mget （批量读取）
-getset/append/strlen/Incrbyfloat/getrange/setrange（其他字符串操作）
-</code></pre><ul>
-<li>Hash(哈希)</li>
-</ul>
-<p>1).结构:<br><img src="http://i0.itc.cn/20160616/aac_838af662_24ad_42d8_6410_7810a64b2ded_5.png" alt=""></p>
-<p>2).场景:缓存</p>
-<p>3).api命令：</p>
-<pre><code>hget/hset/hgetall/hdel(单条操作)
-hexists/hlen（存在/长度）
-hmget/hmset(批量设置/获取KV)
-hgetall/hvals/hkeys(批量获取键值)
-</code></pre><p><img src="http://i1.itc.cn/20160616/aac_838af662_24ad_42d8_6410_7810a64b2ded_4.png" alt=""></p>
-<ul>
-<li>List(列表)</li>
-</ul>
-<p>1).结构<br><img src="http://i0.itc.cn/20160616/aac_838af662_24ad_42d8_6410_7810a64b2ded_3.png" alt=""></p>
-<p>2).场景:</p>
-<p>3).api:</p>
-<p><img src="http://i1.itc.cn/20160616/aac_838af662_24ad_42d8_6410_7810a64b2ded_2.png" alt=""></p>
-<ul>
-<li>Set(集合)</li>
-<li>ZSet(有序集合)</li>
-</ul>
-<h3 id="redis命令-配置"><a href="#redis命令-配置" class="headerlink" title="redis命令/配置"></a>redis命令/配置</h3><blockquote>
-<p>下载和安装</p>
-</blockquote>
-<pre><code>1. http://download.redis.io/releases/redis-3.0.5.tar.gz
-2. tar xzf redis-3.0.5.tar.gz
-3. cd redis-3.0.5
-4. make
-5. make install
-</code></pre><blockquote>
-<p>redis相关命令</p>
-</blockquote>
-<pre><code>服务器按配置启动：redis-server confdir
-客户端连接：redis-cli -h ip -p port
-查看服务端所有参数配置：cat redis.conf | grep -v &quot;#&quot; | grep -v &quot;^$&quot; | wc -l
-</code></pre><blockquote>
-<p>redis-cli返回值种类</p>
-</blockquote>
-<pre><code>状态回复：ping --&gt; pong
-错误回复：wrongtype operation against
-整数回复：(integer)1
-字符串回复：&quot;world&quot;
-多行字符串回复：&quot;hello&quot; &quot;world&quot;
-空值回复：&quot;nil&quot;
-</code></pre><blockquote>
-<p>redis-server配置：</p>
-</blockquote>
-<pre><code>daemonize：是否是守护进程(no|yes)
-port：Redis对外端口号
-logfile：Redis系统日志
-pidfile：保存进程号的文件
-</code></pre><p>object类型<br><img src="http://i1.itc.cn/20160616/aac_838af662_24ad_42d8_6410_7810a64b2ded_1.png" alt=""></p>
-<h3 id="aof-rdb持久化"><a href="#aof-rdb持久化" class="headerlink" title="aof/rdb持久化"></a>aof/rdb持久化</h3><h2 id="redis客户端使用"><a href="#redis客户端使用" class="headerlink" title="redis客户端使用"></a>redis客户端使用</h2><blockquote>
-<p>jedis客户端</p>
-</blockquote>
-<h2 id="redis高可用、分布式架构"><a href="#redis高可用、分布式架构" class="headerlink" title="redis高可用、分布式架构"></a>redis高可用、分布式架构</h2><h3 id="redis-sentiler架构"><a href="#redis-sentiler架构" class="headerlink" title="redis-sentiler架构"></a>redis-sentiler架构</h3><p><img src="http://i0.itc.cn/20160616/aac_d723e707_cc35_ac96_003d_54bf115f5dfd_1.png" alt=""></p>
-<blockquote>
-<p>集群特点</p>
-</blockquote>
-<ul>
-<li>1)节点自动发现</li>
-<li>2):slave-&gt;master 选举,集群容错</li>
-<li>3):Hot resharding:在线分片</li>
-<li>4):进群管理:cluster xxx</li>
-<li>5):基于配置(nodes-port.conf)的集群管理</li>
-<li>6):ASK 转向/MOVED 转向机制.</li>
-</ul>
-<blockquote>
-<p>Redis Sentinel故障转移</p>
-</blockquote>
-<p><img src="http://i0.itc.cn/20160616/aac_d723e707_cc35_ac96_003d_54bf115f5dfd_2.png" alt=""></p>
-<h3 id="redis-cluster架构"><a href="#redis-cluster架构" class="headerlink" title="redis-cluster架构"></a>redis-cluster架构</h3><p><img src="http://i0.itc.cn/20160617/aac_181f16ac_2f7a_1a2a_fc4c_c7047525a146_5.png" alt="redis-cluster架构"></p>
-<p><code>无中心化</code>智能管理:（每个主节点都知道其他节点信息）</p>
-<p><img src="http://i2.itc.cn/20160616/aac_d723e707_cc35_ac96_003d_54bf115f5dfd_3.png" alt=""></p>
-<p>架构细节:</p>
-<pre><code>(1)所有的redis节点彼此互联(PING-PONG机制),内部使用二进制协议优化传输速度和带宽.
-(2)节点的fail是通过集群中超过半数的节点检测失效时才生效.
-(3)客户端与redis节点直连,不需要中间proxy层.客户端不需要连接集群所有节点,连接集群中任何一个可用节点即可
-(4)redis-cluster把所有的物理节点映射到16383个slot上,cluster 负责维护node&lt;-&gt;slot&lt;-&gt;value
-</code></pre><p><code>槽指派</code>：(分16384个槽，用于数据)</p>
-<p><img src="http://i1.itc.cn/20160616/aac_2ab7ff75_f2ac_f662_5af5_f71b41c66f33_1.png" alt=""></p>
-<h2 id="codis架构"><a href="#codis架构" class="headerlink" title="codis架构"></a>codis架构</h2><p>##参考</p>
-<pre><code>redis常用命令 http://doc.redisfans.com/
-redis官网：http://redis.io/
-redis学习文档：
-redis学习视频：http://my.tv.sohu.com/pl/9102138/index.shtml
-相关文章：
-    [Redis 集群方案介绍](http://mp.weixin.qq.com/s?__biz=MzA3MzYwNjQ3NA==&amp;mid=2651296671&amp;idx=1&amp;sn=366de50a6787963517ff6e096c9d1643&amp;scene=2&amp;srcid=0601j5sEtcRyw9TtehhXW0Ix&amp;from=timeline&amp;isappinstalled=0#wechat_redirect)
-</code></pre>
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/06/02/(6.1).多线程-并发编程/" itemprop="url">
-                  并发编程
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-06-02T10:52:03+08:00" content="2016-06-02">
-              2016-06-02
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/多线程/" itemprop="url" rel="index">
-                    <span itemprop="name">多线程</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/多线程/JUC/" itemprop="url" rel="index">
-                    <span itemprop="name">JUC</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="并发基本概念"><a href="#并发基本概念" class="headerlink" title="并发基本概念"></a>并发基本概念</h2><h3 id="JMM内存模型"><a href="#JMM内存模型" class="headerlink" title="JMM内存模型"></a><code>JMM内存模型</code></h3><blockquote>
-<p>Java内存模型图</p>
-</blockquote>
-<p><img src="http://i1.itc.cn/20160523/aac_377efa19_9fb4_a50b_2593_627c07e9d791_1.png" alt="内存模型图"></p>
-<p>可以对应到这张内存模型图：<br><img src="http://i0.itc.cn/20160523/aac_377efa19_9fb4_a50b_2593_627c07e9d791_2.jpg" alt="缓存模型"></p>
-<p>这两张图告诉我们在线程运行的时候有一小块专用的内存空间，当Java程序会将变量同步到线程所在的内存，这时候会操作<code>工作内存</code>中的变量，而线程中变量的值何时同步回<code>主内存</code>是不可预期的。但同时Java内存模型又告诉我们通过使用关键词“synchronized”或“volatile”可以让 Java保证某些约束：</p>
-<pre><code>“volatile” — 保证读写的都是主内存的变量
-“synchronized” — 保证在块开始时都同步主内存的值到工作内存，而块结束时将变量同步回主内存.
-</code></pre><blockquote>
-<p>工作内存(本地内存)是什么，数据存在哪里? </p>
-</blockquote>
-<ul>
-<li>1、java内存模型的抽象概念</li>
-<li><p>2、并不在堆中，而是在cpu中的物理cache</p>
-<pre><code>Intel 的MESI协议，MESI协议保证了每个缓存中使用的共享变量的副本是一致的。它的核心
-思想是：当CPU写数据时，如果发现操作的变量是共享变量，即在其他CPU中也存在该变量的
-副本，会发出信号通知其他CPU将该变量的缓存行置为无效状态，因此当其他CPU需要读取这
-个变量时，发现自己缓存中缓存该变量的缓存行是无效的，那么它就会从内存重新读取。
-</code></pre></li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/06/02/(6.1).多线程-并发编程/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/06/02/(6.1).多线程-源码分析/" itemprop="url">
-                  多线程源码分析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-06-02T10:52:03+08:00" content="2016-06-02">
-              2016-06-02
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/多线程/" itemprop="url" rel="index">
-                    <span itemprop="name">多线程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="AQS-AbstactQueuedSynchronizer-队列同步器"><a href="#AQS-AbstactQueuedSynchronizer-队列同步器" class="headerlink" title="AQS(AbstactQueuedSynchronizer)队列同步器"></a>AQS(AbstactQueuedSynchronizer)队列同步器</h2><h3 id="AQS概述"><a href="#AQS概述" class="headerlink" title="AQS概述"></a>AQS概述</h3><p>JDK1.7的java.util.concurrent.lock:</p>
-<pre><code>AbstractQueuedSynchronizer (java.util.concurrent.locks)
-    Sync in BaseFuture (org.elasticsearch.common.util.concurrent)
-    Sync in CountDownLatch (java.util.concurrent)
-    Sync in ReentrantLock (java.util.concurrent.locks)
-    Sync in ReentrantReadWriteLock (java.util.concurrent.locks)
-    Sync in Semaphore (java.util.concurrent)
-    Worker in ThreadPoolExecutor (java.util.concurrent)
-</code></pre><p>凡是继承AQS的类，都是线程安全的。</p>
-<p>每个继承AQS的类内部都包含一个如下的内部类定义：</p>
-<pre><code>//定义一个内部类
-abstract static class Sync extends AbstractQueuedSynchronizer{
-    /** 重构 **/
-}
-//维护一个Sync 的对象，用于线程同步安全
-private final Sync sync;
-</code></pre><h3 id="AQS的结构"><a href="#AQS的结构" class="headerlink" title="AQS的结构"></a>AQS的结构</h3><ul>
-<li><p>2个重要内部类：ConditionObject和Node</p>
-</li>
-<li><p>3个重要属性:</p>
-<pre><code>private transient volatile Node head;
-private transient volatile Node tail;
-private volatile int state;
-</code></pre></li>
-</ul>
-<p>~~ java</p>
-<pre><code>/**
- * Head of the wait queue, lazily initialized.  Except for
- * initialization, it is modified only via method setHead.  Note:
- * If head exists, its waitStatus is guaranteed not to be
- * CANCELLED.
- */
-private transient volatile Node head;
-
-/**
- * Tail of the wait queue, lazily initialized.  Modified only via
- * method enq to add new wait node.
- */
-private transient volatile Node tail;
-
-/**
- * The synchronization state.
- */
-private volatile int state;    
-</code></pre><p>注释其实已经告诉我们了，Node类型的head和tail是一个FIFO的wait queue；一个int类型的状态位state。到这里也能猜到AQS对外呈现（或者说声明）的主要行为就是由<strong>一个状态位</strong>和<strong>一个有序队列</strong>来配合完成.</p>
-<p>~~ java</p>
-<pre><code>//获取排它锁 X锁
- public final void acquire(int arg) {
-    if (!tryAcquire(arg) &amp;&amp;
-        acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
-        selfInterrupt();
-}
-
-//释放排它锁
-public final boolean release(int arg) {
-    if (tryRelease(arg)) {
-        Node h = head;
-        if (h != null &amp;&amp; h.waitStatus != 0)
-            unparkSuccessor(h);
-        return true;
-    }
-    return false;
-}
-
-//获取共享锁 S锁
-public final void acquireShared(int arg) {
-    if (tryAcquireShared(arg) &lt; 0)
-        doAcquireShared(arg);
-}
-
-//释放共享锁 S锁
-public final boolean releaseShared(int arg) {
-    if (tryReleaseShared(arg)) {
-        doReleaseShared();
-        return true;
-    }
-    return false;
-}
-</code></pre><p>AQS主要的工作思路正是如此：在获取锁时候，先判断当前状态是否允许获取锁，若是可以则获取锁，否则获取不成功。获取不成功则会阻塞，进入阻塞队列。而释放锁时，一般会修改状态位，唤醒队列中的阻塞线程。 跟踪这几个try字体的方法定义，发现一个惊人的巧合，这几个方法在AQS中居然都是一样的定义：</p>
-<pre><code>protected boolean tr***(int arg) {
-     throw new UnsupportedOperationException();
- }
-</code></pre><p>即都是父类中只有定义，在子类中实现。</p>
-<h3 id="AQS的重要方法"><a href="#AQS的重要方法" class="headerlink" title="AQS的重要方法"></a>AQS的重要方法</h3><p>简单看下下面几个方法的源码发现定义中都涉及到了getState(), setState(int) compareAndSetState(int, int)，即对状态位state的维护。</p>
-<pre><code>tryAcquire(int)
-tryRelease(int)
-tryAcquireShared(int)
-tryReleaseShared(int)
-</code></pre><p>下图表示compareAndSetState(int, int)的调用，可以看的更清楚看到，说明几个同步工具类内定义的Sync类，即自定义子类中其实都涉及到对state的操作。</p>
-<h3 id="常用同步工具类-AQS在子类中的使用"><a href="#常用同步工具类-AQS在子类中的使用" class="headerlink" title="常用同步工具类-AQS在子类中的使用"></a>常用同步工具类-AQS在子类中的使用</h3><p>对每个考察会从如下几个方面来进行:</p>
-<ul>
-<li>工具类的主要作用</li>
-<li>主要获取锁方法（其他的类似方法如对应的可以更好的处理中断和超时或者异步等特性）</li>
-<li>主要释放锁方法（其他的类似方法如对应的可以更好的处理中断和超时或者异步等特性）</li>
-<li>工具类的构造方法（构造方法能告诉我们一个类最在意，最根本的属性）</li>
-<li>Sync构造方法</li>
-<li>Sync接口方法</li>
-<li>Sync对AQS方法的override</li>
-<li>state的作用</li>
-<li>state维护重要逻辑</li>
-</ul>
-<h4 id="semaphore信号量"><a href="#semaphore信号量" class="headerlink" title="semaphore信号量"></a>semaphore信号量</h4><p><em>A counting semaphore. Conceptually, a semaphore maintains a set of permits. Each acquire blocks if necessary until a permit is available, and then takes it. Each release adds a permit, potentially releasing a blocking acquirer. However, no actual permit objects are used; the Semaphore just keeps a count of the number available and acts accordingly.</em></p>
-<p>信号量Semaphore的主要作用是来控制同时访问某个特定资源的操作数量，或者同时执行某个指定操作的数量。 Semaphore只是计数，不包括许可对象，并且Semaphore也不会把许可与线程对象关联起来，因此一个线程中获得的许可可以在另外一个线程中释放。<br>Semphore对外的两个方法是 acquire()和release()方法。</p>
-<ul>
-<li>acquire()：在许可可用前会阻塞每一个 acquire()，然后再获取该许可。</li>
-<li>release():每调用 release() 添加一个许可，释放一个正在阻塞的获取者。</li>
-</ul>
-<p>达到这样的操作是通过同步器Sync来操作，可以是FairSync，也可以是NonfairSync。 从Sync的构造方法中，就可以看出Semphore中所谓的permit其实就是AQS中的state。</p>
-<pre><code>public Semaphore(int permits, boolean fair) {
-    sync = (fair)? new FairSync(permits) : new NonfairSync(permits);
-}
-Sync(int permits) {
-    setState(permits);
-}
-</code></pre><p>在Semaphore中使用AQS的子类Sync，初始化state表示许可数，在每一次请求acquire()一个许可都会导致计数器减少1，同样每次释放一个许可release()都会导致计数器增加1。一旦达到了0，新的许可请求线程将被挂起。</p>
-<h4 id="countdownlatch闭锁"><a href="#countdownlatch闭锁" class="headerlink" title="countdownlatch闭锁"></a>countdownlatch闭锁</h4><p><em>A synchronization aid that allows one or more threads to wait until a set of operations being performed in other threads completes. A CountDownLatch is initialized with a given count. The await methods block until the current count reaches zero due to invocations of the countDown method, after which all waiting threads are released and any subsequent invocations of await return immediately.</em></p>
-<p>就像名字Latch所表达的一样，把一组线程全部关在外面，在某个状态时候放开。即一种同步机制来保证一个或多个线程等待其他线程完成。初始化了一个count计数，当count未递减到0时候，每次调用await方法都会阻塞。每次调用countDown来是的的count递减。 </p>
-<ul>
-<li>构造方法</li>
-</ul>
-<p>~~ java</p>
-<pre><code>public CountDownLatch(int count) {
-    if (count &lt; 0) throw new IllegalArgumentException(&quot;count &lt; 0&quot;);
-    this.sync = new Sync(count);
-}
-</code></pre><ul>
-<li>重要方法 await和countDown</li>
-</ul>
-<p>定义await方法的作用是在计数器不为0时候阻塞调用线程，为0时候立即返回；countDown方法的作用是计数递减。</p>
-<pre><code> public void await() throws InterruptedException {
-    sync.acquireSharedInterruptibly(1);
-}
- public void countDown() {
-    sync.releaseShared(1);
-}
-</code></pre><h4 id="ReenTrantlock-可重入锁"><a href="#ReenTrantlock-可重入锁" class="headerlink" title="ReenTrantlock-可重入锁"></a>ReenTrantlock-可重入锁</h4><p> <em>A reentrant mutual exclusion Lock with the same basic behavior and semantics as the implicit monitor lock accessed using synchronized methods and statements, but with extended capabilities. A ReentrantLock is owned by the thread last successfully locking, but not yet unlocking it. A thread invoking lock will return, successfully acquiring the lock, when the lock is not owned by another thread. The method will return immediately if the current thread already owns the lock. This can be checked using methods isHeldByCurrentThread, and getHoldCount.</em></p>
-<p>默认构造方法：(非公平锁实现)<br>    public ReentrantLock() {<br>        sync = new NonfairSync();<br>    }</p>
-<p>基于AQS实现内部类Sync，有两种锁实现：</p>
-<pre><code>AbstractQueuedSynchronizer (java.util.concurrent.locks)
-    Sync in ReentrantLock (java.util.concurrent.locks)
-        FairSync in ReentrantLock (java.util.concurrent.locks)
-        NonfairSync in ReentrantLock (java.util.concurrent.locks)
-</code></pre><ul>
-<li><p>FairSync公平锁：总是调用acquire方法来和其他线程一样公平的尝试获取锁</p>
-</li>
-<li><p>NonfairSync非公平锁：只要当前没有线程持有锁，就将锁给当前线程，比如像使用tryLock</p>
-</li>
-</ul>
-<p>~~ java</p>
-<pre><code>/**NoFairSync**/
- final void lock() {
-    if (compareAndSetState(0, 1))
-        //对于非公平锁只要当前没有线程持有锁，就将锁给当前线程
-        setExclusiveOwnerThread(Thread.currentThread());
-    else
-        acquire(1);
-}
-/**FairSync**/
-  final void lock() {
-    acquire(1);
-}
-</code></pre><p> 对于非公平锁，通过state是否为0判断，当前是否有线程持有锁，如果没有则把锁分配给当前线程；否则如果state不为0，说明当前有线程持有锁，则判断持有锁的线程是否就是当前线程，如果是增加state计数，表示持有锁的线程的重入次数增加。当然增加重入数也会检查是否超过最大值。</p>
-<p><strong>比较公平锁机制和非公平锁机制的差别仅仅在于如果当前没有线程持有锁，是优先把锁分配给当前线程，还是优先分配给等待队列中队首的线程。</strong></p>
-<h4 id="FutureTask-异步"><a href="#FutureTask-异步" class="headerlink" title="FutureTask-异步"></a>FutureTask-异步</h4><p><em>A cancellable asynchronous computation. This class provides a base implementation of Future, with methods to start and cancel a computation, query to see if the computation is complete, and retrieve the result of the computation. The result can only be retrieved when the computation has completed; the get method will block if the computation has not yet completed. Once the computation has completed, the computation cannot be restarted or cancelled.</em></p>
-<blockquote>
-<p>类图：</p>
-</blockquote>
-<pre><code>FutureTask (java.util.concurrent)
-    RunnableFuture (java.util.concurrent)
-        Future (java.util.concurrent)
-        Runnable (java.lang)
-</code></pre><blockquote>
-<p>构造方法：</p>
-</blockquote>
-<pre><code>public FutureTask(Runnable runnable, V result) {
-    this.callable = Executors.callable(runnable, result);
-    this.state = NEW;       // ensure visibility of callable
-}
-
-public FutureTask(Callable&lt;T&gt; callable) {
-    if (callable == null)
-        throw new NullPointerException();
-    sync = new Sync(callable);
-}
-</code></pre><p>FutureTask实现了RunnableFuture接口，也即实现了Runnable和Future接口。作业线程执行的内容是FutureTask的的run方法内定义的任务内容。如线程池 ThreadPoolExecutor.Worker.runTask(Runnable task)方法可以看到在线程池的Worker线程中调用到执行任务的run方法。这里使用Sync的作用，就是在任务执行线程和提交任务（同时也是获取任务执行结果）的线程之间维持一个锁的关系，保证只有执行结束后才能获取到结果。</p>
-<blockquote>
-<p>通过future获取随机数的例子：</p>
-</blockquote>
-<pre><code>//callable
-Callable&lt;Integer&gt; callable = new Callable&lt;Integer&gt;() {
-
-    @Override
-    public Integer call() throws Exception {
-        //取1-100之间随机数
-        return new Random().nextInt(100);
-    }
-};
-
-FutureTask&lt;Integer&gt; futureTask = new FutureTask&lt;Integer&gt;(callable);
-new Thread(futureTask).start(); //可用线程启动 或用线程池启动
-
-try {
-    TimeUnit.SECONDS.sleep(5);
-
-    Integer getNum = futureTask.get();
-    System.out.println(&quot;getNum:&quot;+getNum);
-
-} catch (InterruptedException e) {
-    e.printStackTrace();
-} catch (ExecutionException e) {
-    e.printStackTrace();
-}
-</code></pre><p>总结：在FutureTask实现了异步的执行和提交，作为可以被Executor提交的对象。通过Sync来维护任务的执行状态，从而保证只有工作线程任务执行完后，其他线程才能获取到执行结果。AQS的子类Sync在这里主要是借用state状态位来存储执行状态，来完成对对各种状态以及加锁、阻塞的实现。</p>
-<h2 id="CAS并发原子类"><a href="#CAS并发原子类" class="headerlink" title="CAS并发原子类"></a>CAS并发原子类</h2><p>CAS（Compare and swap）比较和替换是设计并发算法时用到的一种技术。简单来说，比较和替换是使用一个期望值和一个变量的当前值进行比较，如果当前变量的值与我们期望的值相等，就使用一个新值替换当前变量的值。这听起来可能有一点复杂但是实际上你理解之后发现很简单，接下来，让我们跟深入的了解一下这项技术。</p>
-<h3 id="悲观锁和乐观锁"><a href="#悲观锁和乐观锁" class="headerlink" title="悲观锁和乐观锁"></a>悲观锁和乐观锁</h3><ul>
-<li><p>悲观锁：会导致其它所有需要锁的线程挂起，等待持有锁的线程释放锁。 </p>
-<p>  synchronized</p>
-</li>
-<li><p>乐观锁：每次不加锁而是假设没有冲突而去完成某项操作，如果因为冲突失败就重试，直到成功为止。</p>
-<p>  cas原子类</p>
-</li>
-</ul>
-<h3 id="AtomicBoolean"><a href="#AtomicBoolean" class="headerlink" title="AtomicBoolean"></a>AtomicBoolean</h3><p>在程序和算法中一个经常出现的模式就是“check and act”模式。先检查后操作模式发生在代码中首先检查一个变量的值，然后再基于这个值做一些操作。使用cas原子类  目的 减少锁的使用，提高多线程并发执行，减少因为锁竞争 降低开销。</p>
-<p>下面是一个使用AtomicBoolean类实现lock()方法的例子：</p>
-<pre><code>public static class MyLock {
-    private AtomicBoolean locked = new AtomicBoolean(false);
-
-    public boolean lock() {
-        return locked.compareAndSet(false, true);
-    }
-}
-</code></pre><p>locked变量不再是boolean类型而是AtomicBoolean。这个类中有一个compareAndSet()方法，它使用一个期望值和AtomicBoolean实例的值比较，和两者相等，则使用一个新值替换原来的值。在这个例子中，它比较locked的值和false，如果locked的值为false，则把修改为true。<br>如果值被替换了，compareAndSet()返回true，否则，返回false。</p>
-<p>参考：<a href="http://ifeve.com/compare-and-swap/" target="_blank" rel="external">http://ifeve.com/compare-and-swap/</a></p>
-<h2 id="常用阻塞队列"><a href="#常用阻塞队列" class="headerlink" title="常用阻塞队列"></a>常用阻塞队列</h2><h3 id="阻塞队列获取-移除API"><a href="#阻塞队列获取-移除API" class="headerlink" title="阻塞队列获取/移除API"></a>阻塞队列获取/移除API</h3><p><img src="http://i3.itc.cn/20160907/aac_bc679be1_20f1_b35a_3ac8_6c05515fb314_1.png" alt=""></p>
-<p>BlockingQueue阻塞队列提供了四种处理方法:</p>
-<table>
-<thead>
-<tr>
-<th>方法\处理方式</th>
-<th style="text-align:center">抛出异常</th>
-<th style="text-align:center">返回特殊值</th>
-<th style="text-align:center">一直阻塞</th>
-<th style="text-align:center">超时退出</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>插入方法(e)</td>
-<td style="text-align:center">add(e)</td>
-<td style="text-align:center">offer(e)</td>
-<td style="text-align:center">put(e)</td>
-<td style="text-align:center">offer(e,time,unit)</td>
-</tr>
-<tr>
-<td>移除方法</td>
-<td style="text-align:center">remove()</td>
-<td style="text-align:center">poll()</td>
-<td style="text-align:center">take()</td>
-<td style="text-align:center">poll(time,unit)</td>
-</tr>
-<tr>
-<td>检查方法</td>
-<td style="text-align:center">element()</td>
-<td style="text-align:center">peek()</td>
-<td style="text-align:center">不可用</td>
-<td style="text-align:center">不可用</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li><strong>抛出异常</strong>：是指当阻塞队列满时候，再往队列里插入元素，会抛出IllegalStateException(“Queue full”)异常。当队列为空时，从队列里获取元素时会抛出NoSuchElementException异常 。</li>
-<li><strong>返回特殊值</strong>：插入方法会返回是否成功，成功则返回true。移除方法，则是从队列里拿出一个元素，如果没有则返回null</li>
-<li><strong>一直阻塞</strong>：当阻塞队列满时，如果生产者线程往队列里put元素，队列会一直阻塞生产者线程，直到拿到数据，或者响应中断退出。当队列空时，消费者线程试图从队列里take元素，队列也会阻塞消费者线程，直到队列可用。</li>
-<li><p><strong>超时退出</strong>：当阻塞队列满时，队列会阻塞生产者线程一段时间，如果超过一定的时间，生产者线程就会退出。</p>
-<p>  放入数据：<br>  　　offer(anObject):表示如果可能的话,将anObject加到BlockingQueue里,即如果BlockingQueue可以容纳,<br>  　　　　则返回true,否则返回false.（本方法不阻塞当前执行方法的线程）<br>  　　offer(E o, long timeout, TimeUnit unit),可以设定等待的时间，如果在指定的时间内，还不能往队列中<br>  　　　　加入BlockingQueue，则返回失败。<br>  　　put(anObject):把anObject加到BlockingQueue里,如果BlockQueue没有空间,则调用此方法的线程被阻断<br>  　　　　直到BlockingQueue里面有空间再继续.<br>  获取数据：<br>  　　poll(time):取走BlockingQueue里排在首位的对象,若不能立即取出,则可以等time参数规定的时间,<br>  　　　　取不到时返回null;<br>  　　poll(long timeout, TimeUnit unit)：从BlockingQueue取出一个队首的对象，如果在指定时间内，<br>  　　　　队列一旦有数据可取，则立即返回队列中的数据。否则知道时间超时还没有数据可取，返回失败。<br>  　　take():取走BlockingQueue里排在首位的对象,若BlockingQueue为空,阻断进入等待状态直到<br>  　　　　BlockingQueue有新的数据被加入;<br>  　　drainTo():一次性从BlockingQueue获取所有可用的数据对象（还可以指定获取数据的个数），<br>  　　　　通过该方法，可以提升获取数据效率；不需要多次分批加锁或释放锁。</p>
-</li>
-</ul>
-<h3 id="LinkedBlockingQueue和ArrayBlockingQueue对比"><a href="#LinkedBlockingQueue和ArrayBlockingQueue对比" class="headerlink" title="LinkedBlockingQueue和ArrayBlockingQueue对比"></a>LinkedBlockingQueue和ArrayBlockingQueue对比</h3><p><code>linkedBlockingQueue</code>和<code>ArrayBlockingQueue</code>比较：</p>
-<pre><code>LinkedBlockingQueue是BlockingQueue的一种使用Link List的实现，它对头和尾（取和添加
-操作）采用两把不同的锁，相对于ArrayBlockingQueue提高了吞吐量。它也是一种阻塞型的容
-器，适合于实现“消费者生产者”模式。
-ArrayBlockingQueue是对BlockingQueue的一个数组实现，它使用一把全局的锁并行对queue的
-读写操作，同时使用两个Condition阻塞容量为空时的取操作和容量满时的写操作。
-正因为LinkedBlockingQueue使用两个独立的锁控制数据同步，所以可以使存取两种操作并行执
-行，从而提高并发效率。而ArrayBlockingQueue使用一把锁，造成在存取两种操作争抢一把锁，
-而使得性能相对低下。LinkedBlockingQueue可以不设置队列容量，默认Integer.MAX_VALUE
-其容易造成内存溢出，一般要设置其值。
-</code></pre><h3 id="ArrayBlockingQueue"><a href="#ArrayBlockingQueue" class="headerlink" title="ArrayBlockingQueue"></a>ArrayBlockingQueue</h3><p>   ArrayBlockingQueue一个由数组支持的<strong>有界的阻塞队列</strong>。此队列按 FIFO（先进先出）原则对元素进行排序。队列的头部 是在队列中存在时间最长的元素。队列的尾部 是在队列中存在时间最短的元素。新元素插入到队列的尾部，队列获取操作则是从队列头部开始获得元素。这是一个典型的“有界缓存区”，固定大小的数组在其中保持生产者插入的元素和使用者提取的元素。一旦创建了这样的缓存区，就不能再增加其容量。试图向已满队列中放入元素会导致操作受阻塞；试图从空队列中提取元素将导致类似阻塞。</p>
-<blockquote>
-<p>源码</p>
-</blockquote>
-<pre><code>~~ java 基于 reetranLock锁 和 condition等待通知 实现
-
-public class ArrayBlockingQueue&lt;E&gt; extends AbstractQueue&lt;E&gt;
-    implements BlockingQueue&lt;E&gt;, java.io.Serializable {
-
-/** The queued items */
-final Object[] items;
-
-/** items index for next take, poll, peek or remove */
-int takeIndex;
-
-/** items index for next put, offer, or add */
-int putIndex;
-
-/** Number of elements in the queue */
-int count;
-
-/** Main lock guarding all access 用于阻塞其他线程 */
-final ReentrantLock lock;
-/** Condition for waiting takes   用于唤醒消费 */
-private final Condition notEmpty;
-/** Condition for waiting puts    用于唤醒生产 */
-private final Condition notFull ;
-
-/**
- * offer和poll一对，有返回值
- *
- * @throws NullPointerException if the specified element is null
- */
-public boolean offer(E e) {
-    checkNotNull(e);
-    final ReentrantLock lock = this.lock;
-    lock.lock();
-    try {
-        if (count == items.length)
-            return false;
-        else {
-            insert(e);//如果queue未满，添加元素，通知消费
-            return true;
-        }
-    } finally {
-        lock.unlock();
-    }
-}
-
- public E poll() {
-    final ReentrantLock lock = this.lock;
-    lock.lock();
-    try {
-        return (count == 0) ? null : extract();
-    } finally {
-        lock.unlock();
-    }
-}
-
-/**
- *  put和take一对
- */
-public void put(E e) throws InterruptedException {
-    checkNotNull(e);
-    final ReentrantLock lock = this.lock;
-    lock.lockInterruptibly();    //可中断锁
-    try {
-        while (count == items.length)
-            notFull.await();    //如果queue满了，就会阻塞&quot;放&quot;的过程
-        insert(e);
-    } finally {
-        lock.unlock();
-    }
-}
-
-public E take() throws InterruptedException {
-    final ReentrantLock lock = this.lock;
-    lock.lockInterruptibly();
-    try {
-        while (count == 0)
-            notEmpty.await();    //如果queue为空，就会阻塞&quot;取&quot;的过程
-        return extract();        //queue不为空，就释放notEmpty
-    } finally {
-        lock.unlock();
-    }
-}
-
-/**
- * Inserts element at current put position, advances, and signals.
- * Call only when holding lock.
- */
-private void insert(E x) {
-    items[putIndex] = x;
-    putIndex = inc(putIndex);
-    ++count;
-    notEmpty.signal();            // 等待生产&quot;放&quot;入元素，唤醒 队列为空 的阻塞线程进行消费
-}
-
- /**
- * Extracts element at current take position, advances, and signals.
- * Call only when holding lock.
- */
-private E extract() {
-    final Object[] items = this.items;
-    E x = this.&lt;E&gt;cast(items[takeIndex]);
-    items[takeIndex] = null;
-    takeIndex = inc(takeIndex);
-    --count;
-    notFull.signal();            // 等待消费&quot;取&quot;出元素，唤醒 队列为满 的阻塞线程进行生产
-    return x;
-}
-</code></pre><h3 id="LinkedBlockingQueue"><a href="#LinkedBlockingQueue" class="headerlink" title="LinkedBlockingQueue"></a>LinkedBlockingQueue</h3><p>基于链表的阻塞队列，同ArrayListBlockingQueue类似，其内部也维持着一个数据缓冲队列（该队列由一个链表构成），当生产者往队列中放入一个数据时，队列会从生产者手中获取数据，并缓存在队列内部，而生产者立即返回；只有当队列缓冲区达到<strong>最大值缓存容量</strong>时（LinkedBlockingQueue可以通过构造函数指定该值），才会阻塞生产者队列，直到消费者从队列中消费掉一份数据，生产者线程会被唤醒，反之对于消费者这端的处理也基于同样的原理。而LinkedBlockingQueue之所以能够高效的处理并发数据，还因为其对于生产者端和消费者端分别采用了独立的锁来控制数据同步，这也意味着在高并发的情况下生产者和消费者可以并行地操作队列中的数据，以此来提高整个队列的并发性能。<br>作为开发者，<strong>我们需要注意的是，如果构造一个LinkedBlockingQueue对象，而没有指定其容量大小，LinkedBlockingQueue会默认一个类似无限大小的容量（Integer.MAX_VALUE），这样的话，如果生产者的速度一旦大于消费者的速度，也许还没有等到队列满阻塞产生，系统内存就有可能已被消耗殆尽了。</strong>（如果 生产者速度&gt;消费速度 ，队列会持续增大，会撑爆jvm内存）</p>
-<blockquote>
-<p>源码</p>
-</blockquote>
-<pre><code>public class LinkedBlockingQueue&lt;E&gt; extends AbstractQueue&lt;E&gt;
-    implements BlockingQueue&lt;E&gt;, java.io.Serializable {
-
-    /**
-     * Linked list node class，内部类：定义一个节点
-     */
-    static class Node&lt;E&gt; {
-        E item;
-
-        /**
-         * One of:
-         * - the real successor Node
-         * - this Node, meaning the successor is head.next
-         * - null, meaning there is no successor (this is the last node)
-         */
-        Node&lt;E&gt; next;
-
-        Node(E x) { item = x; }
-    }
-
-    /** The capacity bound, or Integer.MAX_VALUE if none */
-    private final int capacity;
-
-    /** Current number of elements */
-    private final AtomicInteger count = new AtomicInteger(0);
-
-    /**
-     * Head of linked list.
-     * Invariant: head.item == null
-     */
-    private transient Node&lt;E&gt; head;
-
-    /**
-     * Tail of linked list.
-     * Invariant: last.next == null
-     */
-    private transient Node&lt;E&gt; last;
-
-    /** Lock held by take, poll, etc &quot;取&quot;锁 */
-    private final ReentrantLock takeLock = new ReentrantLock();
-
-    /** Wait queue for waiting takes  消费者阻塞通知 */
-    private final Condition notEmpty = takeLock.newCondition();
-
-    /** Lock held by put, offer, etc  &quot;放&quot;锁 */
-    private final ReentrantLock putLock = new ReentrantLock();
-
-    /** Wait queue for waiting puts  生产者阻塞通知 */
-    private final Condition notFull = putLock.newCondition();
-
-    /**
-    *   put和take一套，分别用独立锁，比arraylistBlockingQueue并发性能更好
-    */
-    public void put(E e) throws InterruptedException {
-    if (e == null) throw new NullPointerException();
-    // Note: convention in all put/take/etc is to preset local var
-    // holding count negative to indicate failure unless set.
-    int c = -1;
-    Node&lt;E&gt; node = new Node(e);
-    final ReentrantLock putLock = this.putLock;
-    final AtomicInteger count = this.count;
-    putLock.lockInterruptibly();
-    try {
-        /*
-         * Note that count is used in wait guard even though it is
-         * not protected by lock. This works because count can
-         * only decrease at this point (all other puts are shut
-         * out by lock), and we (or some other waiting put) are
-         * signalled if it ever changes from capacity. Similarly
-         * for all other uses of count in other wait guards.
-         */
-        while (count.get() == capacity) {
-            notFull.await();
-        }
-        enqueue(node);
-        c = count.getAndIncrement();
-        if (c + 1 &lt; capacity)
-            notFull.signal();
-    } finally {
-        putLock.unlock();
-    }
-    if (c == 0)
-        signalNotEmpty();
-}
-
-public E take() throws InterruptedException {
-    E x;
-    int c = -1;
-    final AtomicInteger count = this.count;
-    final ReentrantLock takeLock = this.takeLock;
-    takeLock.lockInterruptibly();
-    try {
-        while (count.get() == 0) {
-            notEmpty.await();
-        }
-        x = dequeue();
-        c = count.getAndDecrement();
-        if (c &gt; 1)
-            notEmpty.signal();
-    } finally {
-        takeLock.unlock();
-    }
-    if (c == capacity)
-        signalNotFull();
-    return x;
-}
-
-/**
-*  offer和poll是一对
-*/
-public boolean offer(E e) {
-    if (e == null) throw new NullPointerException();
-    final AtomicInteger count = this.count;
-    if (count.get() == capacity)
-        return false;
-    int c = -1;
-    Node&lt;E&gt; node = new Node(e);
-    final ReentrantLock putLock = this.putLock;
-    putLock.lock();
-    try {
-        if (count.get() &lt; capacity) {
-            enqueue(node);
-            c = count.getAndIncrement();
-            if (c + 1 &lt; capacity)
-                notFull.signal();
-        }
-    } finally {
-        putLock.unlock();
-    }
-    if (c == 0)
-        signalNotEmpty();
-    return c &gt;= 0;
-}
-
- public E poll() {
-    final AtomicInteger count = this.count;
-    if (count.get() == 0)
-        return null;
-    E x = null;
-    int c = -1;
-    final ReentrantLock takeLock = this.takeLock;
-    takeLock.lock();
-    try {
-        if (count.get() &gt; 0) {
-            x = dequeue();
-            c = count.getAndDecrement();
-            if (c &gt; 1)
-                notEmpty.signal();
-        }
-    } finally {
-        takeLock.unlock();
-    }
-    if (c == capacity)
-        signalNotFull();
-    return x;
-}
-
-/**
- * Signals a waiting take. Called only from put/offer (which do not
- * otherwise ordinarily lock takeLock.)
- */
-private void signalNotEmpty() {
-    final ReentrantLock takeLock = this.takeLock;
-    takeLock.lock();
-    try {
-        notEmpty.signal();
-    } finally {
-        takeLock.unlock();
-    }
-}
-
-/**
- * Signals a waiting put. Called only from take/poll.
- */
-private void signalNotFull() {
-    final ReentrantLock putLock = this.putLock;
-    putLock.lock();
-    try {
-        notFull.signal();
-    } finally {
-        putLock.unlock();
-    }
-}
-</code></pre><h3 id="DelayQueue"><a href="#DelayQueue" class="headerlink" title="DelayQueue"></a>DelayQueue</h3><p>DelayQueue：是一个支持延时获取元素的使用优先级队列的实现的<strong>无界阻塞队列</strong>。队列中的元素必须实现Delayed接口和Comparable接口，也就是说DelayQueue里面的元素必须有public int compareTo( T o)和long getDelay(TimeUnit unit)方法存在，在创建元素时可以指定多久才能从队列中获取当前元素。只有在延迟期满时才能从队列中提取元素。我们可以将DelayQueue运用在以下应用场景：<br><strong>缓存系统的设计</strong>：可以用DelayQueue保存缓存元素的有效期，使用一个线程循环查询DelayQueue，一旦能从DelayQueue中获取元素时，表示缓存有效期到了。<br><strong>定时任务调度</strong>。使用DelayQueue保存当天将会执行的任务和执行时间，一旦从DelayQueue中获取到任务就开始执行，从比如TimerQueue就是使用DelayQueue实现的。</p>
-<h3 id="PriorityBlockingQueue"><a href="#PriorityBlockingQueue" class="headerlink" title="PriorityBlockingQueue"></a>PriorityBlockingQueue</h3><p>PriorityBlockingQueue ：一个支持优先级排序的<strong>无界阻塞队列</strong>（优先级的判断通过构造函数传入的Compator对象来决定），但需要注意的是<strong>PriorityBlockingQueue并不会阻塞数据生产者，而只会在没有可消费的数据时，阻塞数据的消费者</strong>。因此使用的时候要特别注意，生产者生产数据的速度绝对不能快于消费者消费数据的速度，否则时间一长，会最终耗尽所有的可用堆内存空间。在实现PriorityBlockingQueue时，内部控制线程同步的锁采用的是公平锁。</p>
-<h3 id="SynchronousQueue"><a href="#SynchronousQueue" class="headerlink" title="SynchronousQueue"></a>SynchronousQueue</h3><p>一种无缓冲的等待队列，类似于无中介的直接交易，有点像原始社会中的生产者和消费者，生产者拿着产品去集市销售给产品的最终消费者，而消费者必须亲自去集市找到所要商品的直接生产者，如果一方没有找到合适的目标，那么对不起，大家都在集市等待。相对于有缓冲的BlockingQueue来说，少了一个中间经销商的环节（缓冲区），如果有经销商，生产者直接把产品批发给经销商，而无需在意经销商最终会将这些产品卖给那些消费者，由于经销商可以库存一部分商品，因此相对于直接交易模式，总体来说采用中间经销商的模式会吞吐量高一些（可以批量买卖）；但另一方面，又因为经销商的引入，使得产品从生产者到消费者中间增加了额外的交易环节，单个产品的及时响应性能可能会降低。<br>声明一个SynchronousQueue有两种不同的方式，它们之间有着不太一样的行为。公平模式和非公平模式的区别:<br>如果采用公平模式：SynchronousQueue会采用公平锁，并配合一个FIFO队列来阻塞多余的生产者和消费者，从而体系整体的公平策略；<br>但如果是非公平模式（SynchronousQueue默认）：SynchronousQueue采用非公平锁，同时配合一个LIFO队列来管理多余的生产者和消费者，而后一种模式，如果生产者和消费者的处理速度有差距，则很容易出现饥渴的情况，即可能有某些生产者或者是消费者的数据永远都得不到处理。</p>
-<h2 id="线程池"><a href="#线程池" class="headerlink" title="线程池"></a>线程池</h2><h3 id="Excutor框架介绍"><a href="#Excutor框架介绍" class="headerlink" title="Excutor框架介绍"></a>Excutor框架介绍</h3><blockquote>
-<p>任务的两级调度模型</p>
-</blockquote>
-<p><img src="http://i0.itc.cn/20160906/aac_74bb0904_12b6_7e23_00f8_d3d23eaabee0_3.png" alt=""></p>
-<ul>
-<li>任务：</li>
-<li>任务的执行:包括任务执行机制的核心接口Executor和ExecutorService,Executor框架有两个关键类实现了ExecutorService接口(<strong>ThreadPoolExecutor、ScheduledThreadPoolExecutor</strong>)</li>
-<li>异步计算的结果：包括接口future和实现Futrue接口的FutureTask类</li>
-</ul>
-<blockquote>
-<p>类图：<br><img src="http://i0.itc.cn/20160906/aac_74bb0904_12b6_7e23_00f8_d3d23eaabee0_4.png" alt=""></p>
-</blockquote>
-<ul>
-<li>Executor:定义的一个借口，它是Executor框架的基础，它将任务的提交与任务的执行分离开来。</li>
-<li>ThreadPoolExecutor:线程池的核心实现类，用来执行被提交的任务。</li>
-<li>ScheduledThreadPoolExecutor:是线程池的另外一个实现类，可以在给定延迟后运行命令或者定期执行命令，比Timer更灵活和强大。</li>
-<li>Future/FutureTask ：一个是异步的接口，另外是一个异步的实现类，代表异步执行任务的方式。</li>
-<li>Runnable/Callable:都是接口，都可以被ThreadPoolExecutor或ScheduledThreadPoolExecutor作为任务去执行。</li>
-</ul>
-<blockquote>
-<p>Executor使用示意图</p>
-</blockquote>
-<p><img src="http://i1.itc.cn/20160906/aac_74bb0904_12b6_7e23_00f8_d3d23eaabee0_5.png" alt=""></p>
-<p>1).主线程首先创建实现Runnable或Callable接口的任务对象</p>
-<p>2).工具类Executors可以把Runnable对象封装为Callable对象</p>
-<pre><code>public static &lt;T&gt; Callable&lt;T&gt; callable(Runnable task, T result) {
-    if (task == null)
-        throw new NullPointerException();
-    return new RunnableAdapter&lt;T&gt;(task, result);
-}
-
-public static Callable&lt;Object&gt; callable(Runnable task) {
-    if (task == null)
-        throw new NullPointerException();
-    return new RunnableAdapter&lt;Object&gt;(task, null);
-}
-</code></pre><p>3).也可以直接把Runnable对象直接交给ExecutorService执行。</p>
-<pre><code>//直接实现Executor接口的execute方法
-void execute(Runnable command);
-</code></pre><p>4).页可以把Runnable对象或Callable对象提交给ExecutorService执行</p>
-<pre><code>都是基于异步的实现：
-&lt;T&gt; Future&lt;T&gt; submit(Callable&lt;T&gt; task);
-&lt;T&gt; Future&lt;T&gt; submit(Runnable task, T result);
-Future&lt;?&gt; submit(Runnable task);    
-</code></pre><ul>
-<li>Executor/ExecutorService接口</li>
-</ul>
-<p><img src="http://i1.itc.cn/20160906/aac_bc4f391d_1e59_2cfb_7834_ab6a6b94d2f8_1.png" alt=""><br><img src="http://i1.itc.cn/20160906/aac_138a14d1_0623_8405_1f78_2367ea86ed24_1.png" alt=""></p>
-<ul>
-<li>Runnable接口</li>
-</ul>
-<p><img src="http://i1.itc.cn/20160906/aac_138a14d1_0623_8405_1f78_2367ea86ed24_3.png" alt=""></p>
-<ul>
-<li>Future/Callable接口</li>
-</ul>
-<p><img src="http://i2.itc.cn/20160906/aac_138a14d1_0623_8405_1f78_2367ea86ed24_4.png" alt=""></p>
-<p><img src="http://i2.itc.cn/20160906/aac_138a14d1_0623_8405_1f78_2367ea86ed24_2.png" alt=""></p>
-<p>源码可以逐一解读，了解设计和实现方式。</p>
-<h3 id="ThreadPoolExecutor实现"><a href="#ThreadPoolExecutor实现" class="headerlink" title="ThreadPoolExecutor实现"></a>ThreadPoolExecutor实现</h3><p>线程池模型图：</p>
-<p><img src="http://i2.itc.cn/20160630/aac_3fe63360_2218_b4e0_56d4_89a2c3216c58_2.png" alt="正常步骤"></p>
-<blockquote>
-<p>构造方法：</p>
-</blockquote>
-<pre><code>/**
- * Creates a new {@code ThreadPoolExecutor} with the given initial
- * parameters.
- *
- * @param corePoolSize: the number of threads to keep in the pool, even
- *        if they are idle, unless {@code allowCoreThreadTimeOut} is set
- *        【核心线程池的大小】
- * @param maximumPoolSize the maximum number of threads to allow in the
- *        pool【最大线程池大小】
- * @param keepAliveTime when the number of threads is greater than
- *        the core, this is the maximum time that excess idle threads
- *        will wait for new tasks before terminating.【线程空闲时存活时间】
- * @param unit the time unit for the {@code keepAliveTime} argument【时间单位】
- * @param workQueue the queue to use for holding tasks before they are
- *        executed.  This queue will hold only the {@code Runnable}
- *        tasks submitted by the {@code execute} method.【用来保存任务的工作队列】
- * @param threadFactory the factory to use when the executor
- *        creates a new thread【定义线程池相关信息】
- * @param handler the handler to use when execution is blocked
- *        because the thread bounds and queue capacities are reached
- *        【当线程池关闭或已经达到饱和时，所采用的拒绝策略】
- * @throws IllegalArgumentException if one of the following holds:&lt;br&gt;
- *         {@code corePoolSize &lt; 0}&lt;br&gt;      
- *         {@code keepAliveTime &lt; 0}&lt;br&gt; 
- *         {@code maximumPoolSize &lt;= 0}&lt;br&gt;
- *         {@code maximumPoolSize &lt; corePoolSize}
- * @throws NullPointerException if {@code workQueue}
- *         or {@code threadFactory} or {@code handler} is null
- */
-public ThreadPoolExecutor(int corePoolSize,
-                          int maximumPoolSize,
-                          long keepAliveTime,
-                          TimeUnit unit,
-                          BlockingQueue&lt;Runnable&gt; workQueue,
-                          ThreadFactory threadFactory,
-                          RejectedExecutionHandler handler) {
-    if (corePoolSize &lt; 0 ||
-        maximumPoolSize &lt;= 0 ||
-        maximumPoolSize &lt; corePoolSize ||
-        keepAliveTime &lt; 0)
-        throw new IllegalArgumentException();
-    if (workQueue == null || threadFactory == null || handler == null)
-        throw new NullPointerException();
-    this.corePoolSize = corePoolSize;
-    this.maximumPoolSize = maximumPoolSize;
-    this.workQueue = workQueue;
-    this.keepAliveTime = unit.toNanos(keepAliveTime);
-    this.threadFactory = threadFactory;
-    this.handler = handler;
-}
-</code></pre><blockquote>
-<p>使用方式：</p>
-</blockquote>
-<p>通常使用工厂类Executors来创建。创建类型以下三种：</p>
-<ul>
-<li><p>FixedThreadPool:创建固定线程数的线程池，适合于限制当前线程数量的应用场景，适用于负载比较重的服务器。</p>
-<p>  <img src="http://i0.itc.cn/20160906/aac_bc4f391d_1e59_2cfb_7834_ab6a6b94d2f8_2.png" alt=""></p>
-<pre><code>1).如果当前运行的线程数少于corePoolSize,怎创建新线程来执行任务。
-2).在线程池完成预热之后(currentThreads==corePoolSize),则将任务加入LinkedBlockingQueue.
-3).线程执行完1中的任务后，会在循环中反复从LinkedBlockingQueue获取任务来执行。
-
-注：FixedThreadPool默认使用无界队列LinkedBlockingQueue，队列容量为Integer.MAX_VALUE 2的31次方,不会走默认拒绝策略。
-</code></pre></li>
-<li><p>SingleThreadPool:创建使用单个线程的线程池，适用于保证顺序的执行各个任务</p>
-<p>  <img src="http://i1.itc.cn/20160906/aac_bc4f391d_1e59_2cfb_7834_ab6a6b94d2f8_3.png" alt=""></p>
-<pre><code>注:默认也是使用无界队列，队列容量为Integer.MAX_VALUE 2的31次方，线程池核心数量和最大数量为1。
-</code></pre></li>
-<li><p>CachedThreadPool:创建一个无大小边界的线程池，适用于执行很多短期的异步任务小程序，适用于负载较轻的服务器。</p>
-<p>  <img src="http://i3.itc.cn/20160906/aac_bc4f391d_1e59_2cfb_7834_ab6a6b94d2f8_4.png" alt=""></p>
-<p>  1).首先执行SynchronousQueue.offer(Runnable task),如果当前maxPoolsize中有空闲线程执行SynchronousQueue.poll(KeepaliveTime,Timeunit),那么配对成功，主线程吧任务交给空闲线程去执行，否则执行步骤2).<br>  2）.当初始MaxPoolSize为空，没有空闲线程，这种情况threadPool会取创建一个新线程执行任务。<br>  3).在步骤2)中新创建的线程将任务执行完后，会执行SynchronousQueue.poll(KeepaliveTime,Timeunit)默认是等待60s,如果60s以内 提交了新任务，则由该线程继续执行，否则改空闲线程将终止。</p>
-</li>
-</ul>
-<pre><code>注：CachedThreadPool的corePoolSize设置为0，即corePool为空；maxPoolSize设置
-    为Integer.MAX_VALUE,即是无界的，keepalive设置60s,空闲线程超过60s将会被终
-    止。CachedThreadPool使用的是没有容量的SynchronousQueue,存在一个问题：如果
-    主线程提交任务的速度快于处理的速度，会使该线程池不断创建新线程。极端情况下回耗
-    尽操作系统的cpu和内存资源。
-</code></pre><blockquote>
-<p>代码实现：</p>
-</blockquote>
-<pre><code>//1.创建线程数threads=10的固定线程池
-ExecutorService fixThreadPool = Executors.newFixedThreadPool(10);
-//内部实现
-public static ExecutorService newFixedThreadPool(int nThreads) {
-    return new ThreadPoolExecutor(nThreads, nThreads,
-                                  0L, TimeUnit.MILLISECONDS,
-                                  new LinkedBlockingQueue&lt;Runnable&gt;());
-}
-
-//2.创建单个线程的线程池
-ExecutorService singleThreadPool = Executors.newSingleThreadExecutor();
-//内部实现
-public static ExecutorService newSingleThreadExecutor() {
-    return new FinalizableDelegatedExecutorService
-        (new ThreadPoolExecutor(1, 1,
-                            0L, TimeUnit.MILLISECONDS,
-                            new LinkedBlockingQueue&lt;Runnable&gt;()));
-   }
-
-//3.创建无边界大小的线程池
-ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
-//内部实现
-public static ExecutorService newCachedThreadPool() {
-    return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
-                                  60L, TimeUnit.SECONDS,
-                                  new SynchronousQueue&lt;Runnable&gt;());
-}
-
-//4.1 方式1：  调用execute 执行runnable任务
-threadPoolExecutor.execute(new Runnable() {
-    @Override public void run() {
-        System.out.println(&quot;execute a new task&quot;);
-    }
-});
-//4.2 方式2： 调用submit方法提交runnable任务
-Future&lt;?&gt; futureTask = threadPoolExecutor.submit(new Runnable() {
-    @Override public void run() {
-        System.out.println(&quot;submit a new task&quot;);
-    }
-});
-//System.out.println(&quot;future runnable:&quot;+futureTask.get());//调用返回
-//4.3 方式3： 调用submit方法提交callable
-Future&lt;Object&gt; cFuture = threadPoolExecutor.submit(new Callable&lt;Object&gt;() {
-    //回调函数
-    @Override public Object call() throws Exception {
-        return 1;
-    }
-});
-System.out.println(&quot;future callable:&quot;+cFuture.get());
-</code></pre><blockquote>
-<p>饱和策略的默认四种实现:</p>
-</blockquote>
-<ul>
-<li>AbortPolicy:直接抛出异常</li>
-<li>CallerRunsPolicy:只用调用者所在线程来运行任务</li>
-<li>DiscardOldestPolicy:丢弃队列里的最近的一个任务，并执行当前任务</li>
-<li><p>DiscardPolicy:不处理直接丢弃掉。</p>
-<p>  饱和策略源码：</p>
-<pre><code>public static class CallerRunsPolicy implements RejectedExecutionHandler {
-    /**
-     * Creates a {@code CallerRunsPolicy}.
-     */
-    public CallerRunsPolicy() { }
-
-    /**
-     * Executes task r in the caller&apos;s thread, unless the executor
-     * has been shut down, in which case the task is discarded.
-     *
-     * @param r the runnable task requested to be executed
-     * @param e the executor attempting to execute this task
-     */
-    public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
-        // 用当前线程来执行调用任务
-        if (!e.isShutdown()) {
-            r.run();
-        }
-    }
-}
-
-/**
- * A handler for rejected tasks that throws a
- * {@code RejectedExecutionException}.
- */
-public static class AbortPolicy implements RejectedExecutionHandler {
-    /**
-     * Creates an {@code AbortPolicy}.
-     */
-    public AbortPolicy() { }
-
-    /**
-     * Always throws RejectedExecutionException.
-     *
-     * @param r the runnable task requested to be executed
-     * @param e the executor attempting to execute this task
-     * @throws RejectedExecutionException always.
-     */
-    public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
-        // 直接抛出拒绝的异常                
-        throw new RejectedExecutionException(&quot;Task &quot; + r.toString() +
-                                             &quot; rejected from &quot; +
-                                             e.toString());
-    }
-}
-
-/**
- * A handler for rejected tasks that silently discards the
- * rejected task.
- */
-public static class DiscardPolicy implements RejectedExecutionHandler {
-    /**
-     * Creates a {@code DiscardPolicy}.
-     */
-    public DiscardPolicy() { }
-
-    /**
-     * Does nothing, which has the effect of discarding task r.
-     *
-     * @param r the runnable task requested to be executed
-     * @param e the executor attempting to execute this task
-     */
-    public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
-        // 不做任何处理，直接丢弃掉
-    }
-}
-
-/**
- * A handler for rejected tasks that discards the oldest unhandled
- * request and then retries {@code execute}, unless the executor
- * is shut down, in which case the task is discarded.
- */
-public static class DiscardOldestPolicy implements RejectedExecutionHandler {
-    /**
-     * Creates a {@code DiscardOldestPolicy} for the given executor.
-     */
-    public DiscardOldestPolicy() { }
-
-    /**
-     * Obtains and ignores the next task that the executor
-     * would otherwise execute, if one is immediately available,
-     * and then retries execution of task r, unless the executor
-     * is shut down, in which case task r is instead discarded.
-     *
-     * @param r the runnable task requested to be executed
-     * @param e the executor attempting to execute this task
-     */
-    public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
-        // 丢弃队列里最近的一个任务，并执行当前任务
-        if (!e.isShutdown()) {
-            e.getQueue().poll();
-            e.execute(r);
-        }
-    }
-}
-</code></pre></li>
-</ul>
-<h3 id="ScheduledThreadPoolExecutor实现"><a href="#ScheduledThreadPoolExecutor实现" class="headerlink" title="ScheduledThreadPoolExecutor实现"></a>ScheduledThreadPoolExecutor实现</h3><p>执行流程图：<br><img src="http://i3.itc.cn/20160906/aac_93869b23_171e_f5c7_b916_e769d4391ef7_1.png" alt=""></p>
-<p>ScheduledThreadPoolExecutor使用的是DelayQueue,其中DelayQueue是一个无界队列，所以MaxPoolSize没有什么意义，执行任务分两部分：</p>
-<ul>
-<li><p>调用scheduleWithFixedDelay或scheduleAtFixedRate方法 向DelayQueue添加一个延时的任务</p>
-<pre><code>/**
- * command :执行的任务
- * initialDelay:开始计时时间
- * delay:延迟执行时间
- * unit：时间单位
- */
-public ScheduledFuture&lt;?&gt; scheduleWithFixedDelay(Runnable command,
-                                             long initialDelay,
-                                             long delay,
-                                             TimeUnit unit) {}
-</code></pre></li>
-<li><p>线程池中线程从DelayQueue中获取SchduledFutureTask,然后执行任务。</p>
-</li>
-<li><p>延时执行 通过future异步机制实现。</p>
-<pre><code>//5.执行定时任务的线程池
-ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(10);
-scheduledThreadPoolExecutor.scheduleWithFixedDelay(new Runnable() {
-    @Override public void run() {
-        System.out.println(&quot;schdule a task&quot;);
-    }
-},2,5,TimeUnit.SECONDS);
-</code></pre></li>
-</ul>
-<h3 id="FutureTask"><a href="#FutureTask" class="headerlink" title="FutureTask"></a>FutureTask</h3><p>FutureTask除了实现Future接口还实现了Runnable接口，因此 既可以交给Executor执行也可以有FutrueTask.run（）去执行。</p>
-<p>FutureTask状态变更：<br><img src="http://i3.itc.cn/20160906/aac_93869b23_171e_f5c7_b916_e769d4391ef7_2.png" alt=""></p>
-<ul>
-<li>当未启动：执行FutureTask.get()会导致调用线程阻塞；执行cancel()将导致任务用于不会被执行；</li>
-<li>已启动状态：执行FutureTask.get()会导致调用线程阻塞；执行cancel(true)将试图中断执行任务线程 ；执行cancel(false)不会对线程产生影响</li>
-<li>已完成状态：执行FutureTask.get()将导致调用线程立即返回结果或者抛出异常；执行cancel（）将返回false.</li>
-</ul>
-<p>FutureTask执行示意图：<br><img src="http://i1.itc.cn/20160906/aac_93869b23_171e_f5c7_b916_e769d4391ef7_3.png" alt=""></p>
-<h2 id="JDK相关类"><a href="#JDK相关类" class="headerlink" title="JDK相关类"></a>JDK相关类</h2><h3 id="Lock"><a href="#Lock" class="headerlink" title="Lock"></a>Lock</h3><pre><code>Lock (java.util.concurrent.locks)
-    ReadLock in ReentrantReadWriteLock (java.util.concurrent.locks)
-    ReentrantLock (java.util.concurrent.locks)
-    WriteLock in ReentrantReadWriteLock (java.util.concurrent.locks)
-
-
-成员方法：
-    lock()
-    lockInterruptibly()
-    tryLock()
-    tryLock()
-    unlock()
-    newCondition()
-</code></pre><h3 id="LockSupport"><a href="#LockSupport" class="headerlink" title="LockSupport"></a>LockSupport</h3><p> lockSupport工具静态方法:</p>
-<pre><code>unpark(Thread) 
-park(Object)
-parkNanos(Object, long)
-parkUntil(Object, long)
-park()
-parkNanos(long)
-parkUntil(long) 
-</code></pre><p><img src="http://i1.itc.cn/20160706/aac_36f1f1d8_7130_1bf2_50f2_53af4dc6c963_3.png" alt="Locksupport阻塞和唤醒方法"></p>
-<h3 id="ThreadLocal"><a href="#ThreadLocal" class="headerlink" title="ThreadLocal"></a>ThreadLocal</h3><p>ThreadLocal，很多地方叫做线程本地变量，也有些地方叫做线程本地存储，其实意思差不多。可能很多朋友都知道ThreadLocal为变量在每个线程中都创建了一个副本，那么每个线程可以访问自己内部的副本变量。</p>
-<blockquote>
-<p>数据结构：</p>
-</blockquote>
-<p>通过其内部类ThreadLocalMap 作为其存储结构，类似Map的数据结构存储 键-值 对。</p>
-<p>~~ java</p>
-<pre><code> //Thread持有THreadLocals的引用
- public class Thread implements Runnable {
-    ThreadLocal.ThreadLocalMap threadLocals = null;
- }
-
-// ThreadLocal
- public class ThreadLocal&lt;T&gt; {
-     static class ThreadLocalMap {
-
-        private Entry[] table;
-
-        static class Entry extends WeakReference&lt;ThreadLocal&gt; {
-                /** The value associated with this ThreadLocal. */
-                Object value;
-
-                Entry(ThreadLocal k, Object v) {
-                    super(k);
-                    value = v;
-                }
-        }
-
-        //构造方法
-        ThreadLocalMap(ThreadLocal firstKey, Object firstValue) {
-                table = new Entry[INITIAL_CAPACITY];
-                int i = firstKey.threadLocalHashCode &amp; (INITIAL_CAPACITY - 1);
-                table[i] = new Entry(firstKey, firstValue);
-                size = 1;
-                setThreshold(INITIAL_CAPACITY);
-        }
-    }
-}
-</code></pre><blockquote>
-<p>ThreadLocal类提供的几个方法:</p>
-</blockquote>
-<pre><code>public T get() { }
-public void set(T value) { }
-public void remove() { }
-protected T initialValue() { }  //懒加载
-</code></pre><p>get()方法是用来获取ThreadLocal在当前线程中保存的变量副本，set()用来设置当前线程中变量的副本，remove()用来移除当前线程中变量的副本，initialValue()是一个protected方法，一般是用来在使用时进行重写的，它是一个延迟加载方法。</p>
-<p>可参考：<a href="http://www.cnblogs.com/dolphin0520/p/3920407.html" target="_blank" rel="external">http://www.cnblogs.com/dolphin0520/p/3920407.html</a></p>
-<h3 id="Unsafe"><a href="#Unsafe" class="headerlink" title="Unsafe"></a>Unsafe</h3><p>包名：sun.misc.Unsafe</p>
-<p>提供了可以随意查看及修改JVM中运行时的数据结构，尽管这些功能在JAVA开发本身是不适用的，Unsafe是一个用于研究学习HotSpot虚拟机非常棒的工具，因为它不需要调用C++代码，或者需要创建即时分析的工具。</p>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>AQS同步工具对比：<a href="http://yanan0628.iteye.com/blog/2322683" target="_blank" rel="external">http://yanan0628.iteye.com/blog/2322683</a><br>并发编程网：<a href="http://ifeve.com/abstractqueuedsynchronizer-use/" target="_blank" rel="external">http://ifeve.com/abstractqueuedsynchronizer-use/</a></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/06/01/(7.2).分布式架构-hystrix/" itemprop="url">
-                  hystrix线程池隔离
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-06-01T10:56:40+08:00" content="2016-06-01">
-              2016-06-01
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/线程池隔离/" itemprop="url" rel="index">
-                    <span itemprop="name">线程池隔离</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>##为什么要用hystrix?    </p>
-<p>##如何解决依赖隔离</p>
-<pre><code>1:Hystrix使用命令模式HystrixCommand(Command)包装依赖调用逻辑，每个命令在单独线程中/信号授权下执行。
-2:可配置依赖调用超时时间,超时时间一般设为比99.5%平均时间略高即可.当调用超时时，直接返回或执行fallback逻辑。
-3:为每个依赖提供一个小的线程池（或信号），如果线程池已满调用将被立即拒绝，默认不采用排队.加速失败判定时间。
-4:依赖调用结果分:成功，失败（抛出异常），超时，线程拒绝，短路。 请求失败(异常，拒绝，超时，短路)时执行fallback(降级)逻辑。
-5:提供熔断器组件,可以自动运行或手动调用,停止当前依赖一段时间(10秒)，熔断器默认错误率阈值为50%,超过将自动运行。
-6:提供近实时依赖的统计和监控
-</code></pre>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/06/01/(7.2).分布式架构-hystrix/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -3180,7 +2669,7 @@ protected T initialValue() { }  //懒加载
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">38</span>
+              <span class="site-state-item-count">46</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -3188,7 +2677,7 @@ protected T initialValue() { }  //懒加载
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">24</span>
+                <span class="site-state-item-count">33</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -3197,7 +2686,7 @@ protected T initialValue() { }  //懒加载
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">50</span>
+                <span class="site-state-item-count">51</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

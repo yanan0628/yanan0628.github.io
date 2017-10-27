@@ -267,6 +267,1202 @@
             
               
                 
+                <a class="post-title-link" href="/2017/10/26/9.7)redis热点key问题排查/" itemprop="url">
+                  redis 热点key排查
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-10-26T11:00:35+08:00" content="2017-10-26">
+              2017-10-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="网络输入-输出流量问题排查"><a href="#网络输入-输出流量问题排查" class="headerlink" title="网络输入/输出流量问题排查"></a>网络输入/输出流量问题排查</h2><h3 id="流量影响"><a href="#流量影响" class="headerlink" title="流量影响"></a>流量影响</h3><p>现在公司用的是千兆网卡(bit)，换算流量最大阈值125MB左右，如果当前机器网络流量过大(redis在数据流入/流出会消耗大量流量)，当出现打满机器的网卡流量，就会造成当前机器的丢包或拥塞。会影响当前机器所有redis实例的访问和结果返回。</p>
+<p>有以下几种情况:</p>
+<ul>
+<li>bigkey大对象,慢查询分析.比如:每秒50次get操作1M的对象（输出流量 50M/s）</li>
+<li>ops暴增，比如:正常ops get操作200次,突然增到2000甚至更高,流量*10倍</li>
+<li>ops增长不明显,慢查询也没有.可能有热点key流量都访问该redis实例(检查ops和instantaneous_output_kbps情况)</li>
+</ul>
+<h3 id="排查步骤"><a href="#排查步骤" class="headerlink" title="排查步骤"></a>排查步骤</h3><ul>
+<li>1.先看应用是否有慢查询,大对象访问造成流量过高  </li>
+<li>2.当前redis命令ops(如果是cluster 对比其他master节点)  </li>
+<li>3.热点key分析  到服务器本地执行最近1分钟monitor命令  </li>
+<li>4.facebook工具或脚本分析当前 热点command以及热点key</li>
+<li>5.按ip 频次 key进行排序</li>
+<li>6.计算每个ip key 对应流量 value*频次 </li>
+<li>7.提供给客户端排查key 客户端ip 占用流量情况</li>
+</ul>
+<h3 id="工具排查"><a href="#工具排查" class="headerlink" title="工具排查"></a>工具排查</h3><ul>
+<li><p>执行monitor命令导出文件</p>
+</li>
+<li><p>执行facebook脚本</p>
+</li>
+</ul>
+<p><code>redis-faina.py</code>脚本:<a href="https://github.com/facebookarchive/redis-faina" target="_blank" rel="external">redis-faina使用方法</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line">localhos:log chenshi$ ./redis-faina.py 78.41:6382.log</div><div class="line">Overall Stats</div><div class="line">========================================</div><div class="line">Lines Processed  	33072</div><div class="line">Commands/Sec     	1203.72</div><div class="line"></div><div class="line">Top Prefixes</div><div class="line">========================================</div><div class="line">m             	9480	(28.66%)</div><div class="line">p             	7963	(24.08%)</div><div class="line">pcl           	4511	(13.64%)</div><div class="line">card          	3468	(10.49%)</div><div class="line">catecodeinfo  	1698	(5.13%)</div><div class="line">pclcates      	257 	(0.78%)</div><div class="line">pcluser       	150 	(0.45%)</div><div class="line">pclcatef      	129 	(0.39%)</div><div class="line"></div><div class="line">Top Keys</div><div class="line">========================================</div><div class="line">m:pcl:pad:fircate:73  	8159	(24.67%)</div><div class="line">catecodeinfo:tag:v2   	1698	(5.13%)</div><div class="line">card:56:92655095,2    	1007	(3.04%)</div><div class="line">card:56:92400031,2    	879 	(2.66%)</div><div class="line">pcl:pad:seccate:60    	578 	(1.75%)</div><div class="line">pcl:pad:seccate:82    	541 	(1.64%)</div><div class="line">p:v:ee:92469530,2     	518 	(1.57%)</div><div class="line">p:s:sort:20171025:22  	426 	(1.29%)</div><div class="line"></div><div class="line">Top Commands</div><div class="line">========================================</div><div class="line">GET      	29435	(89.00%)</div><div class="line">SETEX    	3411 	(10.31%)</div><div class="line">TTL      	217  	(0.66%)</div><div class="line">HGETALL  	8    	(0.02%)</div><div class="line"></div><div class="line">Command Time (microsecs)</div><div class="line">========================================</div><div class="line">Median  	432.75</div><div class="line">75%     	1079.0</div><div class="line">90%     	2150.0</div><div class="line">99%     	5313.0</div><div class="line"></div><div class="line">Heaviest Commands (microsecs)</div><div class="line">========================================</div><div class="line">GET      	23233082.75</div><div class="line">SETEX    	3999394.75</div><div class="line">TTL      	229730.25</div><div class="line">HGETALL  	12561.25</div><div class="line"></div><div class="line">Slowest Calls</div><div class="line">========================================</div><div class="line">17639.0   	&quot;GET&quot; &quot;RVF#93579800,2&quot;</div><div class="line">16154.0   	&quot;SETEX&quot; &quot;p:v:ms:90570158,2&quot; &quot;86400&quot; &quot;2.5&quot;</div><div class="line">16146.0   	&quot;GET&quot; &quot;m:pcl:pad:topic:12540&quot;</div><div class="line">15166.0   	&quot;SETEX&quot; &quot;RG#93445677#2&quot; &quot;86400&quot; &quot;[&#123;\&quot;name\&quot;:\&quot;93445677,2\&quot;,\&quot;score\&quot;:0.01129842,\&quot;tag\&quot;:\&quot;\xe6\xbe\xa1\xe5\xa0\x82\&quot;&#125;]&quot;</div><div class="line">14765.0   	&quot;GET&quot; &quot;m:pcl:pad:fircate:73&quot;</div><div class="line">14495.0   	&quot;GET&quot; &quot;catecodeinfo:tag:v2&quot;</div><div class="line">12783.0   	&quot;GET&quot; &quot;p:v:ee:93842379,2&quot;</div><div class="line">11970.25  	&quot;GET&quot; &quot;m:pcl:pad:fircate:73&quot;</div></pre></td></tr></table></figure>
+<ul>
+<li>commands比例和top keys需要重点排查</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">Top Commands</div><div class="line">========================================</div><div class="line">GET      	29435	(89.00%)</div><div class="line"></div><div class="line">Top Keys</div><div class="line">========================================</div><div class="line">m:pcl:pad:fircate:73  	8159	(24.67%)</div><div class="line">catecodeinfo:tag:v2   	1698	(5.13%)</div><div class="line">card:56:92655095,2    	1007	(3.04%)</div><div class="line">card:56:92400031,2    	879 	(2.66%)</div><div class="line">pcl:pad:seccate:60    	578 	(1.75%)</div><div class="line">pcl:pad:seccate:82    	541 	(1.64%)</div><div class="line">p:v:ee:92469530,2     	518 	(1.57%)</div><div class="line">p:s:sort:20171025:22  	426 	(1.29%)</div></pre></td></tr></table></figure>
+<ul>
+<li>get命令top20</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cat 78.41:6382.log | grep GET | awk &apos;&#123;print $5&#125;&apos;  | sort | uniq -c | sort -rn | head -20</div></pre></td></tr></table></figure>
+<ul>
+<li>debug object查看key值大小</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">*.*.78.41:6382&gt; DEBUG OBJECT catecodeinfo:tag:v2</div><div class="line">Value at:0x7fa68584e230 refcount:1 encoding:raw serializedlength:840478 lru:15826073 lru_seconds_idle:549</div></pre></td></tr></table></figure>
+<ul>
+<li>客户端ip调用情况</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cat 78.41:6382.log | grep GET | awk &apos;&#123;print $3&quot;=&gt;&quot;$5&#125;&apos; | grep &quot;catecodeinfo:tag:v2&quot; | sort | uniq -c | sort -rn | head -20</div></pre></td></tr></table></figure>
+<h2 id="案例分析"><a href="#案例分析" class="headerlink" title="案例分析"></a>案例分析</h2><h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><ul>
+<li><strong>redis报警信息</strong></li>
+</ul>
+<p><img src="http://i3.itc.cn/20171026/aac_a468f656_656f_f25f_0ff6_7493b7f9956d_1.png" alt=""></p>
+<ul>
+<li><strong>info stat快照</strong>(*.78.41 <code>redis实例流量报警快照</code>)</li>
+</ul>
+<p><img src="http://i1.itc.cn/20171026/aac_a468f656_656f_f25f_0ff6_7493b7f9956d_2.png" alt=""></p>
+<p>当前ops：1637 当前网络输出流量:67.4M (千兆网卡流量120MB/s)</p>
+<ul>
+<li><strong>info stat快照</strong>(*.78.41 <code>redis正常时间实例流量快照</code>)</li>
+</ul>
+<p><img src="http://i1.itc.cn/20171026/aac_a468f656_656f_f25f_0ff6_7493b7f9956d_3.png" alt=""></p>
+<h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><ul>
+<li>1.快照分析 </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">1.通过分析正常/流量报警快照，redis实例的基础统计信息 ops/instantaneous_output_kbps</div><div class="line">2.流量高的时候也可以对比下其他master节点的ops/instantaneous_output_kbps</div><div class="line">3.正常时候ops更高，但输出流量更小。ops低的时候流量高反而流量大，但并没有产生慢查询(&gt;10ms请求)</div><div class="line">4.基本确定有大对象访问</div></pre></td></tr></table></figure>
+<ul>
+<li>2.执行minitor导出文件</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">1.上redis服务器执行monitor(报警期间)最近一分钟/最近10000执行命令分析。</div><div class="line">redis-cli -p 6382 -a *** monitor | head -n 100000 &gt; 78.41:6382.log</div></pre></td></tr></table></figure>
+<ul>
+<li>3.分析当前command操作占比以及top20情况</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">get调用占比较高</div><div class="line">Top Commands</div><div class="line">========================================</div><div class="line">GET      	29435	(89.00%)</div><div class="line">SETEX    	3411 	(10.31%)</div><div class="line">TTL      	217  	(0.66%)</div><div class="line">HGETALL  	8    	(0.02%)</div><div class="line"></div><div class="line">localhos:log chenshi$ cat 78.41:6382.log | grep GET | awk &apos;&#123;print $5&#125;&apos;  | sort | uniq -c | sort -rn | head -20</div><div class="line">8159 &quot;m:pcl:pad:fircate:73&quot;</div><div class="line">1698 &quot;catecodeinfo:tag:v2&quot;</div><div class="line">1007 &quot;card:56:92655095,2&quot;</div><div class="line"> 879 &quot;card:56:92400031,2&quot;</div><div class="line"> 578 &quot;pcl:pad:seccate:60&quot;</div><div class="line"> 541 &quot;pcl:pad:seccate:82&quot;</div><div class="line"> 518 &quot;p:v:ee:92469530,2&quot;</div><div class="line"> 375 &quot;p:v:ee:92760970,2&quot;</div><div class="line"> 264 &quot;p:v:ee:92414925,2&quot;</div><div class="line"> 264 &quot;card:56:92785886,2&quot;</div><div class="line"> 213 &quot;p:s:sort:20171025:22&quot;</div><div class="line"> 163 &quot;pcl:pad:user:306132492&quot;</div><div class="line"> 161 &quot;p:v:ee:92200421,2&quot;</div><div class="line"> 149 &quot;pcl:pad:topic:12540&quot;</div><div class="line"> 149 &quot;pcl:pad:topic:12020&quot;</div><div class="line"> 149 &quot;m:pcl:pad:topic:12540&quot;</div><div class="line"> 134 &quot;pclcates:56:10080:1&quot;</div><div class="line"> 132 &quot;pcl:pad:seccate:11531&quot;</div><div class="line"> 120 &quot;pcl:pad:topic:10228&quot;</div><div class="line"> 120 &quot;m:pcl:pad:topic:10228&quot;</div><div class="line">``` </div><div class="line"> </div><div class="line">- 4.key产生流量分析,找出大对象</div></pre></td></tr></table></figure>
+<p>扫描结果如下：<br>card:56:92785886,2: 264(次)<em>106(字节) =27 kb<br>p:v:ee:92469530,2: 518(次)</em>33(字节) =17 kb<br>p:v:ee:92414925,2: 264(次)<em>34(字节) =8 kb<br>card:56:92655095,2: 1007(次)</em>106(字节) =106 kb<br>card:56:92400031,2: 879(次)<em>106(字节) =93 kb<br>p:v:ee:92760970,2: 375(次)</em>32(字节) =12 kb<br>pclcates:56:10080:1: 134(次)<em>629(字节) =84 kb<br>catecodeinfo:tag:v2: 1698(次)</em>840478(字节) =1427131 kb<br>p:v:ee:92200421,2: 161(次)<em>33(字节) =5 kb<br>p:s:sort:20171025:22: 213(次)</em>16(字节) =3 kb</p>
+<p><em>.</em>.78.41:6382&gt; DEBUG OBJECT catecodeinfo:tag:v2<br>Value at:0x7fa5be68c0a0 refcount:1 encoding:raw serializedlength:840844 lru:15816789 lru_seconds_idle:165<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">- 5.分析大对象key所有客户端ip执行GET调用情况</div></pre></td></tr></table></figure></p>
+<p>localhos:log chenshi$ cat 78.41:6382.log | grep GET | awk ‘{print $3”=&gt;”$5}’ | grep “catecodeinfo:tag:v2” | sort | uniq -c | sort -rn | head -20<br> 420 10.23.194.5:37363]=&gt;”catecodeinfo:tag:v2”<br> 377 10.23.194.6:41135]=&gt;”catecodeinfo:tag:v2”<br> 132 192.168.42.26:35184]=&gt;”catecodeinfo:tag:v2”<br>  64 10.23.194.2:37984]=&gt;”catecodeinfo:tag:v2”<br>  60 10.23.194.6:33715]=&gt;”catecodeinfo:tag:v2”<br>  56 10.23.194.3:48388]=&gt;”catecodeinfo:tag:v2”<br>  54 192.168.42.30:42056]=&gt;”catecodeinfo:tag:v2”<br>  54 10.23.194.2:52091]=&gt;”catecodeinfo:tag:v2”<br>  50 10.23.194.4:37498]=&gt;”catecodeinfo:tag:v2”<br>  46 10.23.194.5:59113]=&gt;”catecodeinfo:tag:v2”<br>  42 192.168.42.23:57718]=&gt;”catecodeinfo:tag:v2”<br>```</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/10/25/9.6)redis运维列表/" itemprop="url">
+                  redis原理和cachecloud运维目录
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-10-25T16:37:35+08:00" content="2017-10-25">
+              2017-10-25
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/cachecloud/" itemprop="url" rel="index">
+                    <span itemprop="name">cachecloud</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="redis原理"><a href="#redis原理" class="headerlink" title="redis原理"></a>redis原理</h1><h1 id="cachecloud运维"><a href="#cachecloud运维" class="headerlink" title="cachecloud运维"></a>cachecloud运维</h1>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/10/24/9.6) jedispool连接池总结/" itemprop="url">
+                  jedispool总结
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-10-24T10:33:00+08:00" content="2017-10-24">
+              2017-10-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/连接池/" itemprop="url" rel="index">
+                    <span itemprop="name">连接池</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>apache对象池:<a href="http://commons.apache.org/proper/commons-pool/" target="_blank" rel="external">对象池</a></p>
+<h2 id="对象池"><a href="#对象池" class="headerlink" title="对象池"></a>对象池</h2><p>我们常用的池子像 数据库连接池、jedis连接池、线程池等，查看源码会发现这些池管理类都是继承于GenericObjectPool<t>，所以我们需要了解下GenericObjectPool的工作机制。</t></p>
+<p>对象池的类图:<br><img src="http://img.blog.csdn.net/20160501212832585?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="类图"></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/10/24/9.6) jedispool连接池总结/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/10/22/10.4).netflix-atlas使用/" itemprop="url">
+                  altas指标监控平台使用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-10-22T10:11:00+08:00" content="2017-10-22">
+              2017-10-22
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/altas/" itemprop="url" rel="index">
+                    <span itemprop="name">altas</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="grafana安装"><a href="#grafana安装" class="headerlink" title="grafana安装"></a>grafana安装</h2><h2 id="altas收集"><a href="#altas收集" class="headerlink" title="altas收集"></a>altas收集</h2>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/10/21/10.3) springcloud-rpc使用/" itemprop="url">
+                  springcloud rpc使用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-10-21T10:11:00+08:00" content="2017-10-21">
+              2017-10-21
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/ribbon/" itemprop="url" rel="index">
+                    <span itemprop="name">ribbon</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/ribbon/fegin/" itemprop="url" rel="index">
+                    <span itemprop="name">fegin</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/ribbon/fegin/resttemplate/" itemprop="url" rel="index">
+                    <span itemprop="name">resttemplate</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Ribbon"><a href="#Ribbon" class="headerlink" title="Ribbon"></a>Ribbon</h2><p>ribbon是基于客户端的一个负载均衡器。</p>
+<p>当Ribbon与Eureka联合使用时，ribbonServerList会被DiscoveryEnabledNIWSServerList重写，扩展成从Eureka注册中心中获取服务端列表。同时它也会用NIWSDiscoveryPing来取代IPing，它将职责委托给Eureka来确定服务端是否已经启动。</p>
+<h2 id="RestTemplate"><a href="#RestTemplate" class="headerlink" title="RestTemplate"></a>RestTemplate</h2><h2 id="feign"><a href="#feign" class="headerlink" title="feign"></a>feign</h2>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/10/21/10.4) netflix-hystrix熔断/" itemprop="url">
+                  hystrix使用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-10-21T10:11:00+08:00" content="2017-10-21">
+              2017-10-21
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/hystrix/" itemprop="url" rel="index">
+                    <span itemprop="name">hystrix</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="hystrix-dashboard使用"><a href="#hystrix-dashboard使用" class="headerlink" title="hystrix-dashboard使用"></a>hystrix-dashboard使用</h2><h3 id="搭建dashboard"><a href="#搭建dashboard" class="headerlink" title="搭建dashboard"></a>搭建dashboard</h3><ul>
+<li>直接启动</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ git clone https://github.com/Netflix/Hystrix.git</div><div class="line">$ cd Hystrix/hystrix-dashboard</div><div class="line">$ ../gradlew appRun</div></pre></td></tr></table></figure>
+<p><code>dashboard地址:</code><a href="http://localhost:7979/hystrix-dashboard" target="_blank" rel="external">http://localhost:7979/hystrix-dashboard</a></p>
+<ul>
+<li>后台启动</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">java -jar -DserverPort=8080 -DbindAddress=192.168.1.100 standalone-hystrix-dashboard-&#123;VERSION&#125;-all.jar</div><div class="line"></div><div class="line">serverPort	The port that the server will listen to.   7979</div><div class="line">bindAddress	The address that the server will bind to.  0.0.0.0</div><div class="line">disableCompression	Flag to disable compression support for the metrics stream. enable</div></pre></td></tr></table></figure>
+<h3 id="dashboard配置"><a href="#dashboard配置" class="headerlink" title="dashboard配置"></a>dashboard配置</h3><p><code>hystrix-dashboard后台</code>:<a href="http://127.0.0.1:7979/hystrix-dashboard/" target="_blank" rel="external">http://127.0.0.1:7979/hystrix-dashboard/</a></p>
+<p><img src="http://i3.itc.cn/20171024/aac_12264e27_e85d_67d4_bc49_5db5c608fa7f_2.png" alt=""></p>
+<p><code>客户端数据流</code>:<a href="http://10.7.36.64:7771/hystrix.stream" target="_blank" rel="external">http://10.7.36.64:7771/hystrix.stream</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">data: &#123;&quot;type&quot;:&quot;HystrixCommand&quot;,&quot;name&quot;:&quot;getTime&quot;,&quot;group&quot;:&quot;RestServiceImpl&quot;,&quot;currentTime&quot;:1508827134796,&quot;isCircuitBreakerOpen&quot;:false,&quot;errorPercentage&quot;:0,&quot;errorCount&quot;:0,&quot;requestCount&quot;:0,&quot;rollingCountBadRequests&quot;:0,&quot;rollingCountCollapsedRequests&quot;:0,&quot;rollingCountEmit&quot;:0,&quot;rollingCountExceptionsThrown&quot;:0,&quot;rollingCountFailure&quot;:0,&quot;rollingCountFallbackEmit&quot;:0,&quot;rollingCountFallbackFailure&quot;:0,&quot;rollingCountFallbackMissing&quot;:0,&quot;rollingCountFallbackRejection&quot;:0,&quot;rollingCountFallbackSuccess&quot;:0,&quot;rollingCountResponsesFromCache&quot;:0,&quot;rollingCountSemaphoreRejected&quot;:0,&quot;rollingCountShortCircuited&quot;:0,&quot;rollingCountSuccess&quot;:0,&quot;rollingCountThreadPoolRejected&quot;:0,&quot;rollingCountTimeout&quot;:0,&quot;currentConcurrentExecutionCount&quot;:0,&quot;rollingMaxConcurrentExecutionCount&quot;:0,&quot;latencyExecute_mean&quot;:0,&quot;latencyExecute&quot;:&#123;&quot;0&quot;:0,&quot;25&quot;:0,&quot;50&quot;:0,&quot;75&quot;:1,&quot;90&quot;:1,&quot;95&quot;:1,&quot;99&quot;:1,&quot;99.5&quot;:1,&quot;100&quot;:1&#125;,&quot;latencyTotal_mean&quot;:0,&quot;latencyTotal&quot;:&#123;&quot;0&quot;:0,&quot;25&quot;:0,&quot;50&quot;:0,&quot;75&quot;:1,&quot;90&quot;:1,&quot;95&quot;:1,&quot;99&quot;:1,&quot;99.5&quot;:1,&quot;100&quot;:1&#125;,&quot;propertyValue_circuitBreakerRequestVolumeThreshold&quot;:20,&quot;propertyValue_circuitBreakerSleepWindowInMilliseconds&quot;:5000,&quot;propertyValue_circuitBreakerErrorThresholdPercentage&quot;:50,&quot;propertyValue_circuitBreakerForceOpen&quot;:false,&quot;propertyValue_circuitBreakerForceClosed&quot;:false,&quot;propertyValue_circuitBreakerEnabled&quot;:true,&quot;propertyValue_executionIsolationStrategy&quot;:&quot;THREAD&quot;,&quot;propertyValue_executionIsolationThreadTimeoutInMilliseconds&quot;:1000,&quot;propertyValue_executionTimeoutInMilliseconds&quot;:1000,&quot;propertyValue_executionIsolationThreadInterruptOnTimeout&quot;:true,&quot;propertyValue_executionIsolationThreadPoolKeyOverride&quot;:null,&quot;propertyValue_executionIsolationSemaphoreMaxConcurrentRequests&quot;:10,&quot;propertyValue_fallbackIsolationSemaphoreMaxConcurrentRequests&quot;:10,&quot;propertyValue_metricsRollingStatisticalWindowInMilliseconds&quot;:10000,&quot;propertyValue_requestCacheEnabled&quot;:true,&quot;propertyValue_requestLogEnabled&quot;:true,&quot;reportingHosts&quot;:1,&quot;threadPool&quot;:&quot;RestServiceImpl&quot;&#125;</div><div class="line">data: &#123;&quot;type&quot;:&quot;HystrixThreadPool&quot;,&quot;name&quot;:&quot;RestServiceImpl&quot;,&quot;currentTime&quot;:1508827134796,&quot;currentActiveCount&quot;:0,&quot;currentCompletedTaskCount&quot;:5,&quot;currentCorePoolSize&quot;:10,&quot;currentLargestPoolSize&quot;:5,&quot;currentMaximumPoolSize&quot;:10,&quot;currentPoolSize&quot;:5,&quot;currentQueueSize&quot;:0,&quot;currentTaskCount&quot;:5,&quot;rollingCountThreadsExecuted&quot;:0,&quot;rollingMaxActiveThreads&quot;:0,&quot;rollingCountCommandRejections&quot;:0,&quot;propertyValue_queueSizeRejectionThreshold&quot;:5,&quot;propertyValue_metricsRollingStatisticalWindowInMilliseconds&quot;:10000,&quot;reportingHosts&quot;:1&#125;</div><div class="line">....</div></pre></td></tr></table></figure>
+<p><code>开启monitor</code></p>
+<p><img src="http://i2.itc.cn/20171024/aac_12264e27_e85d_67d4_bc49_5db5c608fa7f_1.png" alt=""></p>
+<h2 id="hystrix客户端配置"><a href="#hystrix客户端配置" class="headerlink" title="hystrix客户端配置"></a>hystrix客户端配置</h2><ul>
+<li>pom依赖</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"> &lt;!-- hystrix --&gt;</div><div class="line">&lt;dependency&gt;</div><div class="line">    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;</div><div class="line">    &lt;artifactId&gt;spring-cloud-starter-hystrix&lt;/artifactId&gt;</div><div class="line">&lt;/dependency&gt;</div></pre></td></tr></table></figure>
+<ul>
+<li>启动类注解 @EnableCircuitBreaker</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@SpringBootApplication</span></div><div class="line"><span class="meta">@EnableDiscoveryClient</span></div><div class="line"><span class="meta">@EnableFeignClients</span></div><div class="line"><span class="meta">@EnableCircuitBreaker</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ClientApplication</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        <span class="keyword">new</span> SpringApplication().run(ClientApplication.class,args);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Bean</span></div><div class="line">    <span class="meta">@LoadBalanced</span></div><div class="line">    <span class="function">RestTemplate <span class="title">restTemplate</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> RestTemplate();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>service配置hystrix降级 @HystrixCommand</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Service</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RestServiceImpl</span> <span class="keyword">implements</span> <span class="title">RestService</span></span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Autowired</span></div><div class="line">    RestTemplate restTemplate;</div><div class="line"></div><div class="line">    <span class="meta">@HystrixCommand</span>(fallbackMethod = <span class="string">"getTimeFallback"</span>)</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getTime</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> restTemplate.getForEntity(<span class="string">"http://test.server1/get"</span>,String.class).getBody();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getTimeFallback</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="string">"fallback return : 2017-10-24 00:00:00"</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>结果调试</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">http://10.7.36.64:7771/c3/get</div><div class="line"></div><div class="line">正常返回:s1client execute get 1,time=1508829619207</div><div class="line">降级返回:fallback return : 2017-10-24 00:00:00</div></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/10/20/10.2) springcloud-eureka使用/" itemprop="url">
+                  spring eureka使用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-10-20T10:11:00+08:00" content="2017-10-20">
+              2017-10-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/eureka/" itemprop="url" rel="index">
+                    <span itemprop="name">eureka</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="euraka-server"><a href="#euraka-server" class="headerlink" title="euraka server"></a>euraka server</h2><h3 id="构建erueka注册中心"><a href="#构建erueka注册中心" class="headerlink" title="构建erueka注册中心"></a>构建erueka注册中心</h3><ul>
+<li>1.pom依赖</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-eureka-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<ul>
+<li>2.eureka服务启动类 ServerApplication</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">package com.sohu.index.springcloud.learn;</div><div class="line"></div><div class="line">import org.springframework.boot.SpringApplication;</div><div class="line">import org.springframework.boot.autoconfigure.SpringBootApplication;</div><div class="line">import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;</div><div class="line"></div><div class="line">/**</div><div class="line"> * Created by chenshi on 2017/10/20.</div><div class="line"> */</div><div class="line">@SpringBootApplication</div><div class="line">@EnableEurekaServer</div><div class="line">public class ServerApplication &#123;</div><div class="line"></div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        new SpringApplication().run(ServerApplication.class,args);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>3.application.yml配置文件</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="attr">server:</span></div><div class="line"><span class="attr">  port:</span> <span class="number">9191</span></div><div class="line"><span class="attr">eureka:</span></div><div class="line"><span class="attr">  client:</span></div><div class="line"><span class="attr">    register-with-eureka:</span> <span class="literal">false</span></div><div class="line"><span class="attr">    fetch-registry:</span> <span class="literal">false</span></div><div class="line"><span class="attr">    service-url:</span></div><div class="line"><span class="attr">      defaultZone:</span> <span class="attr">http://localhost:$&#123;server.port&#125;/eureka/</span></div></pre></td></tr></table></figure>
+<ul>
+<li>4.启动服务</li>
+</ul>
+<p>eureka地址:<a href="http://127.0.0.1:9191/" target="_blank" rel="external">http://127.0.0.1:9191/</a>    </p>
+<h3 id="eureka注册中心权限"><a href="#eureka注册中心权限" class="headerlink" title="eureka注册中心权限"></a>eureka注册中心权限</h3><ul>
+<li>1.pom依赖</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&lt;dependency&gt;</div><div class="line">	&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</div><div class="line">	&lt;artifactId&gt;spring-boot-starter-security&lt;/artifactId&gt;</div><div class="line">&lt;/dependency&gt;</div></pre></td></tr></table></figure>
+<ul>
+<li>2.全局配置bootstrap.yml</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">security:</div><div class="line">    basic:</div><div class="line">      enabled: true</div><div class="line">    user:</div><div class="line">      name: admin</div><div class="line">      password: 123</div></pre></td></tr></table></figure>
+<h2 id="eureka-client"><a href="#eureka-client" class="headerlink" title="eureka client"></a>eureka client</h2><h3 id="客户端服务注册"><a href="#客户端服务注册" class="headerlink" title="客户端服务注册"></a>客户端服务注册</h3><ul>
+<li>1.pom依赖</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&lt;!-- eureka client --&gt;</div><div class="line">&lt;dependency&gt;</div><div class="line">    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;</div><div class="line">    &lt;artifactId&gt;spring-cloud-starter-eureka&lt;/artifactId&gt;</div><div class="line">&lt;/dependency&gt;</div></pre></td></tr></table></figure>
+<ul>
+<li>2.启动类ClientApplication</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">package com.sohu.index.springcloud.learn;</div><div class="line"></div><div class="line">import org.springframework.boot.autoconfigure.SpringBootApplication;</div><div class="line">import org.springframework.boot.builder.SpringApplicationBuilder;</div><div class="line">import org.springframework.cloud.client.discovery.EnableDiscoveryClient;</div><div class="line"></div><div class="line">/**</div><div class="line"> * Created by chenshi on 2017/8/9.</div><div class="line"> */</div><div class="line">@SpringBootApplication</div><div class="line">@EnableDiscoveryClient</div><div class="line">public class ClientAppllication &#123;</div><div class="line"></div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        new SpringApplicationBuilder(ClientAppllication.class).web(true).run(args);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>3.application.yml配置</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="attr">spring:</span></div><div class="line"><span class="attr">  application:</span></div><div class="line"><span class="attr">    name:</span> <span class="string">test.client1</span></div><div class="line"><span class="attr">server:</span></div><div class="line"><span class="attr">  port:</span> <span class="number">8881</span></div><div class="line"><span class="attr">eureka:</span></div><div class="line"><span class="attr">  client:</span></div><div class="line"><span class="attr">    service-url:</span></div><div class="line"><span class="attr">      defaultZone:</span> <span class="attr">http://127.0.0.1:9191/eureka/</span></div></pre></td></tr></table></figure>
+<ul>
+<li><p>4.web服务相关配置</p>
+<ul>
+<li><p>pom依赖</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">&lt;!-- web --&gt;</div><div class="line">&lt;dependency&gt;</div><div class="line">    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</div><div class="line">    &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;</div><div class="line">&lt;/dependency&gt;</div><div class="line"></div><div class="line">&lt;!-- actuator端点 info env  --&gt;</div><div class="line">&lt;dependency&gt;</div><div class="line">    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</div><div class="line">    &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;</div><div class="line">&lt;/dependency&gt;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<pre><code>- 相关端点
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">系统环境:http://10.7.36.64:8881/env</div><div class="line">自动配置:http://10.7.36.64:8881/autoconfig</div></pre></td></tr></table></figure>
+</code></pre>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/09/18/10.1).spring-boot使用/" itemprop="url">
+                  spring boot使用和接入
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-09-18T16:37:35+08:00" content="2017-09-18">
+              2017-09-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/springboot/" itemprop="url" rel="index">
+                    <span itemprop="name">springboot</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/springboot/springcloud/" itemprop="url" rel="index">
+                    <span itemprop="name">springcloud</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="spring-boot使用和接入"><a href="#spring-boot使用和接入" class="headerlink" title="spring boot使用和接入"></a>spring boot使用和接入</h1><p>参考：<a href="https://qbgbook.gitbooks.io/spring-boot-reference-guide-zh/content/III.%20Using%20Spring%20Boot/" target="_blank" rel="external">spring boot中文wiki</a><br><a href="http://www.cnblogs.com/renhui/p/5910300.html" target="_blank" rel="external">annotation</a></p>
+<h2 id="spring-boot优势"><a href="#spring-boot优势" class="headerlink" title="spring boot优势"></a>spring boot优势</h2><ol>
+<li>boot项目把容器打到jar包，可以通过java -jar *.jar启动一个web/</li>
+<li>可将服务配置成系统级别启动/停止，只依赖操作系统和jdk</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sudo ln -s $&#123;path&#125;/*.jar /etc/init.d/$&#123;服务名&#125;</div><div class="line">chmod 700 /etc/init.d/$&#123;服务名&#125;</div><div class="line">echo &quot;renew /etc/init.d/$&#123;服务名&#125;&quot;</div></pre></td></tr></table></figure>
+<ol>
+<li>遵循boot规范      <ul>
+<li>spring.factories默认配置文件</li>
+<li>jar依赖规范</li>
+</ul>
+</li>
+</ol>
+<h2 id="相关配置"><a href="#相关配置" class="headerlink" title="相关配置"></a>相关配置</h2><h3 id="启动解析"><a href="#启动解析" class="headerlink" title="启动解析"></a>启动解析</h3><ul>
+<li>SpringFactoriesLoader抽象类装载spring.factories</li>
+</ul>
+<p>每个spring-boot报META-INF下都会依赖spring.factory<br>    autoconfig检测：<a href="http://127.0.0.1:8888/autoconfig" target="_blank" rel="external">http://127.0.0.1:8888/autoconfig</a></p>
+<pre><code>#Failure analyzers ()
+org.springframework.boot.diagnostics.FailureAnalyzer
+</code></pre><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;String&gt; <span class="title">loadFactoryNames</span><span class="params">(Class&lt;?&gt; factoryClass, ClassLoader classLoader)</span> </span>&#123;</div><div class="line">        String factoryClassName = factoryClass.getName();</div><div class="line"></div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            Enumeration ex = classLoader != <span class="keyword">null</span>?classLoader.getResources(<span class="string">"META-INF/spring.factories"</span>):ClassLoader.getSystemResources(<span class="string">"META-INF/spring.factories"</span>);</div><div class="line">            ArrayList result = <span class="keyword">new</span> ArrayList();</div><div class="line"></div><div class="line">            <span class="keyword">while</span>(ex.hasMoreElements()) &#123;</div><div class="line">                URL url = (URL)ex.nextElement();</div><div class="line">                Properties properties = PropertiesLoaderUtils.loadProperties(<span class="keyword">new</span> UrlResource(url));</div><div class="line">                String factoryClassNames = properties.getProperty(factoryClassName);</div><div class="line">                result.addAll(Arrays.asList(StringUtils.commaDelimitedListToStringArray(factoryClassNames)));</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="keyword">return</span> result;</div><div class="line">        &#125; <span class="keyword">catch</span> (IOException var8) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Unable to load ["</span> + factoryClass.getName() + <span class="string">"] factories from location ["</span> + <span class="string">"META-INF/spring.factories"</span> + <span class="string">"]"</span>, var8);</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>初始化 applicationContext IOC容器</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> ConfigurableApplicationContext <span class="title">run</span><span class="params">(String... args)</span> </span>&#123;</div><div class="line">	...</div><div class="line">	<span class="keyword">try</span> &#123;</div><div class="line">            DefaultApplicationArguments ex = <span class="keyword">new</span> DefaultApplicationArguments(args);</div><div class="line">            ConfigurableEnvironment environment = <span class="keyword">this</span>.prepareEnvironment(listeners, ex);</div><div class="line">            Banner printedBanner = <span class="keyword">this</span>.printBanner(environment);</div><div class="line">            context = <span class="keyword">this</span>.createApplicationContext();<span class="comment">//初始化 context</span></div><div class="line">            <span class="keyword">new</span> FailureAnalyzers(context);</div><div class="line">            <span class="keyword">this</span>.prepareContext(context, environment, listeners, ex, printedBanner);</div><div class="line">            <span class="keyword">this</span>.refreshContext(context);</div><div class="line">            <span class="keyword">this</span>.afterRefresh(context, ex);</div><div class="line">            listeners.finished(context, (Throwable)<span class="keyword">null</span>);</div><div class="line">            stopWatch.stop();</div><div class="line">            <span class="keyword">if</span>(<span class="keyword">this</span>.logStartupInfo) &#123;</div><div class="line">                (<span class="keyword">new</span> StartupInfoLogger(<span class="keyword">this</span>.mainApplicationClass)).logStarted(<span class="keyword">this</span>.getApplicationLog(), stopWatch);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="keyword">return</span> context;</div><div class="line">        &#125; <span class="keyword">catch</span> (Throwable var9) &#123;</div><div class="line">            <span class="keyword">this</span>.handleRunFailure(context, listeners, (FailureAnalyzers)analyzers, var9);</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(var9);</div><div class="line">        &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="外部化配置"><a href="#外部化配置" class="headerlink" title="外部化配置"></a>外部化配置</h3><p><a href="http://ip:port/env" target="_blank" rel="external">http://ip:port/env</a> （加载优先级 从上到下）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">Spring Boot设计了一个非常特别的PropertySource顺序，以允许对属性值进行合理的覆盖，属性会以如下的顺序进行设值：</div><div class="line">home目录下的devtools全局设置属性（~/.spring-boot-devtools.properties，如果devtools激活）。</div><div class="line">测试用例上的@TestPropertySource注解。</div><div class="line">测试用例上的@SpringBootTest#properties注解。</div><div class="line">命令行参数</div><div class="line">来自SPRING_APPLICATION_JSON的属性（环境变量或系统属性中内嵌的内联JSON）。</div><div class="line">ServletConfig初始化参数。</div><div class="line">ServletContext初始化参数。</div><div class="line">来自于java:comp/env的JNDI属性。</div><div class="line">Java系统属性（System.getProperties()）。</div><div class="line">操作系统环境变量。</div><div class="line">RandomValuePropertySource，只包含random.*中的属性。</div><div class="line">没有打进jar包的Profile-specific应用属性（application-&#123;profile&#125;.properties和YAML变量）。</div><div class="line">打进jar包中的Profile-specific应用属性（application-&#123;profile&#125;.properties和YAML变量）。</div><div class="line">没有打进jar包的应用配置（application.properties和YAML变量）。</div><div class="line">打进jar包中的应用配置（application.properties和YAML变量）。</div><div class="line">@Configuration类上的@PropertySource注解。</div><div class="line">默认属性（使用SpringApplication.setDefaultProperties指定）。</div></pre></td></tr></table></figure>
+<h3 id="注解配置"><a href="#注解配置" class="headerlink" title="注解配置"></a>注解配置</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">@ComponentScan：注解自动收集所有Spring组件，包括@Configuration类 </div><div class="line">@Configuration： 作为主要配置源</div><div class="line">@ImportResource：注解加载XML配置文件</div><div class="line">@EnableAutoConfiguration: 从classpath中搜寻所有的META-INF/spring.factories配置文件</div><div class="line">	借助@Import(&#123;EnableAutoConfigurationImportSelector.class&#125;)的帮助，</div><div class="line">	将所有符合自动配置条件的bean定义加载到IoC</div><div class="line">@SpringBootApplication注解等价于	</div><div class="line">    @Configuration+@EnableAutoConfiguration+@ComponentScan</div></pre></td></tr></table></figure>
+<h3 id="实现自定义自动配置"><a href="#实现自定义自动配置" class="headerlink" title="实现自定义自动配置"></a>实现自定义自动配置</h3><ul>
+<li>jvm参数监控</li>
+<li>tomcat线程池监控</li>
+</ul>
+<h2 id="spring-boot模块"><a href="#spring-boot模块" class="headerlink" title="spring boot模块"></a>spring boot模块</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">spring-boot-starter-web	用于使用Spring MVC构建web应用，包括RESTful。Tomcat是默认的内嵌容器</div><div class="line">spring-boot-starter-jdbc	对JDBC的支持（使用Tomcat JDBC连接池）</div><div class="line">spring-boot-starter-aop	用于使用Spring AOP和AspectJ实现面向切面编程</div><div class="line">spring-boot-starter-test	用于测试Spring Boot应用，支持常用测试类库，包括JUnit, Hamcrest和Mockito</div><div class="line">spring-boot-starter-actuator	用于使用Spring Boot的Actuator，它提供了production ready功能来帮助你监控和管理应用程序</div><div class="line"></div><div class="line">所有模块:https://qbgbook.gitbooks.io/spring-boot-reference-guide-zh/content/III.%20Using%20Spring%20Boot/13.5.%20Starters.html</div></pre></td></tr></table></figure>
+<h2 id="如何接入"><a href="#如何接入" class="headerlink" title="如何接入?"></a>如何接入?</h2><blockquote>
+<p>1.pom parent依赖</p>
+</blockquote>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">只需在该依赖上指定Spring Boot版本，如果导入其他的starters，放心的省略版本号好了</div><div class="line"><span class="comment">&lt;!-- Inherit defaults from Spring Boot --&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">parent</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.4.1.BUILD-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">parent</span>&gt;</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p>3.运行</p>
+</blockquote>
+<p>直接运行：mvn spring-boot:run<br>打包运行: mvn package  |  java -jar *.jar</p>
+<blockquote>
+<p>4.打包规范</p>
+</blockquote>
+<p><code>包命名规范</code>: </p>
+<pre><code>${package-name}-online.jar  
+${package-name}-online.war
+${package-name}-online.conf
+</code></pre><p>相关配置*.conf配置文件</p>
+<pre><code>jvm配置/日志目录/java_Home
+</code></pre><p><img src="http://i2.itc.cn/20171019/aac_44ff2159_b675_2098_94c8_e070df0b204b_1.png" alt=""></p>
+<h2 id="升级接入遇到问题"><a href="#升级接入遇到问题" class="headerlink" title="升级接入遇到问题?"></a>升级接入遇到问题?</h2><ul>
+<li><p>1.web.xml配置空,servlet、filter、inteceptor改用注解方式，自动扫描需用到注解</p>
+<p>  @ServletComponentScan</p>
+</li>
+<li><p>2.依赖jsp的项目 pom依赖?</p>
+</li>
+<li><p>3.启动类Application需要在根目录，这样就可以自动扫描子目录的package</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">将应用的main类放到其他类所在包的顶层(root package),并将@EnableAutoConfiguration注解到你的main类上，这样就隐式地定义了一个基础的包搜索路径（search package）以搜索某些特定的注解实体（比如@Service，@Component等）</div></pre></td></tr></table></figure>
+</li>
+<li><p>4.打包方式 依赖spring-boot-maven-plugin 需要指定启动类，打完jar war包是一个二进制文件 </p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div></pre></td><td class="code"><pre><div class="line">	more *.jar | *.war 查看当前执行文件</div><div class="line">	</div><div class="line">	#!/bin/bash</div><div class="line">	#</div><div class="line">	#    .   ____          _            __ _ _</div><div class="line">	#   /\\ / ___&apos;_ __ _ _(_)_ __  __ _ \ \ \ \</div><div class="line">	#  ( ( )\___ | &apos;_ | &apos;_| | &apos;_ \/ _` | \ \ \ \</div><div class="line">	#   \\/  ___)| |_)| | | | | || (_| |  ) ) ) )</div><div class="line">	#    &apos;  |____| .__|_| |_|_| |_\__, | / / / /</div><div class="line">	#   =========|_|==============|___/=/_/_/_/</div><div class="line">	#   :: Spring Boot Startup Script ::</div><div class="line">	#</div><div class="line">		</div><div class="line">	### BEGIN INIT INFO</div><div class="line">	# Provides:          cachecloud-web</div><div class="line">	# Required-Start:    $remote_fs $syslog $network</div><div class="line">	# Required-Stop:     $remote_fs $syslog $network</div><div class="line">	# Default-Start:     2 3 4 5</div><div class="line">	# Default-Stop:      0 1 6</div><div class="line">	# Short-Description: cachecloud-web</div><div class="line">	# Description:       cachecloud-web</div><div class="line">	# chkconfig:         2345 99 01</div><div class="line">	### END INIT INFO</div><div class="line">	</div><div class="line">	[[ -n &quot;$DEBUG&quot; ]] &amp;&amp; set -x</div><div class="line">	</div><div class="line">	# Initialize variables that cannot be provided by a .conf file</div><div class="line">	WORKING_DIR=&quot;$(pwd)&quot;</div><div class="line">	# shellcheck disable=SC2153</div><div class="line">	[[ -n &quot;$JARFILE&quot; ]] &amp;&amp; jarfile=&quot;$JARFILE&quot;</div><div class="line">	[[ -n &quot;$APP_NAME&quot; ]] &amp;&amp; identity=&quot;$APP_NAME&quot;</div><div class="line">	</div><div class="line">	# Follow symlinks to find the real jar and detect init.d script</div><div class="line">	cd &quot;$(dirname &quot;$0&quot;)&quot; || exit 1</div><div class="line">	[[ -z &quot;$jarfile&quot; ]] &amp;&amp; jarfile=$(pwd)/$(basename &quot;$0&quot;)</div><div class="line">	while [[ -L &quot;$jarfile&quot; ]]; do</div><div class="line">	  [[ &quot;$jarfile&quot; =~ init\.d ]] &amp;&amp; init_script=$(basename &quot;$jarfile&quot;)</div><div class="line">	  jarfile=$(readlink &quot;$jarfile&quot;)</div><div class="line">	  cd &quot;$(dirname &quot;$jarfile&quot;)&quot; || exit 1</div><div class="line">	  jarfile=$(pwd)/$(basename &quot;$jarfile&quot;)</div><div class="line">	done</div><div class="line">	jarfolder=&quot;$(dirname &quot;$jarfile&quot;)&quot;</div><div class="line">	cd &quot;$WORKING_DIR&quot; || exit 1</div><div class="line">	# Source any config file</div><div class="line">	configfile=&quot;$(basename &quot;$&#123;jarfile%.*&#125;.conf&quot;)&quot;</div><div class="line">	# shellcheck source=/dev/null</div><div class="line">	[[ -r &quot;$&#123;jarfolder&#125;/$&#123;configfile&#125;&quot; ]] &amp;&amp; source &quot;$&#123;jarfolder&#125;/$&#123;configfile&#125;&quot;</div><div class="line">	</div><div class="line">	# Initialize PID/LOG locations if they weren&apos;t provided by the config file</div><div class="line">	[[ -z &quot;$PID_FOLDER&quot; ]] &amp;&amp; PID_FOLDER=&quot;/var/run&quot;</div><div class="line">	[[ -z &quot;$LOG_FOLDER&quot; ]] &amp;&amp; LOG_FOLDER=&quot;/var/log&quot;</div><div class="line">	! [[ -x &quot;$PID_FOLDER&quot; ]] &amp;&amp; PID_FOLDER=&quot;/tmp&quot;</div><div class="line">	! [[ -x &quot;$LOG_FOLDER&quot; ]] &amp;&amp; LOG_FOLDER=&quot;/tmp&quot;</div><div class="line">	</div><div class="line">	# Setup defaults</div><div class="line">	[[ -z &quot;$MODE&quot; ]] &amp;&amp; MODE=&quot;auto&quot; # modes are &quot;auto&quot;, &quot;service&quot; or &quot;run&quot;</div><div class="line">	</div><div class="line">	# Create an identity for log/pid files</div><div class="line">	if [[ -z &quot;$identity&quot; ]]; then</div><div class="line">	  if [[ -n &quot;$init_script&quot; ]]; then</div><div class="line">	    identity=&quot;$&#123;init_script&#125;&quot;</div><div class="line">	  else</div><div class="line">	    identity=$(basename &quot;$&#123;jarfile%.*&#125;&quot;)_$&#123;jarfolder//\//&#125;</div><div class="line">	  fi</div><div class="line">	fi</div><div class="line">	</div><div class="line">	# Initialize log file name if not provided by the config file</div><div class="line">	[[ -z &quot;$LOG_FILENAME&quot; ]] &amp;&amp; LOG_FILENAME=&quot;$&#123;identity&#125;.log&quot;</div><div class="line">	</div><div class="line">	</div><div class="line">	pom依赖：</div><div class="line">	 </div><div class="line">	&lt;plugin&gt;</div><div class="line">	        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</div><div class="line">	        &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;</div><div class="line">	        &lt;configuration&gt;</div><div class="line">	            &lt;mainClass&gt;启动类&lt;/mainClass&gt;</div><div class="line">	            &lt;addResources&gt;false&lt;/addResources&gt;</div><div class="line">	            &lt;executable&gt;true&lt;/executable&gt;</div><div class="line">	        &lt;/configuration&gt;</div><div class="line">	        &lt;executions&gt;</div><div class="line">	            &lt;execution&gt;</div><div class="line">	                &lt;goals&gt;</div><div class="line">	                    &lt;goal&gt;repackage&lt;/goal&gt;</div><div class="line">	                &lt;/goals&gt;</div><div class="line">	                &lt;id&gt;1&lt;/id&gt;</div><div class="line">	            &lt;/execution&gt;</div><div class="line">	        &lt;/executions&gt;</div><div class="line">	    &lt;/plugin&gt;</div><div class="line">	``` 	</div><div class="line"></div><div class="line">- 5.maven -Ponline 不生效问题 mvn clean compile -Plocal 配置打不进去</div></pre></td></tr></table></figure>
+<p>  <plugin></plugin></p>
+<pre><code>&lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+&lt;artifactId&gt;maven-resources-plugin&lt;/artifactId&gt;
+&lt;configuration&gt;
+    &lt;!-- spring-boot工程修改了默认的占位符${...}为@...@,修改会默认配置--&gt;
+    &lt;useDefaultDelimiters&gt;true&lt;/useDefaultDelimiters&gt;
+&lt;/configuration&gt;
+</code></pre><p>  </p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">	</div><div class="line">- 6.创建banner</div></pre></td></tr></table></figure>
+<p>  1.在src/main/resource 下创建一个banner.txt文件<br>  2.生成的字符 放入banner.txt中<br>  public interface Banner {</p>
+<pre><code>void printBanner(Environment var1, Class&lt;?&gt; var2, PrintStream var3);
+
+public static enum Mode {
+    OFF,
+    CONSOLE,
+    LOG;
+
+    private Mode() {
+    }
+}
+</code></pre><p>  }<br>  生成logo网站：<a href="http://patorjk.com/software/taag/#p=display&amp;f=Graffiti&amp;t=Type%20Something%20" target="_blank" rel="external">http://patorjk.com/software/taag/#p=display&amp;f=Graffiti&amp;t=Type%20Something%20</a></p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">	</div><div class="line">- 7.当前项目所有类只有一个main函数</div></pre></td></tr></table></figure>
+<p>  不然报以下错误:<br>  spring-boot-maven-plugin:1.4.6.RELEASE:repackage failed: Unable to find a single main class from the following candidates<br>  ```</p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/08/29/9.4) redis-客户端超时问题/" itemprop="url">
                   redis客户端超时分析
                 </a>
@@ -488,1523 +1684,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/08/22/9.3 redis运维-python环境安装/" itemprop="url">
-                  redis python环境安装
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-08-22T10:52:03+08:00" content="2017-08-22">
-              2017-08-22
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h1 id="redis-python环境安装"><a href="#redis-python环境安装" class="headerlink" title="redis-python环境安装"></a>redis-python环境安装</h1><p>这里使用python脚本主要是为了提供提供redis小工具使用，包括扫描 特定key，空闲key，bigkey,删除相关key 或 热点key等等。这是在使用过程遇到问题，总结一下。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/08/22/9.3 redis运维-python环境安装/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/08/21/9.1).redis运维-docker机器用户权限篡改/" itemprop="url">
-                  docker机器篡改用户uid
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-08-21T10:37:35+08:00" content="2017-08-21">
-              2017-08-21
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/cachecloud/" itemprop="url" rel="index">
-                    <span itemprop="name">cachecloud</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h1 id="docker机器篡改用户uid"><a href="#docker机器篡改用户uid" class="headerlink" title="docker机器篡改用户uid"></a>docker机器篡改用户uid</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">1.原因描述：</div><div class="line">cachecloud管理机器：默认创建用户 cachecloud 内网(cachecloud-open 开源用户)，系统默认分配uid为500以上，位于同一台物理机的容器同样的uid用户太多就会超出用户资源资源超出了，系统就会去修改原来的uid。最好指定下吧，范围最好是500以内的，docker这个用户隔离做的弱。</div><div class="line"></div><div class="line">2.查看用户名的uid</div><div class="line">cat /etc/passwd | grep cachecloud  </div><div class="line">cachecloud:x:504:504::/home/cachecloud:/bin/bash （cachecloud与uid=507绑定）</div><div class="line">启动redis实例 则以cachecloud用户进程启动，ps 查看第一列其实就是以504 uid启动</div><div class="line">[@expon-9 /data/cachecloud]# ps -ef | grep redis</div><div class="line">504       3724     1  0 May25 ?        01:36:07 redis-server 0.0.0.0:6381 [cluster]</div><div class="line">504       4705     1  0 Jun12 ?        01:55:42 redis-server *:6385 [sentinel]</div><div class="line">504       7647     1  0 May25 ?        01:50:45 redis-server 0.0.0.0:6383 [cluster]</div><div class="line">504       7695     1  0 May25 ?        01:57:46 redis-server 0.0.0.0:6384 [cluster]</div><div class="line"></div><div class="line">3.指定uid</div><div class="line">创建指定用户uid:useradd -u $&#123;uid&#125;</div><div class="line">修改指定用户uid:usermod -u $&#123;uid&#125;</div></pre></td></tr></table></figure>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/08/21/9.1).redis运维-docker机器用户权限篡改/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/08/11/9.4) redis运维-升级redis密码过程/" itemprop="url">
-                  cachecloud在线升级密码过程
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-08-11T16:37:35+08:00" content="2017-08-11">
-              2017-08-11
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/cachecloud/" itemprop="url" rel="index">
-                    <span itemprop="name">cachecloud</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="cachecloud在线升级密码过程"><a href="#cachecloud在线升级密码过程" class="headerlink" title="cachecloud在线升级密码过程"></a>cachecloud在线升级密码过程</h1><p>## </p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/08/06/(8.5).JAVA虚拟机(五)-JVM性能调优及故障排查/" itemprop="url">
-                  java虚拟机-故障排查
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-06T16:37:35+08:00" content="2016-08-06">
-              2016-08-06
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/JVM/" itemprop="url" rel="index">
-                    <span itemprop="name">JVM</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="JVM常见问题及性能分析"><a href="#JVM常见问题及性能分析" class="headerlink" title="JVM常见问题及性能分析"></a>JVM常见问题及性能分析</h2><p>你遇到过这些问题吗？</p>
-<pre><code>OOM: Heap, Stack, Perm
-系统频繁GC
-Java进程占用CPU过高
-Java占用内存增长很快
-远程调用timeout
-系统响应时间变长，越来越慢
-……
-</code></pre><h3 id="方法一：GC-log"><a href="#方法一：GC-log" class="headerlink" title="方法一：GC log"></a>方法一：GC log</h3><ul>
-<li>1.开启GC日志：-XX:+PrintGCDetails (包含-XX:+PrintGC -verbose:gc )</li>
-<li>2.GC触发时间：-XX:+PrintGCDateStamps/-XX:+PrintGCTimeStamps </li>
-<li><p>3.日志存放位置：-Xloggc:/path/gc.log</p>
-<pre><code>配置JVM参数：
--XX:+UseConcMarkSweepGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps 
--Xloggc:D:/logs/gc/gc.log 
-</code></pre></li>
-</ul>
-<p>输出日志：</p>
-<p>2016-03-08T16:11:05.446+0800: 8.861: [GC2016-03-08T16:11:05.446+0800: 8.861: [ParNew: 46080K-&gt;5120K(46080K), 0.0177669 secs] 66765K-&gt;28892K(97280K), 0.0178659 secs] [Times: user=0.03 sys=0.00, real=0.02 secs]<br>2016-03-08T17:01:01.930+0800: 375.874: [Full GC2016-03-08T17:01:01.930+0800: 375.874: [CMS: 40535K-&gt;40535K(51200K), 0.1600130 secs] 79475K-&gt;59991K(97280K), [CMS Perm : 36535K-&gt;36535K(51200K)], 0.1601362 secs] [Times: user=0.16 sys=0.00, real=0.16 secs] </p>
-<p>可参考：</p>
-<p>官网：<a href="https://blogs.oracle.com/poonam/entry/understanding_cms_gc_logs" target="_blank" rel="external">https://blogs.oracle.com/poonam/entry/understanding_cms_gc_logs</a></p>
-<p>并发编程网：<a href="http://ifeve.com/jvm-cms-log/" target="_blank" rel="external">http://ifeve.com/jvm-cms-log/</a></p>
-<h3 id="方法二：jdk自带命令"><a href="#方法二：jdk自带命令" class="headerlink" title="方法二：jdk自带命令"></a>方法二：jdk自带命令</h3><pre><code>jps  ： jps可以理解为java的ps，用于显示java进程 ,-v 输出虚拟机启动的时的参数   
-        jps –v pid       
-jinfo：jinfo查看和调整虚拟机的各项参数   
-        jinfo  pid
-jmap ：jmap生成堆转存快照文件
-        jmap –heap pid显示Java堆详细信息，如使用哪种回收器，参数配置、分代状况
-jstat：jstat 统计信息监视工具
-       jstat –gcutil pid  主要关注已使用空间占总空间的百分比
-jstack：jstack生成当前时刻线程快照
-        jstack pid 
-         检测cpu使用率飙高时三个步骤： 
-           1.查该进程最高的线程  top –Hp pid
-           2.转换最高线程id 为16进程
-           3.查看堆栈对应线程id的堆栈信息
-</code></pre><blockquote>
-<p>性能调试：</p>
-</blockquote>
-<pre><code>cd `dirname $0`
-PID=$1
-BIN_DIR=`pwd`
-cd $BIN_DIR
-DUMP_DIR=./
-DUMP_DATE=`date +%Y%m%d%H%M%S`
-DATE_DIR=$DUMP_DIR/$DUMP_DATE
-if [ ! -d $DATE_DIR ]; then
-        mkdir $DATE_DIR
-fi
-
-echo -e &quot;Dumping the jdump ...\c&quot;
-jstack $PID &gt; $DATE_DIR/jstack-$PID.dump 2&gt;&amp;1
-echo -e &quot;.\c&quot;
-jinfo $PID &gt; $DATE_DIR/jinfo-$PID.dump 2&gt;&amp;1
-echo -e &quot;.\c&quot;
-jstat -gcutil $PID &gt; $DATE_DIR/jstat-gcutil-$PID.dump 2&gt;&amp;1
-echo -e &quot;.\c&quot;
-jstat -gccapacity $PID &gt; $DATE_DIR/jstat-gccapacity-$PID.dump 2&gt;&amp;1
-echo -e &quot;.\c&quot;
-jmap $PID &gt; $DATE_DIR/jmap-$PID.dump 2&gt;&amp;1
-echo -e &quot;.\c&quot;
-jmap -heap $PID &gt; $DATE_DIR/jmap-heap-$PID.dump 2&gt;&amp;1
-echo -e &quot;.\c&quot;
-jmap -histo $PID &gt; $DATE_DIR/jmap-histo-$PID.dump 2&gt;&amp;1
-echo -e &quot;.\c&quot;
-if [ -r /usr/sbin/lsof ]; then
-/usr/sbin/lsof -p $PID &gt; $DATE_DIR/lsof-$PID.dump
-echo -e &quot;.\c&quot;
-fi
-
-if [ -r /bin/netstat ]; then
-/bin/netstat -an &gt; $DATE_DIR/netstat.dump 2&gt;&amp;1
-echo -e &quot;.\c&quot;
-fi
-if [ -r /usr/bin/iostat ]; then
-/usr/bin/iostat &gt; $DATE_DIR/iostat.dump 2&gt;&amp;1
-echo -e &quot;.\c&quot;
-fi
-if [ -r /usr/bin/mpstat ]; then
-/usr/bin/mpstat -P ALL &gt; $DATE_DIR/mpstat.dump 2&gt;&amp;1
-echo -e &quot;.\c&quot;
-fi
-if [ -r /usr/bin/vmstat ]; then
-/usr/bin/vmstat &gt; $DATE_DIR/vmstat.dump 2&gt;&amp;1
-echo -e &quot;.\c&quot;
-fi
-if [ -r /usr/bin/free ]; then
-/usr/bin/free -t &gt; $DATE_DIR/free.dump 2&gt;&amp;1
-echo -e &quot;.\c&quot;
-fi
-if [ -r /usr/bin/sar ]; then
-/usr/bin/sar &gt; $DATE_DIR/sar.dump 2&gt;&amp;1
-echo -e &quot;.\c&quot;
-fi
-if [ -r /usr/bin/uptime
-</code></pre><h3 id="方法三：java工具分析"><a href="#方法三：java工具分析" class="headerlink" title="方法三：java工具分析"></a>方法三：java工具分析</h3><p>Jconsole/JvisualVM/Jprofile/Jmc 等工具对 操作系统(cpu/线程数/内存) 以及jvm分代消耗 gc情况 或 死锁 或 Mbean jmx监控 着手分析</p>
-<h2 id="如何进行系统调优"><a href="#如何进行系统调优" class="headerlink" title="如何进行系统调优"></a>如何进行系统调优</h2><h3 id="考虑哪些方面"><a href="#考虑哪些方面" class="headerlink" title="考虑哪些方面"></a>考虑哪些方面</h3><ul>
-<li>硬件:<br>  网卡/网络是否通/交换机</li>
-<li>操作系统:<br>  负载load/内存mem/swap/io</li>
-<li>运行环境软件:<br>  Nginx/Apache/Resin<br>  JVM参数</li>
-<li>应用本身<br>  Java程序</li>
-</ul>
-<pre><code>调查系统现状/寻找性能瓶颈/定位问题
-    请求次数
-    响应时间
-资源消耗：CPU/内存/文件/网络
-    确定调优目标
-    单机用户量=用户量/机器数
-     并发目标：如95%用户500ms响应
-定位资源消耗
-    -在哪里
-        CPU/内存/文件/网络
-    -什么类型
-        线程调度太频繁
-        线程load太高
-        Full GC太频繁
-        Full GC时间过长
-        文件读写太慢、堵塞
-定位问题代码
-    使用Java工具分析内存、线程
-    优化问题代码
-    未来：编写高效代码 
-</code></pre><h3 id="系统分析"><a href="#系统分析" class="headerlink" title="系统分析"></a>系统分析</h3><blockquote>
-<p>cpu消耗分析</p>
-</blockquote>
-<p>上下文切换：文件IO、网络IO、锁、Sleep<br>运行队列（load）：每个核任务队列，最好1~3<br>利用率（关键指标）：进程、内核、中断处理、IO等待、空闲<br>top命令<br>top按进程显示<br>top –p 29974按进程ID显示<br>top1按核显示<br>topshift+h按线程显示<br>vmstat采样<br>vmstat -1每1秒采样</p>
-<p>tsar历史消耗对比</p>
-<pre><code>top参数意义
- us用户进程任务：高是线程粒度太大，线程一直处于可运行状态Runabble
-     原因1：线程无阻塞、循环、大计算（正则、纯粹大运算）
-     原因2：频繁GC(Eden/Old小，新对象占用内存多，YoungGC/Full GC)
-定位线程：top -5650shift+h找到线程号26697， 0x6849
-       一个线程总占用高： jstack 26697 | grep ‘nid=0x6849’
-    多个线程来回切换无法定位：jstack 26697
-sy内核线程切换：高是线程太多粒度太小
-原因：不断阻塞切换、锁等待、IO等待
-定位线程： jstack -l 26697，分析等待状态、锁竞争过多线程
-ni为nice改变优先级，id空闲时间
-wa等待io：大文件
-hi硬件中断：网卡接收数据频繁等
-si软件中断
-
-top - 16:57:02 up 98 days,  1:40,  9 users,  load average: 7.71, 9.08, 11.05
-Tasks: 279 total,   1 running, 277 sleeping,   0 stopped,   1 zombie
-Cpu(s): 27.4%us,  5.1%sy,  0.0%ni, 65.6%id,  1.8%wa,  0.0%hi,  0.0%si,  0.0%st
-Mem:  65981472k total, 49901984k used, 16079488k free,  4359276k buffers
-Swap:  4192956k total,        0k used,  4192956k free, 23197812k cached
-</code></pre><blockquote>
-<p>内存消耗分析</p>
-</blockquote>
-<p>vmstat<br>swpd已用虚拟内存kb：过高表示物理内存不够用<br>原因：JVM内存设置过大，Java线程过多，ByteBuffer过多—-即可定位<br>free空闲物理内存<br>buff用作缓冲内存<br>cache用作缓存内存<br>si每秒从disk读至内存数据量<br>so每秒从内存挟制disk数据量</p>
-<pre><code>procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu------
- r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
- 0  3      0 15973668 4359360 23257704    0    0     0   123    0    0 27  5 66  2  0
- 0  2      0 15974188 4359360 23257732    0    0     0  5092 1878 3922  0  0 93  6  0
-
-swap相关：kbswpfree,kbswpused
-物理内存：kbmemfree,kbmemused
-实际可用=kbmemfree+kbfuffers缓冲+kbcached缓存
-
-10时00分01秒 kbmemfree kbmemused  %memused kbbuffers  kbcached kbswpfree kbswpused  %swpused  kbswpcad
-10时10分01秒  18004796  47976676     72.71   4354120  21700168   4192956         0      0.00         0
-10时20分01秒  17919088  48062384     72.84   4354152  21746360   4192956         0      0.00         0
-
-top：显示的是实际占用内存=Heap+Stack+Perm+ByteBuffer
-
-vmstat/sar/top对比
-sar优点：比vmstat，可分析历史
-vmstat/sar弱点：不能分析进程内存，top可以
-top弱点：不易分析实际占用内存
-</code></pre><blockquote>
-<p>文件IO消耗分析</p>
-</blockquote>
-<p>iostat -x<br>iowait每次IO等待CPU比例，高是因为一直等不到IO<br>原因1：文件读写文件占用时间长，多个线程需要大量写入（如频繁写日志）<br>原因2：磁盘设备处理速度慢<br>原因3：文件系统慢<br>原因4：操作文件太大<br>定位线程：jstack找到runnable中的线程<br>tps每秒IO请求数<br>Blk_read/s每秒读区块数(512byte)<br>Blk_wrtn/s每秒写区块数<br>Blk_read读区块总数<br>Blk_wrtn写区块总数</p>
-<pre><code>avg-cpu:  %user   %nice %system %iowait  %steal   %idle
-           2.54    0.00    0.55    0.03    0.00   96.87
-
-Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
-sda              11.17        41.40       417.44  436437014 4400574548
-sda1              1.11         0.13        37.17    1356426  391818168
-sda2              0.00         0.00         0.00       1424          0
-sda3              2.64         1.02        35.43   10714778  373487500
-sda4              0.00         0.00         0.00          8          0
-sda5              0.65         0.66        23.25    6921378  245057640
-sda6              6.78        39.60       321.60  417442456 3390211240
-
-采样iostat -x xvda 3 5
-r/s每秒读的请求数
-r/s每秒写的请求书
-avgqu-sz等待请求队列的平均长度
-await每次IO等待时间ms
-svctm平均每次设备执行IO操作时间
-
-avg-cpu:  %user   %nice %system %iowait  %steal   %idle
-       2.54    0.00    0.55    0.03    0.00   96.87
-
-Device:         rrqm/s   wrqm/s   r/s   w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util
-sda               0.13    41.63  0.61 10.56    41.39   417.55    41.07     0.03    2.58   0.32   0.36
-sda1              0.01     3.54  0.00  1.11     0.13    37.17    33.58     0.00    1.01   0.31   0.03
-sda2              0.00     0.00  0.00  0.00     0.00     0.00    54.77     0.00    5.08   4.62   0.00
-sda3              0.02     1.81  0.02  2.62     1.02    35.43    13.83     0.00    0.30   0.20   0.05
-sda4              0.00     0.00  0.00  0.00     0.00     0.00     2.00     0.00   12.00  12.00   0.00
-sda5              0.01     2.29  0.03  0.62     0.66    23.25    36.71     0.00    0.98   0.37   0.02
-sda6              0.10    33.99  0.56  6.22    39.59   321.69    53.32     0.03    3.88   0.42   0.28
-</code></pre><blockquote>
-<p>网络IO消耗分析</p>
-</blockquote>
-<p>cat /proc/interrupts：查看网卡中断是否均衡分配到各CPU<br>只分配到一个CPU：修改kernel，或用支持MSI-X网卡<br>tcpdump -i eth0 -s 0 -l -w - dst port 11214 | strings | grep test_<br>sar -n ALL 1 2：统计收发包成功失败数量<br>网卡成功接包、发包信息<br>网卡失败接包、发包信息(ping)<br>socket统计信息</p>
-<pre><code>18时38分08秒     IFACE   rxpck/s   txpck/s   rxbyt/s   txbyt/s   rxcmp/s   txcmp/s  rxmcst/s
-18时38分09秒        lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00
-18时38分09秒      eth0    581.00    703.00 107914.00  89316.00      0.00      0.00      0.00
-18时38分09秒      eth1      8.00      0.00    512.00      0.00      0.00      0.00      0.00
-18时38分09秒      usb0      0.00      0.00      0.00      0.00      0.00      0.00      0.00
-
-18时38分08秒     IFACE   rxerr/s   txerr/s    coll/s  rxdrop/s  txdrop/s  txcarr/s  rxfram/s  rxfifo/s  txfifo/s
-18时38分09秒        lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
-18时38分09秒      eth0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
-18时38分09秒      eth1      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
-18时38分09秒      usb0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
-
-18时38分08秒    call/s retrans/s    read/s   write/s  access/s  getatt/s
-18时38分09秒      0.00      0.00      0.00      0.00      0.00      0.00
-</code></pre><h2 id="命令分析"><a href="#命令分析" class="headerlink" title="命令分析"></a>命令分析</h2><p>堆栈分析线程状态(blocked，time_waiting, Waiting)<br>可参考：<a href="http://www.cnblogs.com/zhengyun_ustc/archive/2013/03/18/tda.html" target="_blank" rel="external">http://www.cnblogs.com/zhengyun_ustc/archive/2013/03/18/tda.html</a></p>
-<h3 id="线程状态查看"><a href="#线程状态查看" class="headerlink" title="线程状态查看"></a>线程状态查看</h3><p>jstack 21415 | grep -i “java.lang.Thread.State” | sort | uniq -c</p>
-<pre><code>13    java.lang.Thread.State: BLOCKED (on object monitor)
- 21    java.lang.Thread.State: RUNNABLE
- 70    java.lang.Thread.State: TIMED_WAITING (on object monitor)
-  4    java.lang.Thread.State: TIMED_WAITING (parking)
-  6    java.lang.Thread.State: TIMED_WAITING (sleeping)
- 13    java.lang.Thread.State: WAITING (on object monitor)
-</code></pre><h3 id="输出jstack日志"><a href="#输出jstack日志" class="headerlink" title="输出jstack日志"></a>输出jstack日志</h3><p>jstack 21415 &gt; jstack.log</p>
-<h3 id="查看jstack-BLOCKED状态的锁"><a href="#查看jstack-BLOCKED状态的锁" class="headerlink" title="查看jstack BLOCKED状态的锁"></a>查看jstack BLOCKED状态的锁</h3><p>vim jstack.log</p>
-<pre><code>&quot;http--8082-16$1500284796&quot; daemon prio=10 tid=0x00002aabd5f57000 nid=0x5902 waiting for monitor entry [0x0000000043829000]
-   java.lang.Thread.State: BLOCKED (on object monitor)
-        at java.net.PlainSocketImpl.accept(PlainSocketImpl.java:388)
-        - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
-        at java.net.ServerSocket.implAccept(ServerSocket.java:453)
-        at java.net.ServerSocket.accept(ServerSocket.java:421)
-        at com.caucho.vfs.QServerSocketWrapper.accept(QServerSocketWrapper.java:91)
-        at com.caucho.server.port.Port.accept(Port.java:1179)
-        at com.caucho.server.port.TcpConnection.run(TcpConnection.java:659)
-        at com.caucho.util.ThreadPool$Item.runTasks(ThreadPool.java:743)
-        at com.caucho.util.ThreadPool$Item.run(ThreadPool.java:662)
-        at java.lang.Thread.run(Thread.java:619)
-</code></pre><h3 id="查看锁的状态-0x00002aab14c63d10"><a href="#查看锁的状态-0x00002aab14c63d10" class="headerlink" title="查看锁的状态 0x00002aab14c63d10"></a>查看锁的状态 0x00002aab14c63d10</h3><pre><code>[@zjm_106_165 ~]# cat jstack.log.20160719 | grep 0x00002aab14c63d10
-    - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
-    - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
-    - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
-    - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
-    - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
-    - locked &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
-    - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
-    - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
-    - waiting to lock &lt;0x00002aab14c63d10&gt; (a java.net.SocksSocketImpl)
-</code></pre><h2 id="工具使用"><a href="#工具使用" class="headerlink" title="工具使用"></a>工具使用</h2><h3 id="tsar"><a href="#tsar" class="headerlink" title="tsar"></a>tsar</h3><h3 id="iftop"><a href="#iftop" class="headerlink" title="iftop"></a>iftop</h3>
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/08/05/(8.6).JAVA虚拟机(六)-JMM内存模型/" itemprop="url">
-                  JMM内存模型
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-05T16:37:35+08:00" content="2016-08-05">
-              2016-08-05
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/JVM/" itemprop="url" rel="index">
-                    <span itemprop="name">JVM</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/08/04/(8.4).JAVA虚拟机(四)-G1垃圾回收器/" itemprop="url">
-                  G1 Heap Stucture
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-04T16:37:35+08:00" content="2016-08-04">
-              2016-08-04
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/JVM/" itemprop="url" rel="index">
-                    <span itemprop="name">JVM</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="The-G1-Garbage-Collector-垃圾优先型垃圾回收器"><a href="#The-G1-Garbage-Collector-垃圾优先型垃圾回收器" class="headerlink" title="The G1 Garbage Collector(垃圾优先型垃圾回收器)"></a>The G1 Garbage Collector(垃圾优先型垃圾回收器)</h3><p>The Garbage-First (G1) collector is a server-style garbage collector, targeted for multi-processor machines with large memories. It meets garbage collection (GC) pause time goals with a high probability, while achieving high throughput. The G1 garbage collector is fully supported in Oracle JDK 7 update 4 and later releases. The G1 collector is designed for applications that:</p>
-<ul>
-<li><p>Can operate concurrently with applications threads like the CMS collector.</p>
-<p>  G1像cms收集器一样能够将收集线程和用户线程一起并发处理</p>
-</li>
-<li><p>Compact free space without lengthy GC induced pause times.</p>
-<p>  GC在停顿时间内收集无需要更多的空间    </p>
-</li>
-<li><p>Need more predictable GC pause durations.</p>
-<p>  提供更可靠的GC停顿时间预测</p>
-</li>
-<li><p>Do not want to sacrifice a lot of throughput performance.</p>
-<p>  不想牺牲太多的吞吐量</p>
-</li>
-<li><p>Do not require a much larger Java heap.</p>
-<p>  G1需要一个更大的堆空间，关键建议6G以上</p>
-</li>
-</ul>
-<p>G1 is planned as the long term replacement for the Concurrent Mark-Sweep Collector (CMS). Comparing G1 with CMS, there are differences that make G1 a better solution. One difference is that G1 is a compacting collector. G1 compacts sufficiently to completely avoid the use of fine-grained free lists for allocation, and instead relies on regions. This considerably simplifies parts of the collector, and mostly eliminates potential fragmentation issues. Also, G1 offers more predictable garbage collection pauses than the CMS collector, and allows users to specify desired pause targets.</p>
-<p>释义：G1使用并发和并行阶段实现其目标暂停时间，并保持良好的吞吐量,与CMS收集器不同的是，G1回收算法采取的并发-整理 ；它可以解决传统的parNew+CMS垃圾收集算法中,有很多晋代失败(promotion failed)/并发失败(concurrent mode failure),然后做Full gc的问题；G1提供更可预测的垃圾收集停顿比CMS收集器，并允许用户指定所需的停顿的目标。</p>
-<blockquote>
-<p>相关解释：</p>
-</blockquote>
-<p>G1收集器之所以能建立可预测的停顿时间模型，是因为他可以<strong>有计划的避免在整个java堆中进行全局与的垃圾收集</strong>。G1跟踪各个region里面垃圾堆积的价值大小(回收所获得的空间大小以及回收所需要时间的经验值)，在后台维护一个优先列表，每次根据允许收集时间，优先回收价值最大的region（这也就是Garbage-First名称的由来）</p>
-<ul>
-<li>并行和并发：适合并充分利用多CPU，多核环境</li>
-<li>分代收集：分region去收集，可避免碎片化问题</li>
-<li>空间整合：G1整体是基于Mark-compact 标记-整理，但是从局部 两个 region之间是基于”复制”算法实现</li>
-<li>可预测停顿：建立可预测停顿时间，明确指定在一个长度为M毫秒的时间片内，消耗在垃圾收集上的时间不超过N毫秒</li>
-</ul>
-<h3 id="G1适合场景及特点"><a href="#G1适合场景及特点" class="headerlink" title="G1适合场景及特点"></a>G1适合场景及特点</h3><h4 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h4><ul>
-<li>1)适用在big heap(6GB or larger)场景,不能容忍长时间停顿(Full GC)的服务器场景.</li>
-<li>2)有大量存活对象(超过50%)的场景.例如:数据服务器场景.Hbase，Cassandra等.</li>
-<li>3)解决传统的parNew+CMS垃圾收集算法中,有很多晋代失败(promotion failed)/并发失败(concurrent mode failure),然后做Full gc..</li>
-</ul>
-<h4 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h4><ul>
-<li>1).G1可以控制最长停顿时间(-XX:MaxGCPauseMillis),这是个预计值,G1会根据这个时间制定回收策略,但是设置过低停顿回造成低吞吐。</li>
-<li>2).G1基于复制的算法，回收过程不会产生碎片,这是相比CMS最大的优势.</li>
-<li>3).G1把heap分割成很多大小相等的区域(region),不再使用固定空间分代的方式，采用逻辑分代:Eden,Survivor,Old。每个逻辑分代含有若干区域且数量可以动态调整.</li>
-</ul>
-<h4 id="查看分代情况"><a href="#查看分代情况" class="headerlink" title="查看分代情况"></a>查看分代情况</h4><pre><code>通过使用jmap -heap 得到的堆统计信息可以更好的理解逻辑分代:
-
-    Heap Configuration:
-       MinHeapFreeRatio = 40
-       MaxHeapFreeRatio = 70
-       MaxHeapSize      = 25769803776 (24576.0MB)
-       NewSize          = 1363144 (1.2999954223632812MB)
-       MaxNewSize       = 17592186044415 MB
-       OldSize          = 5452592 (5.1999969482421875MB)
-       NewRatio         = 2
-       SurvivorRatio    = 6
-       PermSize         = 100663296 (96.0MB)
-       MaxPermSize      = 100663296 (96.0MB)
-       G1HeapRegionSize = 8388608 (8.0MB)
-    G1 Heap:
-       regions  = 3072
-       capacity = 25769803776 (24576.0MB)
-       used     = 11232244096 (10711.902709960938MB)
-       free     = 14537559680 (13864.097290039062MB)
-       43.58684370915095% used
-    G1 Young Generation:
-    Eden Space:
-       regions  = 29
-       capacity = 1233125376 (1176.0MB)
-       used     = 243269632 (232.0MB)
-       free     = 989855744 (944.0MB)
-       19.727891156462587% used
-    Survivor Space:
-       regions  = 14
-       capacity = 117440512 (112.0MB)
-       used     = 117440512 (112.0MB)
-       free     = 0 (0.0MB)
-       100.0% used
-    G1 Old Generation:
-       regions  = 1298
-       capacity = 24419237888 (23288.0MB)
-       used     = 10871533952 (10367.902709960938MB)
-       free     = 13547703936 (12920.097290039062MB)
-       44.52036546702567% used
-</code></pre><h3 id="G1回收过程"><a href="#G1回收过程" class="headerlink" title="G1回收过程"></a>G1回收过程</h3><h4 id="G1-Heap-Structure"><a href="#G1-Heap-Structure" class="headerlink" title="G1 Heap Structure"></a>G1 Heap Structure</h4><ul>
-<li>1). G1 Heap Structure<br><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide8.png" alt=""></li>
-</ul>
-<p>Region size is chosen by the JVM at startup. The JVM generally targets around 2000 regions varying in size from 1 to 32Mb.</p>
-<p>G1 GC 启动后把堆被划分成大小相同的多个区域(Region)。区域的大小由(-XX:G1HeapRegionSize)指定,不指定区域大小会从1MB到32MB自动制定,区域大小确定后不会做动态调整.</p>
-<ul>
-<li><p>2). G1 Heap Allacation<br><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide9.png" alt=""><br>The heap is partitioned into a set of equal-sized heap regions, each a contiguous range of virtual memory. Certain region sets are assigned the same roles (eden, survivor, old) as in the older collectors, but there is not a fixed size for them. This provides greater flexibility in memory usage.</p>
-<p>  整个heap划分为Eden,Survivor,Old三个不连续的逻辑区域。<br>运行过程中,G1会为每个Region使用Remembered Set来维护对象引用,<br>应用程序在对Reference类型的数据进行写操作时会产生一个Write Barrier暂时中断写操作，<br>检查Reference引用的对象是否处于不同的Region之中，如果是，便通过CardTable把相关引用信息记录到被引用对象所属的Region的Remembered Set之中。<br>当进行内存回收时，在GC根节点的枚举范围中加入Remembered Set来避免对全堆扫描.</p>
-</li>
-</ul>
-<h4 id="几个概念"><a href="#几个概念" class="headerlink" title="几个概念"></a>几个概念</h4><p>G1 Footprint:<br>If you migrate from the ParallelOldGC or CMS collector to G1, you will likely see a larger JVM process size. This is largely related to “accounting” data structures such as Remembered Sets and Collection Sets.</p>
-<ul>
-<li><p><strong>Remembered Sets</strong>：or RSets track object references into a given region. There is one RSet per region in the heap. The RSet enables the parallel and independent collection of a region. <em>The overall footprint impact of RSets is less than 5%.</em></p>
-</li>
-<li><p><strong>Collection Sets</strong>:or CSets the set of regions that will be collected in a GC. All live data in a CSet is evacuated (copied/moved) during a GC. Sets of regions can be Eden, survivor, and/or old generation.<em> CSets have a less than 1% impact on the size of the JVM</em></p>
-</li>
-</ul>
-<h4 id="G1收集过程"><a href="#G1收集过程" class="headerlink" title="G1收集过程"></a>G1收集过程</h4><p><img src="http://i3.itc.cn/20160904/aac_cc6377ea_e867_65d5_f0e4_03b27c6f52be_1.jpg" alt=""></p>
-<ul>
-<li>初始标记(inital Marking)</li>
-<li>并发标记(Concurrent Marking)</li>
-<li>最终标记(Final Marking)</li>
-<li>筛选回收(live Data counting and Evacuation）</li>
-</ul>
-<p><img src="http://i2.itc.cn/20160904/aac_3d000bc6_44db_e229_78cd_6cde550ccd66_1.png" alt=""></p>
-<p>回收过程按回收区域集合(CollectionSets/CSets)划分.CSets可以包含(Eden,survivor/old)中的region,CSets占用内存一般小于整个jvm的1%;<br>年轻代垃圾回收:<br>G1 Young GC同时回收eden区域和上次垃圾回收的存活区域。Eden 和survivor的存活对象被疏散(复制/移动)到新的区域集。<br>被疏散对象的目标区域取决于对象的年龄,达到晋升年龄的对象疏散到老年代区域,<br>否则疏散到存活区,并将它包含在下一次年轻代或混合垃圾回收的CSet中。<br>混合垃圾回收:<br>G1 Mixd GC同时回收Eden,survivor,old的存活区域。当成功完成并发标记周期后，G1 GC从执行年轻代垃圾回收切换为执行混合垃圾回收。<br>在混合垃圾回收期间,G1GC 将一些旧的区域添加到 eden 和存活区供将来回收。G1GC 回收了足够的旧区域后（经过多次混合垃圾回收），<br>G1将恢复执行年轻代垃圾回收,直到下一次标记周期完成。</p>
-<h4 id="G1-YoungGC"><a href="#G1-YoungGC" class="headerlink" title="G1 YoungGC"></a>G1 YoungGC</h4><ul>
-<li>1.The heap is split into approximately 2000 regions. Minimum size is 1Mb and maximum size is 32Mb. Blue regions hold old generation objects and green regions hold young generation objects.</li>
-</ul>
-<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide10.png" alt=""></p>
-<ul>
-<li>2.Live objects are evacuated (i.e., copied or moved) to one or more survivor regions. If the aging threshold is met, some of the objects are promoted to old generation regions.</li>
-</ul>
-<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide11.png" alt=""><br>This is a stop the world (STW) pause. Eden size and survivor size is calculated for the next young GC. Accounting information is kept to help calculate the size. Things like the pause time goal are taken into consideration.<br>This approach makes it very easy to resize regions, making them bigger or smaller as needed.</p>
-<ul>
-<li>3.End of a Young GC with G1,Live objects have been evacuated to survivor regions or to old generation regions.</li>
-</ul>
-<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide12.png" alt=""></p>
-<p>Recently promoted objects are shown in dark blue. Survivor regions in green.<br>In summary, the following can be said about the young generation in G1:</p>
-<ul>
-<li>The heap is a single memory space split into regions.</li>
-<li>Young generation memory is composed of a set of non-contiguous regions. This makes it easy to resize when needed.</li>
-<li>Young generation garbage collections, or young GCs, are stop the world events. All application threads are stopped for the operation.</li>
-<li>The young GC is done in parallel using multiple threads.</li>
-<li>Live objects are copied to new survivor or old generation regions.</li>
-</ul>
-<h4 id="G1-OldGc"><a href="#G1-OldGc" class="headerlink" title="G1 OldGc"></a>G1 OldGc</h4><ul>
-<li><ol>
-<li><strong>Initial Marking Phase:</strong>Initial marking of live object is piggybacked on a young generation garbage collection. In the logs this is noted as GC pause (young)(inital-mark).</li>
-</ol>
-</li>
-</ul>
-<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide13.png" alt=""></p>
-<ul>
-<li>2.<strong>Concurrent Marking Phase:</strong>If empty regions are found (as denoted by the “X”), they are removed immediately in the Remark phase. Also, “accounting” information that determines liveness is calculated.</li>
-</ul>
-<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide14.png" alt=""></p>
-<ul>
-<li>3.<strong>Remark Phase:</strong>Empty regions are removed and reclaimed. Region liveness is now calculated for all regions.</li>
-</ul>
-<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide15.png" alt=""></p>
-<ul>
-<li><p>4.<strong> Copying/Cleanup Phase:</strong>G1 selects the regions with the lowest “liveness”, those regions which can be collected the fastest. Then those regions are collected at the same time as a young GC. This is denoted in the logs as [GC pause (mixed)]. So both young and old generations are collected at the same time.</p>
-</li>
-<li><p>5.<strong>After Copying/Cleanup Phase:</strong>The regions selected have been collected and compacted into the dark blue region and the dark green region shown in the diagram.</p>
-</li>
-</ul>
-<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide17.png" alt=""></p>
-<ul>
-<li><p>6.<strong>Summary of Old Generation GC：</strong></p>
-<p>  In summary, there are a few key points we can make about the G1 garbage collection on the old generation：</p>
-<p>  <strong>Concurrent Marking Phase</strong></p>
-<ul>
-<li>Liveness information is calculated concurrently while the application is running.</li>
-<li>This liveness information identifies which regions will be best to reclaim during an evacuation pause.</li>
-<li><p>There is no sweeping phase like in CMS.</p>
-<p><strong>Remark Phase</strong></p>
-</li>
-<li>Uses the Snapshot-at-the-Beginning (SATB) algorithm which is much faster then what was used with CMS.</li>
-<li><p>Completely empty regions are reclaimed.</p>
-<p><strong>Copying/Cleanup</strong> </p>
-</li>
-<li><p>PhaseYoung generation and old generation are reclaimed at the same time.</p>
-</li>
-<li>Old generation regions are selected based on their liveness.</li>
-</ul>
-</li>
-</ul>
-<h3 id="G1相关参数"><a href="#G1相关参数" class="headerlink" title="G1相关参数"></a>G1相关参数</h3><p>-XX:G1HeapRegionSize=n</p>
-<pre><code>设置的 G1 区域的大小。值是 2 的幂，范围是 1 MB 到 32 MB 之间。目标是根据最小的 
-Java 堆大小划分出约 2048 个区域。
-</code></pre><p>-XX:MaxGCPauseMillis=200</p>
-<pre><code>为所需的最长暂停时间设置目标值。默认值是 200 毫秒。指定的值不适用于您的堆大小。
-</code></pre><p>-XX:ParallelGCThreads=cpus</p>
-<pre><code>设置年轻代垃圾回收(STW)工作线程数的值。将 n 的值设置为逻辑处理器的数量。n 的值
-与逻辑处理器的数量相同,G1根据cpu数量设置不同的初始值。
-</code></pre><p>-XX:ConcGCThreads=cpus/4</p>
-<pre><code>设置并发标记的线程数。将n设置为并行垃圾回收线程数 (ParallelGCThreads) 的 1/4 左右。
-</code></pre><p>-XX:InitiatingHeapOccupancyPercent=45</p>
-<pre><code>设置触发标记周期的Java堆占用率阈值。默认占用率是整个 Java 堆的 45%。
-</code></pre><p>-XX:G1HeapWastePercent=10</p>
-<pre><code>设置G1愿意浪费的堆百分比。如果可回收百分比小于堆废物百分比。默认值是 10%。
-</code></pre><p>-XX:G1MixedGCCountTarget=8</p>
-<pre><code>设置标记周期完成后，对旧区域执行混合垃圾回收的目标次数。默认值是 8 次混合垃圾回收。
-混合回收的目标是控制在此目标次数以内。
-</code></pre><p>-XX:G1ReservePercent=10</p>
-<pre><code>设置作为空闲空间的预留内存百分比，以降低目标空间溢出的风险。默认值是 10%。增加或
-减少百分比时,需要评估Java堆的量。
-</code></pre><h3 id="G1优化建议"><a href="#G1优化建议" class="headerlink" title="G1优化建议"></a>G1优化建议</h3><ul>
-<li><p>1:不要使用-Xmn/-XX:NewRatio等设置年轻代大小,G1使用逻辑分代,年轻代大小是动态调整的.且固定年轻代的大小会覆盖暂停时间目标</p>
-</li>
-<li><p>2:暂停时间目标(-XX:MaxGCPauseMillis):设置所需的软实时目标，G1GC 会尽量满足.当对垃圾回收进行评估或调优时,都会涉及到延迟与吞吐量的取舍。需要G1高吞吐量时,暂停时间目标不要太严苛。</p>
-</li>
-<li><p>3:调优混合垃圾回收时，需合理调整以下参数:<br>-XX:InitiatingHeapOccupancyPercent 用于更改标记阈值。更小的值意味着更快的触发标记周期。<br>-XX:G1MixedGCCountTarget 用于调整Old区域的CSet集合。</p>
-</li>
-<li><p>4:G1溢出/耗尽引发的FullGc<br>2014-03-06T10:01:28.216+0800: 67998.279: [GC pause (mixed) (to-space exhausted), 13.8681600 secs]<br>2014-03-04T10:01:42.086+0800: 68012.149: [GC pause (mixed) (to-space overflow), 3.0012670 secs]<br>优化参数:<br>增加-XX:G1ReservePercent 选项的值（并相应增加总的堆大小,为”目标空间”预留更多内存空间。<br>减少 -XX:InitiatingHeapOccupancyPercent 提前启动标记周期。<br>增加 -XX:ConcGCThreads 选项的值来增加并行标记线程的数目,加快标记速度。</p>
-</li>
-<li><p>5:避免巨型对象<br>G1对于任何超过区域一半大小的对象都被视为“巨型对象”,巨型区域直接被分配到老年代中.<br>巨型区域是一个连续的区域集。StartsHumongous 标记该连续集的开始，ContinuesHumongous 标记它的延续.<br>所以没有使用的巨型对象的终点与上个区域的终点之间的空间无法被使用,<br>如果对象只是略大于堆区域大小的倍数，未使用的空间可能会导致堆碎片化。<br>巨型对象也可能分配导致连续的并发周期，并且此类分配导致老年代碎片化<br>通过增加-XX:G1HeapRegionSize的值,提高巨型对象的门槛(G1HeapRegionSize/2)。</p>
-</li>
-</ul>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>G1日志分析参考：<a href="https://blogs.oracle.com/poonam/entry/understanding_g1_gc_logs" target="_blank" rel="external">https://blogs.oracle.com/poonam/entry/understanding_g1_gc_logs</a></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/08/03/(8.3).JAVA虚拟机(三)-CMS垃圾回收器/" itemprop="url">
-                  CMS Heap Stucture
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-03T16:37:35+08:00" content="2016-08-03">
-              2016-08-03
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/JVM/" itemprop="url" rel="index">
-                    <span itemprop="name">JVM</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="概念认知"><a href="#概念认知" class="headerlink" title="概念认知"></a>概念认知</h3><h4 id="枚举根节点-GC-root"><a href="#枚举根节点-GC-root" class="headerlink" title="枚举根节点 GC root"></a>枚举根节点 GC root</h4><p>可达性分析对执行时间的敏感体现在GC停顿上，这项工作分析必须确保能在”一致性”的快照进行操作，(冻结某个时间点上对象引用关系以及任何对象引用变更)，这也是为什么会产生Stop The Word.</p>
-<p>在HotSpot虚拟机实现中，是有办法直接获取哪些地方(OopMap的数据结构)存放着对象的引用。当虚拟机在类加载完成的时候，HotSpot就把对象内什么偏移量上是什么数据类型计算出来，再JIT编译过程中，也会在特定的位置记录下栈和寄存器中哪些位置是被引用的。</p>
-<h4 id="安全点-safe-point"><a href="#安全点-safe-point" class="headerlink" title="安全点 safe point"></a>安全点 safe point</h4><p>在OopMap的协助下，HotSpot可快速且准确的完成GC roots枚举，但是有一个问题：引用关系变化会比较频繁会造成OopMap内容变化指令非常多，那样会需要大量的额外空间，这样GC空间成本会很高。</p>
-<p><em>但实际上HotSpot，只是会”特定的位置”记录这些信息，这些位置简称<strong>安全点-safepoint</strong>，即程序执行时并非在所有地方都能停顿下来开始GC，只有达到安全点时才能暂停。</em></p>
-<p>如何在GC发生时让所有线程，都”跑”到最近安全点上停顿下来，两种方案：</p>
-<ul>
-<li>抢断式中断</li>
-</ul>
-<p>不需要线程的执行代码主动配合，在gc发生时，首先把所有线程全部中断，如果发现有线程中断的地方不在安全点上，就恢复线程，就让”该线程跑到”安全点上。</p>
-<ul>
-<li>主动式中断 (hotspot)</li>
-</ul>
-<p>当GC需要中断线程的时候，不需要对线程操作，仅仅简单的设置一个标志位，各个线程执行时 主动去轮训这个标志，发现中断标志位为真，才让线程挂起。</p>
-<h4 id="安全区域-safe-region"><a href="#安全区域-safe-region" class="headerlink" title="安全区域 safe region"></a>安全区域 safe region</h4><p>safepoint似乎已经完美解决如何进入GC的问题，但实际情况不一样。safepoint机制是保证程序执行时，在不太久时间内就会遇到可进入GC的safepoint,但是程序 “不执行”的时候呢?</p>
-<ul>
-<li>程序没有获取到cpu的时间片</li>
-<li>线程处于sleep或bolcked状态<br>这些情况线程是无法响应JVM的中断请求，无法”跑到”安全的地方去中断挂起，这里就需要用到 <em>安全区域safe-region</em>来解决。</li>
-</ul>
-<p><strong>安全区域safe-region</strong>指的是在一段代码片段中，引用关系不会发生变化。在这个区域的任意地方开始GC都是安全的，可以把它看做是safe-point的扩展。</p>
-<p>在线程执行到safe Region的代码时，首先标识自己已经进入了Safe Region,那样，当JVM要发起GC时，就不用管标识自己为safe region状态的线程，当线程离开safe region时，就需要检查系统 是否已经完成 根节点枚举，如果完成就继续执行，否则它就必须等待直到收到可以离开safe region的信号为止。</p>
-<h4 id="吞吐量"><a href="#吞吐量" class="headerlink" title="吞吐量"></a>吞吐量</h4><p>吞吐量 = 运行用户代码时间/（运行用户代码时间+垃圾收集时间）</p>
-<p>虚拟机总共运行100分钟，其中垃圾收集花掉1分钟，那么吞吐量是 99%。</p>
-<h4 id="并行-并发收集区别"><a href="#并行-并发收集区别" class="headerlink" title="并行/并发收集区别"></a>并行/并发收集区别</h4><ul>
-<li>并行（parallel）：只多条垃圾收集线程并行工作，但此时用户线程任然处于等待状态。</li>
-<li>并发(Concurent)：指用户线程与垃圾收集线程同时执行(不一定是并行的，可能需要交替执行)，垃圾收集程序运行另外一个Cpu上。(收集线程数=(cpu数量+3)/4 ,不足4个 对用户程序影响可能变大)</li>
-</ul>
-<h3 id="Reviewing-Generational-GC-and-CMS"><a href="#Reviewing-Generational-GC-and-CMS" class="headerlink" title="Reviewing Generational GC and CMS"></a>Reviewing Generational GC and CMS</h3><p>The Concurrent Mark Sweep (CMS) collector (also referred to as the concurrent low pause collector) collects the tenured generation. It attempts to minimize the pauses due to garbage collection by doing most of the garbage collection work concurrently with the application threads. Normally the concurrent low pause collector does not copy or compact the live objects. A garbage collection is done without moving the live objects. If fragmentation becomes a problem, allocate a larger heap.  </p>
-<p>大致意思：CMS垃圾回收器是回收堆中老年代对象。它与应用线程并行做垃圾回收以减少最小停顿时间，它的最小停顿时间不是因为 复制或整理存活对象，最主要问题是因为碎片化，所以需要分配一个较大的堆。</p>
-<p>特点：</p>
-<ul>
-<li>牺牲吞吐量换取最小停顿时间 </li>
-<li>并发标记清除垃圾回收算法</li>
-<li>需要一个较大的堆空间</li>
-</ul>
-<p>问题：</p>
-<ul>
-<li>产生碎片化</li>
-</ul>
-<blockquote>
-<p>Heap Structure for Cms Collector</p>
-</blockquote>
-<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide1.png" alt=""></p>
-<h3 id="CMS-Collection-Phase-CMS收集阶段"><a href="#CMS-Collection-Phase-CMS收集阶段" class="headerlink" title="CMS Collection Phase(CMS收集阶段)"></a>CMS Collection Phase(CMS收集阶段)</h3><p>CMS收集器有几个缺点：</p>
-<ul>
-<li><p>cms收集器占用cpu资源，总吞吐量会降低</p>
-<p>  在并发阶段，它虽然不会导致用户线程停顿，但是占用可一部分线程(或者说CPU资源)，从而导致应用程序变慢。</p>
-</li>
-<li><p>cms收集器无法处理”浮动垃圾”</p>
-<p>  由于cms并发清理阶段，用户线程还在运行着，伴随着程序运行自然会产生新的垃圾，这一部分垃圾在标记过程中，无法再这一次GC处理，需要等待下一次GC是再清理掉。这一部分垃圾成为<strong>浮动垃圾</strong>。可以适当调整老年代回收百分比参数：-XX:CMSInitiationgOccupancyFraction ,<strong>还可能会造成Concurrent Mode Failure失败导致另一次FullGC产生。</strong><br>  jdk1.5 老年代触发 百分比68%，JDK1.6 老年代触发百分比 92%</p>
-</li>
-<li><p>cms收集器会产生空间碎片，可能会造成额外FULL GC触发</p>
-<p>  由于CMS是基于”标记-清除”算法实现，意味着收集结束会产生大量空碎片空间，如果碎片过多时，将会给大对象分配带来很大麻烦，此时往往老年代还有很多空间剩余，会造成提前一次进行FULL gc的触发，为解决这个问题，cms提供一个参数 +useCmsCompactAtFullCollection（碎片整理，默认开启），内存整理肯定就增加了停顿时间，虚拟器还提供一个参数-XX:CMSFullGCBeforeCompaction,这个参数 用于设置执行多少次不压缩的Full Gc后，跟着来一次带压缩的(默认值为0，表示每次进入Full GC都要进行碎片整理)</p>
-</li>
-</ul>
-<blockquote>
-<p>CMS收集过程</p>
-</blockquote>
-<p><img src="http://dl2.iteye.com/upload/attachment/0115/7590/5e899581-4025-3895-bc08-d702fc71dff5.png" alt=""></p>
-<p>初始标记仅仅是标记一下GC Roots能直接关联到的对象，速度很快，并发标记就是进行<br>GC Roots Trancing的过程，而重新标记阶段则是为了修正并发标记期间因用户程序继<br>续运行而导致标记产生变动那一部分对象的标记记录，这个阶段的停顿时间比初始标记稍<br>长一些，但远比并发标记时间短。</p>
-<p><img src="http://i2.itc.cn/20160904/aac_6f45a003_baef_f7c1_93fb_a261e84665e3_1.png" alt=""></p>
-<h3 id="How-YoungGC-works-with-GC-CMS年轻代回收过程"><a href="#How-YoungGC-works-with-GC-CMS年轻代回收过程" class="headerlink" title="How YoungGC works with GC(CMS年轻代回收过程)"></a>How YoungGC works with GC(CMS年轻代回收过程)</h3><p>使用算法：copying算法(速度快 存活对象少)</p>
-<ul>
-<li>1.The young generation is colored light green and the old generation in blue. This is what the CMS might look like if your application has been running for a while. Objects are scattered around the old generation area.</li>
-</ul>
-<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide2.png" alt=""></p>
-<ul>
-<li>2.Live objects are copied from the Eden space and survivor space to the other survivor space. Any older objects that have reached their aging threshold are promoted to old generation.</li>
-</ul>
-<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide3.png" alt=""></p>
-<ul>
-<li>3.After a young GC, the Eden space is cleared and one of the survivor spaces is cleared.</li>
-</ul>
-<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide4.png" alt=""><br>Newly promoted objects are shown in dark blue on the diagram. The green objects are surviving young generation objects that have not yet been promoted to old generation. </p>
-<h3 id="Old-Generation-Collection-With-CMS（CMS老年代垃圾回收）"><a href="#Old-Generation-Collection-With-CMS（CMS老年代垃圾回收）" class="headerlink" title="Old Generation Collection With CMS（CMS老年代垃圾回收）"></a>Old Generation Collection With CMS（CMS老年代垃圾回收）</h3><ul>
-<li>1.Two stop the world events take place: initial mark and remark. When the old generation reaches a certain occupancy rate, the CMS is kicked off。</li>
-</ul>
-<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide5.png" alt=""><br>(1) Initial mark is a short pause phase where live (reachable) objects are marked. (2) Concurrent marking finds live objects while the application continues to execute. Finally, in the (3) remark phase, objects are found that were missed during (2) concurrent marking in the previous phase.</p>
-<ul>
-<li>2.Objects that were not marked in the previous phase are deallocated in place. There is no compaction.</li>
-</ul>
-<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide6.png" alt=""><br>Note: Unmarked objects == Dead Objects</p>
-<ul>
-<li>3.After the (4) Sweeping phase, you can see that a lot of memory has been freed up. You will also notice that no compaction has been done.</li>
-</ul>
-<p><img src="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/images/slide7.png" alt=""><br>Finally, the CMS collector will move through the (5) resetting phase and wait for the next time the GC threshold is reached..</p>
-<h3 id="CMS参数解释"><a href="#CMS参数解释" class="headerlink" title="CMS参数解释"></a>CMS参数解释</h3><p>-XX：+UseConcMarkSweepGC</p>
-<pre><code>激活CMS收集器。默认HotSpot JVM使用的是并行收集器
-</code></pre><p>-XX：UseParNewGC</p>
-<pre><code>当使用-XX：+UseConcMarkSweepGC时，-XX：UseParNewGC会自动开启。因此，
-如果年轻代的并行GC不想开启，可以通过设置-XX：-UseParNewGC来关掉。
-</code></pre><p>-XX：+CMSConcurrentMTEnabled</p>
-<pre><code>当该标志被启用时，并发的CMS阶段将以多线程执行
-(因此，多个GC线程会与所有的应用程序线程并行工作)。该标志已经默认开启，
-如果顺序执行更好，这取决于所使用的硬件，多线程执行可以通过-XX：-CMSConcurremntMTEnabled禁用。
-</code></pre><p>-XX：ConcGCThreads</p>
-<pre><code>标志-XX：ConcGCThreads=&lt;value&gt;(早期JVM版本也叫-XX:ParallelCMSThreads)定义并发CMS
-过程运行时的线程数。比如value=4意味着CMS周期的所有阶段都以4个线程来执行。尽管更多的线
-程会加快并发CMS过程，但其也会带来额外的同步开销。因此，对于特定的应用程序，应该通过测试
-来判断增加CMS线程数是否真的能够带来性能的提升。如果还标志未设置，JVM会根据并行收集器中
-的-XX：ParallelGCThreads参数的值来计算出默认的并行CMS线程数。该公式是ConcGCThreads
- = (ParallelGCThreads + 3)/4。因此，对于CMS收集器， -XX:ParallelGCThreads标志不
-仅影响“stop-the-world”垃圾收集阶段，还影响并发阶段。
-</code></pre><p>-XX:CMSInitiatingOccupancyFraction</p>
-<pre><code>当堆满之后，并行收集器便开始进行垃圾收集，例如，当没有足够的空间来容纳新分配或提升的对
-象,JVM会在一开始执行CMS周期前作一些线索查找。该线索由 -
-XX:CMSInitiatingOccupancyFraction=&lt;value&gt;来设置，该值代表老年代堆空间的使用率.
-</code></pre><p>-XX：+UseCMSInitiatingOccupancyOnly</p>
-<pre><code>触发fullGC的空间百分比，jdk5 默认68%  jdk6 默认92%
-</code></pre><p>-XX:+CMSClassUnloadingEnabled</p>
-<pre><code>相对于并行收集器，CMS收集器默认不会对永久代进行垃圾回收。如果希望对永久代进行垃圾回收，
-可用设置标志-XX:+CMSClassUnloadingEnabled。
-</code></pre><p>-XX:+UseCMSCompactAtFullCollection</p>
-<pre><code>打开对年老代的压缩.可能会影响性能,但是可以消除碎片,由于并发收集器不对内存空间进行压缩,
-整理,所以运行一段时间以后会产生&quot;碎片&quot;,使得运行效率降低.此值设置运行多少次GC以后对内存
-空间进行压缩,整理.
-</code></pre><p>-XX:+ExplicitGCInvokesConcurrent and </p>
-<p>-XX:+ExplicitGCInvokesConcurrentAndUnloadsClasses</p>
-<p>-XX:+DisableExplicitGC</p>
-<p>该标志将告诉JVM完全忽略系统的GC调用(不管使用的收集器是什么类型)</p>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>oracle官网cms垃圾回收：<a href="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/index.html" target="_blank" rel="external">http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/index.html</a></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/08/02/(8.2).JAVA虚拟机(二)-GC介绍及垃圾回收算法/" itemprop="url">
-                  GC介绍及垃圾回收算法
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-02T16:37:35+08:00" content="2016-08-02">
-              2016-08-02
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/JVM/" itemprop="url" rel="index">
-                    <span itemprop="name">JVM</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="GC介绍"><a href="#GC介绍" class="headerlink" title="GC介绍"></a>GC介绍</h2><h3 id="什么是GC-Garbage-Collection"><a href="#什么是GC-Garbage-Collection" class="headerlink" title="什么是GC(Garbage Collection)?"></a>什么是GC(Garbage Collection)?</h3><p>垃圾回收器（Garbage Collection，GC）,顾名思义，垃圾回收就是释放垃圾占用的空间， Java中，程序员不需要去关心内存动态分配和垃圾回收的问题，这一切都交给了JVM来处理。<br>我们需要考虑一下JVM处理垃圾回收三个问题：<br>1).哪些内存需要回收？<br>2).GC什么时候开始回收？<br>3).如何回收?</p>
-<h3 id="垃圾收集的方式？"><a href="#垃圾收集的方式？" class="headerlink" title="垃圾收集的方式？"></a>垃圾收集的方式？</h3><ul>
-<li>引用计数方式</li>
-</ul>
-<p><img src="http://dl2.iteye.com/upload/attachment/0115/7187/5dcb87dd-84b7-3fd4-990e-4ad03fbb23d3.png" alt=""></p>
-<ul>
-<li>对象遍历引用方式</li>
-</ul>
-<p><img src="http://dl2.iteye.com/upload/attachment/0115/7185/d546c4ef-d358-3252-bf83-1cf2a969450d.png" alt=""></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/08/02/(8.2).JAVA虚拟机(二)-GC介绍及垃圾回收算法/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2045,7 +1729,7 @@ XX:CMSInitiatingOccupancyFraction=&lt;value&gt;来设置，该值代表老年代
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">38</span>
+              <span class="site-state-item-count">46</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -2053,7 +1737,7 @@ XX:CMSInitiatingOccupancyFraction=&lt;value&gt;来设置，该值代表老年代
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">24</span>
+                <span class="site-state-item-count">33</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -2062,7 +1746,7 @@ XX:CMSInitiatingOccupancyFraction=&lt;value&gt;来设置，该值代表老年代
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">50</span>
+                <span class="site-state-item-count">51</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

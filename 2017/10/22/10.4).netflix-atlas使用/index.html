@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="redis," />
+  <meta name="keywords" content="springcloud,netflix," />
 
 
 
@@ -84,24 +84,18 @@
 
 
 
-<meta name="description" content="常见的redis超时分析123456(1). 网络原因：比如是否存在跨机房、网络割接等等。(2). 慢查询，因为redis是单线程，如果有慢查询的话，会阻塞住之后的操作。 (3). value值过大？比如value几十兆，当然这种情况比较少，其实也可以看做是慢查询的一种(4). aof重写/rdb fork发生？瞬间会堵一下Redis服务器。(5). redis自身阻塞（swap fsync 磁盘">
-<meta name="keywords" content="redis">
+<meta name="description" content="grafana安装altas收集">
+<meta name="keywords" content="springcloud,netflix">
 <meta property="og:type" content="article">
-<meta property="og:title" content="redis客户端超时分析">
-<meta property="og:url" content="/2016/08/29/9.4) redis-客户端超时问题/index.html">
+<meta property="og:title" content="altas指标监控平台使用">
+<meta property="og:url" content="/2017/10/22/10.4).netflix-atlas使用/index.html">
 <meta property="og:site_name" content="Meteor">
-<meta property="og:description" content="常见的redis超时分析123456(1). 网络原因：比如是否存在跨机房、网络割接等等。(2). 慢查询，因为redis是单线程，如果有慢查询的话，会阻塞住之后的操作。 (3). value值过大？比如value几十兆，当然这种情况比较少，其实也可以看做是慢查询的一种(4). aof重写/rdb fork发生？瞬间会堵一下Redis服务器。(5). redis自身阻塞（swap fsync 磁盘">
+<meta property="og:description" content="grafana安装altas收集">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://i0.itc.cn/20170830/aac_bd5f86a3_734f_be66_d18d_19d61d581987_1.png">
-<meta property="og:image" content="http://i2.itc.cn/20170830/aac_8fd6226a_8bf1_221f_7fe3_32e0ba1790e2_2.png">
-<meta property="og:image" content="http://i0.itc.cn/20170830/aac_8fd6226a_8bf1_221f_7fe3_32e0ba1790e2_1.png">
-<meta property="og:image" content="http://i0.itc.cn/20170830/aac_8fd6226a_8bf1_221f_7fe3_32e0ba1790e2_4.jpg">
-<meta property="og:image" content="http://i0.itc.cn/20170830/aac_5f264f90_4351_e9c3_106d_d1828ae4aa2f_1.png">
-<meta property="og:updated_time" content="2017-08-30T10:57:48.000Z">
+<meta property="og:updated_time" content="2017-10-24T08:17:59.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="redis客户端超时分析">
-<meta name="twitter:description" content="常见的redis超时分析123456(1). 网络原因：比如是否存在跨机房、网络割接等等。(2). 慢查询，因为redis是单线程，如果有慢查询的话，会阻塞住之后的操作。 (3). value值过大？比如value几十兆，当然这种情况比较少，其实也可以看做是慢查询的一种(4). aof重写/rdb fork发生？瞬间会堵一下Redis服务器。(5). redis自身阻塞（swap fsync 磁盘">
-<meta name="twitter:image" content="http://i0.itc.cn/20170830/aac_bd5f86a3_734f_be66_d18d_19d61d581987_1.png">
+<meta name="twitter:title" content="altas指标监控平台使用">
+<meta name="twitter:description" content="grafana安装altas收集">
 
 
 
@@ -119,7 +113,7 @@
   };
 </script>
 
-  <title> redis客户端超时分析 | Meteor </title>
+  <title> altas指标监控平台使用 | Meteor </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -272,7 +266,7 @@
             
             
               
-                redis客户端超时分析
+                altas指标监控平台使用
               
             
           </h1>
@@ -284,8 +278,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-29T09:37:35+08:00" content="2016-08-29">
-              2016-08-29
+            <time itemprop="dateCreated" datetime="2017-10-22T10:11:00+08:00" content="2017-10-22">
+              2017-10-22
             </time>
           </span>
 
@@ -298,8 +292,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
+                  <a href="/categories/altas/" itemprop="url" rel="index">
+                    <span itemprop="name">altas</span>
                   </a>
                 </span>
 
@@ -331,95 +325,7 @@
       
 
       
-        <h1 id="常见的redis超时分析"><a href="#常见的redis超时分析" class="headerlink" title="常见的redis超时分析"></a>常见的redis超时分析</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">(1). 网络原因：比如是否存在跨机房、网络割接等等。</div><div class="line">(2). 慢查询，因为redis是单线程，如果有慢查询的话，会阻塞住之后的操作。 </div><div class="line">(3). value值过大？比如value几十兆，当然这种情况比较少，其实也可以看做是慢查询的一种</div><div class="line">(4). aof重写/rdb fork发生？瞬间会堵一下Redis服务器。</div><div class="line">(5). redis自身阻塞（swap fsync 磁盘io hugePage内存页未关闭）</div><div class="line">(5). 其他..................</div></pre></td></tr></table></figure>
-<a id="more"></a>
-<h2 id="情形一-客户端connectionTimeout设置小了"><a href="#情形一-客户端connectionTimeout设置小了" class="headerlink" title="情形一:客户端connectionTimeout设置小了"></a>情形一:客户端connectionTimeout设置小了</h2><ul>
-<li>现象或日志</li>
-</ul>
-<p>本地连接调用 远程redis集群 执行hset命令报错</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">redis.clients.jedis.exceptions.JedisConnectionException: no reachable node in cluster</div><div class="line"></div><div class="line">	at redis.clients.jedis.JedisSlotBasedConnectionHandler.getConnection(JedisSlotBasedConnectionHandler.java:54)</div><div class="line">	at redis.clients.jedis.JedisClusterCommand.runWithRetries(JedisClusterCommand.java:113)</div><div class="line">	at redis.clients.jedis.JedisClusterCommand.runWithRetries(JedisClusterCommand.java:131)</div><div class="line">	at redis.clients.jedis.JedisClusterCommand.run(JedisClusterCommand.java:30)</div><div class="line">	at redis.clients.jedis.JedisCluster.hset(JedisCluster.java:351)</div><div class="line">	at com.sohu.index.cachecloud.redis.test.cluster.ClusterTest2.clusterSetTest(ClusterTest2.java:105)</div></pre></td></tr></table></figure>
-<ul>
-<li>问题分析</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">1.配置ip:host列表出错,导致获取有问题集群列表问题 </div><div class="line">2.客户端配置问题,比如timeout(connectTimeout 连接超时/ soTimeOut 读取超时)</div><div class="line">  参考源码：JedisSlotBasedConnectionHandler 创建pipelinecluster时候</div><div class="line">  public JedisSlotBasedConnectionHandler(Set&lt;HostAndPort&gt; nodes, 		GenericObjectPoolConfig poolConfig, int timeout) &#123;</div><div class="line">	        this(nodes, poolConfig, timeout, timeout);</div><div class="line">	    &#125;</div><div class="line">    public JedisSlotBasedConnectionHandler(Set&lt;HostAndPort&gt; nodes, GenericObjectPoolConfig poolConfig, int connectionTimeout, int soTimeout) &#123;</div><div class="line">        super(nodes, poolConfig, connectionTimeout, soTimeout);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<blockquote>
-<p>客户端配置</p>
-</blockquote>
-<pre><code>private final static int TIME_OUT = 5;//5s  socket连接超时
-
-public static GenericObjectPoolConfig getCommonPoolConfig() {
-       GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
-       poolConfig.setMaxTotal(GenericObjectPoolConfig.DEFAULT_MAX_TOTAL * 10);
-       poolConfig.setMaxIdle(GenericObjectPoolConfig.DEFAULT_MAX_IDLE * 5);
-       poolConfig.setMinIdle(GenericObjectPoolConfig.DEFAULT_MAX_IDLE * 2);
-       // JedisPool.borrowObject最大等待时间
-       poolConfig.setMaxWaitMillis(5000L);
-       // 开启jmx
-       poolConfig.setJmxEnabled(true);
-       return poolConfig;
-   }
-</code></pre><blockquote>
-<p>代码跟踪</p>
-</blockquote>
-<ul>
-<li><p>redis执行过程<br>  创建socket连接(?) –&gt; 发送redis命令 –&gt; 服务器返回响应结果</p>
-</li>
-<li><p>堆栈跟踪：JedisSlotBasedConnectionHandler.getConnection 获取连接</p>
-</li>
-<li><p>创建连接:GenericObjectPool borrowObject  准备获取连接</p>
-</li>
-<li><p>断点跟踪：(jedisfactory makeObject创建新的连接)<br><img src="http://i0.itc.cn/20170830/aac_bd5f86a3_734f_be66_d18d_19d61d581987_1.png" alt=""></p>
-</li>
-<li><p>最终抛出异常的地方：socket创建过程</p>
-</li>
-</ul>
-<pre><code>public void connect() {
-    if(!this.isConnected()) {
-        try {
-            this.socket = new Socket();
-            this.socket.setReuseAddress(true);
-            this.socket.setKeepAlive(true);
-            this.socket.setTcpNoDelay(true);
-            this.socket.setSoLinger(true, 0);
-            this.socket.connect(new InetSocketAddress(this.host, this.port), this.connectionTimeout);
-            this.socket.setSoTimeout(this.soTimeout);
-            this.outputStream = new RedisOutputStream(this.socket.getOutputStream());
-            this.inputStream = new RedisInputStream(this.socket.getInputStream());
-        } catch (IOException var2) {
-               //此处抛出异常
-            this.broken = true;
-            throw new JedisConnectionException(var2);
-        }
-    }
-
-}
-</code></pre><ul>
-<li><p>解决</p>
-<p>  本地访问服务器，可能存在connect/read timeout，之前设置的timeout时间是5s，可能会存在连接超时调大为20s，批量hset远程服务器正常。</p>
-</li>
-</ul>
-<h2 id="情形二-客户端不定期抛出-readtimeoutException"><a href="#情形二-客户端不定期抛出-readtimeoutException" class="headerlink" title="情形二:客户端不定期抛出 readtimeoutException"></a>情形二:客户端不定期抛出 readtimeoutException</h2><ul>
-<li>现象或日志</li>
-</ul>
-<p>重试maxDirection失败<br><img src="http://i2.itc.cn/20170830/aac_8fd6226a_8bf1_221f_7fe3_32e0ba1790e2_2.png" alt=""><br>异常readTimeoutException:<br><img src="http://i0.itc.cn/20170830/aac_8fd6226a_8bf1_221f_7fe3_32e0ba1790e2_1.png" alt=""></p>
-<ul>
-<li>问题分析</li>
-</ul>
-<blockquote>
-<p>查看client list</p>
-</blockquote>
-<p>发现大量的连接的age都很小，很可能客户端设置timeout过小，导致age过快被回收<br><img src="http://i0.itc.cn/20170830/aac_8fd6226a_8bf1_221f_7fe3_32e0ba1790e2_4.jpg" alt=""></p>
-<blockquote>
-<p>客户端配置</p>
-</blockquote>
-<p>timeout:100  （&lt;100 单位为ms 也就是 connecttimeout soTimeout 都是100ms）</p>
-<p><img src="http://i0.itc.cn/20170830/aac_5f264f90_4351_e9c3_106d_d1828ae4aa2f_1.png" alt=""><br>超时很有规律。</p>
-<p>timeout指连接超时和等待命令执行超时。连接超时太短了，而连接池周期性地剔除连接。所以会周期性的报超时错误。</p>
-<ul>
-<li>解决</li>
-</ul>
-<p>客户端设置timeout=2s ,由于设置timeout较小 导致连接很容易被关闭，在服务 qps较高或者请求响应稍微偏慢就有可能抛出超时。</p>
-
+        <h2 id="grafana安装"><a href="#grafana安装" class="headerlink" title="grafana安装"></a>grafana安装</h2><h2 id="altas收集"><a href="#altas收集" class="headerlink" title="altas收集"></a>altas收集</h2>
       
     </div>
 
@@ -440,7 +346,9 @@ public static GenericObjectPoolConfig getCommonPoolConfig() {
       
         <div class="post-tags">
           
-            <a href="/tags/redis/" rel="tag">#redis</a>
+            <a href="/tags/springcloud/" rel="tag">#springcloud</a>
+          
+            <a href="/tags/netflix/" rel="tag">#netflix</a>
           
         </div>
       
@@ -449,16 +357,16 @@ public static GenericObjectPoolConfig getCommonPoolConfig() {
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/08/23/9.2).redis工具使用/" rel="next" title="redis常用工具">
-                <i class="fa fa-chevron-left"></i> redis常用工具
+              <a href="/2017/10/21/10.3) springcloud-rpc使用/" rel="next" title="springcloud rpc使用">
+                <i class="fa fa-chevron-left"></i> springcloud rpc使用
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/08/21/9.1).redis运维-docker机器用户权限篡改/" rel="prev" title="docker机器篡改用户uid">
-                docker机器篡改用户uid <i class="fa fa-chevron-right"></i>
+              <a href="/2017/10/24/9.6) jedispool连接池总结/" rel="prev" title="jedispool总结">
+                jedispool总结 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -533,7 +441,7 @@ public static GenericObjectPoolConfig getCommonPoolConfig() {
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">38</span>
+              <span class="site-state-item-count">46</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -541,7 +449,7 @@ public static GenericObjectPoolConfig getCommonPoolConfig() {
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">24</span>
+                <span class="site-state-item-count">33</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -550,7 +458,7 @@ public static GenericObjectPoolConfig getCommonPoolConfig() {
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">50</span>
+                <span class="site-state-item-count">51</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -608,7 +516,7 @@ public static GenericObjectPoolConfig getCommonPoolConfig() {
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#常见的redis超时分析"><span class="nav-number">1.</span> <span class="nav-text">常见的redis超时分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#情形一-客户端connectionTimeout设置小了"><span class="nav-number">1.1.</span> <span class="nav-text">情形一:客户端connectionTimeout设置小了</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#情形二-客户端不定期抛出-readtimeoutException"><span class="nav-number">1.2.</span> <span class="nav-text">情形二:客户端不定期抛出 readtimeoutException</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#grafana安装"><span class="nav-number">1.</span> <span class="nav-text">grafana安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#altas收集"><span class="nav-number">2.</span> <span class="nav-text">altas收集</span></a></li></ol></div>
             
           </div>
         </section>

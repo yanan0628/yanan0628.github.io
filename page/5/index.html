@@ -1,0 +1,1618 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="study for goal">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Meteor">
+<meta property="og:url" content="/page/5/index.html">
+<meta property="og:site_name" content="Meteor">
+<meta property="og:description" content="study for goal">
+<meta property="og:locale" content="zh-Hans">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Meteor">
+<meta name="twitter:description" content="study for goal">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Meteor </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left 
+   page-home 
+ ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Meteor</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+  <section id="posts" class="posts-expand">
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/02/05/(2.6).wiki工具-confluence的安装使用/" itemprop="url">
+                  Confulence的使用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-02-05T11:20:00+08:00" content="2016-02-05">
+              2016-02-05
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/工具/" itemprop="url" rel="index">
+                    <span itemprop="name">工具</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>参考:<a href="http://carlosfu.github.io/2017/08/16/Mac%E4%BD%BF%E7%94%A8-Confluence%E7%A0%B4%E8%A7%A3%E5%AE%89%E8%A3%85/" target="_blank" rel="external">安装confluence</a><br><a href="http://carlosfu.github.io/2017/08/16/Mac%E4%BD%BF%E7%94%A8-Confluence%E6%95%B0%E6%8D%AE%E8%BF%98%E5%8E%9F/" target="_blank" rel="external">confluence数据还原</a></p>
+<h2 id="资源准备"><a href="#资源准备" class="headerlink" title="资源准备"></a>资源准备</h2><blockquote>
+<p>相关下载：</p>
+</blockquote>
+<ol>
+<li>confluence-5.3.4<a href="https://downloads.atlassian.com/software/confluence/downloads/atlassian-confluence-5.3.4.zip" target="_blank" rel="external">confluence-5.3.4下载</a></li>
+<li>密钥破解包:<a href="http://soft.vyunwei.com/JIRA/confluence/confluence5.x-crack.zip" target="_blank" rel="external">下载</a></li>
+<li>汉化工具:<a href="http://soft.vyunwei.com/JIRA/confluence/Confluence-Language-STD-CN.jar" target="_blank" rel="external">下载</a></li>
+</ol>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><blockquote>
+<p>安装部署目录</p>
+</blockquote>
+<ul>
+<li>安装目录</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">localhos:tool chenshi$ ls -l</div><div class="line">total 8</div><div class="line">drwxr-xr-x  18 chenshi  wheel  612  9  6 09:42 atlassian-confluence-5.3.4 </div><div class="line">drwxr-xr-x   3 root     wheel  102  9 21 14:08 bak</div><div class="line">lrwxr-xr-x   1 chenshi  wheel   26  8 24 07:02 confluence -&gt; atlassian-confluence-5.3.4</div><div class="line">drwxr-xr-x   9 chenshi  wheel  306  9 21 11:03 confluence-install</div><div class="line"></div><div class="line">atlassian-confluence-5.3.4 :confluence安装目录</div><div class="line">bak:备份文件目录</div><div class="line">confluence-install:工具包(mysql driver驱动包) 破解包(confluence5.x-crack.zip) 汉化包(Confluence-Language-STD-CN.jar)</div></pre></td></tr></table></figure>
+<ul>
+<li>部署目录</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">1.confluence脚本:/opt/tool/confluence/bin</div><div class="line"></div><div class="line">	1.1 依赖jdk环境: 修改catalina.sh 添加JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_67.jdk/Contents/Home</div><div class="line">	1.2 jvm配置：修改catalina.sh 添加 JAVA_OPTS=&quot;-Xms1536m -Xmx1536m -XX:MaxPermSize=384m $JAVA_OPTS -Djava.awt.headless=true &quot;</div><div class="line">	1.3 启动服务:sh start-confluence.sh </div><div class="line">	1.4 停止服务:sh stop-confluence.sh </div><div class="line"></div><div class="line">2.confluence目录：/opt/tool/confluence/confluence</div><div class="line"></div><div class="line">	2.1 配置confluence home：vim WEB-INF/classes/confluence-init.properties添加</div><div class="line">		confluence.home=/opt/soft/confluence/confluence_home</div><div class="line"></div><div class="line">3. tomcat端口</div><div class="line"></div><div class="line">	3.1 因为shadowsocks默认占用8090,所以修改tomcat的端口配置，文件目录:/opt/confluence/confluence/confluence/conf/server.xml</div></pre></td></tr></table></figure>
+<blockquote>
+<p>安装confluence</p>
+</blockquote>
+<ul>
+<li>Install license</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line">1. 打开网页http://localhost:8090，记下Server ID</div><div class="line">2. 停掉Confluence服务，解压破解文件，然后复制Confluence 配置文件里atlassian-extras-2.4.jar 到 confluence/WEB-INF/lib下.(汉化包 破解包覆盖)</div><div class="line">2. 运行keygen.sh 然后出现下图，然后点patch 选择刚才上传的atlassian-extras-2.4.jar</div><div class="line">3. 生成密钥，复制密钥 。	</div><div class="line">```    </div><div class="line">    </div><div class="line">&gt; Configure database </div><div class="line">  </div><div class="line">```   </div><div class="line">1. 拷贝 mysql-connector-java-5.1.24-bin.jar到confluence/WEB-INF/lib下目录，并重启</div><div class="line">2. 选择数据库，选择mysql数据库，点 Externam Database(注意必须先上传msyql driver，并重启，否则会报错)</div><div class="line">3. 创建数据库，并设置连接</div><div class="line"></div><div class="line">数据库待创建过程:</div><div class="line">4.mac下没有/etc/my.cnf,需要在/usr/local/mysql/support-files下将my-default.cnf</div><div class="line">拷贝到/etc/my.cnf，并重启mysql</div><div class="line">(4.1) 忽略大小写:如果不设置,confluence默认使用大写 lower_case_table_names=1</div><div class="line">(4.2) 数据库编码 character-set-server=utf8</div><div class="line"></div><div class="line">5.记得重启mysql,重启后查看编码</div><div class="line">mysql&gt; show variables like &apos;char%&apos;;</div><div class="line">+--------------------------+-----------------------------------------------------------+</div><div class="line">| Variable_name            | Value                                                     |</div><div class="line">+--------------------------+-----------------------------------------------------------+</div><div class="line">| character_set_client     | utf8                                                      |</div><div class="line">| character_set_connection | utf8                                                      |</div><div class="line">| character_set_database   | utf8                                                      |</div><div class="line">| character_set_filesystem | binary                                                    |</div><div class="line">| character_set_results    | utf8                                                      |</div><div class="line">| character_set_server     | utf8                                                      |</div><div class="line">| character_set_system     | utf8                                                      |</div><div class="line">| character_sets_dir       | /usr/local/mysql-5.6.36-macos10.12-x86_64/share/charsets/ |</div><div class="line">+--------------------------+-----------------------------------------------------------+</div><div class="line"></div><div class="line">6.创建数据库</div><div class="line">mysql -uroot -h 127.0.0.1 -e &quot;drop database confluence&quot;</div><div class="line">mysql -uroot -h 127.0.0.1 -e &quot;create database confluence default character set utf8 collate utf8_bin&quot;</div><div class="line">```   </div><div class="line">    </div><div class="line">&gt; Load content</div></pre></td></tr></table></figure>
+<p>遇到java.sql.SQLException: Unknown system variable ‘storage_engine’：则将url改为：jdbc:mysql://localhost/confluence?useUnicode=true&amp;characterEncoding=utf8<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">&gt; Configure user management</div></pre></td></tr></table></figure></p>
+<p>初始化密码设定:admin admin<br>可参见密码重置:(如果是拷贝之前的数据包，之后登陆 需要用之前wiki的密码，密码忘记可以重置)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">&gt; Setup is complete</div></pre></td></tr></table></figure></p>
+<p>完成配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">## 数据还原</div></pre></td></tr></table></figure></p>
+<p>注意还原期间会将schema重建并导入数据和附件:<br>这里有个坑，user_mapping表有个duplicate key，但导入的数据可能会有重复的数据，为了方便，当重建schema之后，立即运行如下：</p>
+<p>mysql -uroot -h 127.0.0.1 -e “alter table user_mapping drop index unq_lwr_username”<br>``</p>
+<h2 id="重置密码"><a href="#重置密码" class="headerlink" title="重置密码"></a>重置密码</h2><p><a href="https://confluence.atlassian.com/conf53/restoring-passwords-to-recover-admin-user-rights-411108878.html" target="_blank" rel="external">confluence密码重置</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">//找到你的管理员帐户</div><div class="line">select u.id, u.user_name, u.active from cwd_user u</div><div class="line">join cwd_membership m on u.id=m.child_user_id join cwd_group g on m.parent_id=g.id join cwd_directory d on d.id=g.directory_id</div><div class="line">where g.group_name = &apos;confluence-administrators&apos; and d.directory_name=&apos;Confluence Internal Directory&apos;;</div><div class="line">	</div><div class="line">//恢复管理员密码为 admin,id为第一条sql的id	</div><div class="line">update cwd_user set credential =  </div><div class="line">&apos;x61Ey612Kl2gpFL56FT9weDnpSo4AV8j8+qx2AuTHdRyY036xxzTTrw10Wq3+4qQyB+XURPWx1ONxp3Y3pB37A==&apos;  </div><div class="line">where id=xxxxxx;  	</div><div class="line">	</div><div class="line">// 如果你的密码是&#123;PKCS5S2&#125;前缀开头的，则用下面这个sql,重置密码为chenshi</div><div class="line">update cwd_user set credential =&apos;&#123;PKCS5S2&#125;t7mgRQrrSE6kN7zttcMQG40eGCfMPwiIDEoX0qjGYN3Lu3/YvMmAt0EmtSyqjpF/&apos;</div><div class="line">where id=*****;</div><div class="line">	</div><div class="line">select * from  cwd_user where id=*****;</div></pre></td></tr></table></figure>
+<h2 id="相关异常"><a href="#相关异常" class="headerlink" title="相关异常"></a>相关异常</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">恢复数据后登录不进去</div><div class="line">Failed login attempt for user &apos;admin&apos;:</div><div class="line">  Request URL: http://127.0.0.1:8090/dologin.action</div><div class="line">  User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0</div><div class="line">  Remote Address: 127.0.0.1</div><div class="line"></div><div class="line">2017-09-21 16:15:11,408 ERROR [http-8090-3] [crowd.manager.application.ApplicationServiceGeneric] authenticateUser Directory &apos;confluence&apos; is not functional during authentication of &apos;admin&apos;. Skipped.</div><div class="line">2017-09-21 16:15:11,431 WARN [http-8090-3] [atlassian.seraph.auth.DefaultAuthenticator] login login : &apos;admin&apos; tried to login but they do not have USE permission or weren&apos;t found. Deleting remember me cookie.</div></pre></td></tr></table></figure>
+<p>解决办法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">Put the Internal Directory in First Position.（目录directory优先级设置）</div><div class="line">Start Confluence, and try logging in with the username of the user you updated/created and the password &apos;admin&apos;. If this works, skip to Step 4. Otherwise, your Internal Directory does not have high enough priority.</div><div class="line"></div><div class="line">1.Find the directory names and their order:</div><div class="line">select d.id, d.directory_name, m.list_index from cwd_directory d join cwd_app_dir_mapping m on d.id=m.directory_id;</div><div class="line"></div><div class="line">2.Take note of the ID with list_index 0, and the list_index and ID of the Confluence Internal Directory.</div><div class="line"></div><div class="line">3.Switch the order of the directories</div><div class="line">update cwd_app_dir_mapping set list_index = 0 where directory_id = &lt;Internal Directory id&gt;;</div><div class="line">update cwd_app_dir_mapping set list_index = &lt;Noted Internal Directory list_index&gt; where directory_id = &lt;Directory id that had list_index 0&gt;;</div><div class="line"></div><div class="line">4.Check to see if the directory is active (the &apos;active&apos; column should be set to &apos;T&apos;):</div><div class="line">select id, directory_name, active from cwd_directory where id = &lt;Internal Directory id&gt;;</div><div class="line"></div><div class="line">5.If necessary, activate the directory:</div><div class="line">update cwd_directory set active = &apos;T&apos; where id = &lt;Internal Directory id&gt;;</div></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/02/05/(2.4).仓库工具-nexus的安装使用/" itemprop="url">
+                  Nexus的使用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-02-05T11:20:00+08:00" content="2016-02-05">
+              2016-02-05
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/工具/" itemprop="url" rel="index">
+                    <span itemprop="name">工具</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="nexus安装"><a href="#nexus安装" class="headerlink" title="nexus安装"></a>nexus安装</h2><p>参考安装：<a href="http://www.tuicool.com/articles/E7ZBv2" target="_blank" rel="external">http://www.tuicool.com/articles/E7ZBv2</a></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/02/04/(2.5).集成工具-jenkins的安装使用/" itemprop="url">
+                  jenkins的安装使用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-02-04T11:20:00+08:00" content="2016-02-04">
+              2016-02-04
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/工具/" itemprop="url" rel="index">
+                    <span itemprop="name">工具</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="jenkins自动部署工具"><a href="#jenkins自动部署工具" class="headerlink" title="jenkins自动部署工具"></a>jenkins自动部署工具</h2><p>官网：<a href="https://jenkins.io/index.html" target="_blank" rel="external">https://jenkins.io/index.html</a></p>
+<h3 id="安装部署"><a href="#安装部署" class="headerlink" title="安装部署"></a>安装部署</h3><ul>
+<li><p>当前最新版本-2.7.1.war <a href="http://mirrors.jenkins-ci.org/war-stable/latest/jenkins.war" target="_blank" rel="external">下载</a></p>
+</li>
+<li><p>jenkins插件列表 <a href="https://wiki.jenkins-ci.org/display/JENKINS/Plugins" target="_blank" rel="external">查看</a></p>
+</li>
+</ul>
+<h3 id="服务启动"><a href="#服务启动" class="headerlink" title="服务启动"></a>服务启动</h3><h4 id="java-jar启动"><a href="#java-jar启动" class="headerlink" title="java -jar启动"></a>java -jar启动</h4><pre><code>脚本启动liunx后台进程：
+#!/bin/bash
+echo -e &quot;Starting the jenkins ...\c&quot;
+
+# 可配置JMV_OPTS,JMX_OPTS 或者 需要依赖的环境变量
+
+nohup java -DJENKINS_HOME=/data/soft/jenkins_home -jar ./jenkins.war --httpPort=8888 &gt; ./log/jenkins.out 2&gt;&amp;1 &amp; 
+
+echo -e &quot;jenkins Completed! &quot;
+</code></pre><p>nohup启用后台进程启动命令 2&gt;&amp;1的意思：把标准错误（2）重定向到标准输出中（1），而标准输出又导入文件output里面。</p>
+<h4 id="容器启动"><a href="#容器启动" class="headerlink" title="容器启动"></a>容器启动</h4><p>在tomcat或者 jetty容器下部署，需要注意问题：</p>
+<ul>
+<li>保证端口配置（这里用的8888，默认8080端口）不冲突，</li>
+<li>配置全局-DJENKINS_HOME 环境变量，根据服务器当前 硬盘大小进行合理配置，之后会依赖maven仓库 和 git项目拉取 需要一定存储占用。(默认放是在 /root/.jenkins下)</li>
+</ul>
+<h4 id="访问web服务地址"><a href="#访问web服务地址" class="headerlink" title="访问web服务地址"></a>访问web服务地址</h4><p><a href="http://*.*.*.*:8888/">http://*.*.*.*:8888/</a></p>
+<p>第一次需要初始化密码： vim  /root/.jenkins/secrets/initialAdminPassword(默认安装路径)</p>
+<h3 id="插件依赖"><a href="#插件依赖" class="headerlink" title="插件依赖"></a>插件依赖</h3><ul>
+<li>jenkins支持在线更新</li>
+</ul>
+<p>依赖网络环境，不一定更新成功<br><img src="http://i0.itc.cn/20160801/aac_7c06373e_9dcf_8bb9_650e_a8e0bd67f016_3.png" alt="可选插件去查询"></p>
+<ul>
+<li>后台支持hpi插件手动上传</li>
+</ul>
+<ol>
+<li>jenkins官网下载插件，可以会有多重依赖</li>
+</ol>
+<p><img src="http://i3.itc.cn/20160801/aac_7c06373e_9dcf_8bb9_650e_a8e0bd67f016_1.png" alt="官网下载"></p>
+<ol>
+<li>从”高级”点进去进行上传</li>
+</ol>
+<p><img src="http://i2.itc.cn/20160801/aac_7c06373e_9dcf_8bb9_650e_a8e0bd67f016_2.png" alt="hpi插件上传"></p>
+<h4 id="系统全局配置-涉及项目使用到的jdk-maven-svn-git"><a href="#系统全局配置-涉及项目使用到的jdk-maven-svn-git" class="headerlink" title="系统全局配置(涉及项目使用到的jdk/maven/svn/git)"></a>系统全局配置(涉及项目使用到的jdk/maven/svn/git)</h4><p><img src="http://i3.itc.cn/20160801/aac_7c06373e_9dcf_8bb9_650e_a8e0bd67f016_4.png" alt="配置入口"></p>
+<h4 id="项目工具安装配置"><a href="#项目工具安装配置" class="headerlink" title="项目工具安装配置"></a>项目工具安装配置</h4><p>官网插件地址：<a href="https://wiki.jenkins-ci.org/display/JENKINS/Plugins" target="_blank" rel="external">https://wiki.jenkins-ci.org/display/JENKINS/Plugins</a></p>
+<p>项目工具部署路径：<br><img src="http://i2.itc.cn/20160801/aac_2f04e178_10bf_64e9_d33a_bdd54871bac5_2.png" alt=""></p>
+<blockquote>
+<p>jdk/maven/git安装路径</p>
+</blockquote>
+<p><img src="http://i1.itc.cn/20160801/aac_2f04e178_10bf_64e9_d33a_bdd54871bac5_3.png" alt=""></p>
+<blockquote>
+<p>jdk/maven/git环境变量及版本</p>
+</blockquote>
+<p>jdk:<br><img src="http://i0.itc.cn/20160801/aac_2f04e178_10bf_64e9_d33a_bdd54871bac5_4.png" alt="jdk"></p>
+<p>maven:<br><img src="http://i3.itc.cn/20160801/aac_2f04e178_10bf_64e9_d33a_bdd54871bac5_1.png" alt="maven"></p>
+<p>git:<br><img src="http://i0.itc.cn/20160801/aac_2f04e178_10bf_64e9_d33a_bdd54871bac5_4.png" alt="git"></p>
+<blockquote>
+<p>Jenkins指定 jdk/maven/git配置</p>
+</blockquote>
+<p>根据安装好环境配置如下：</p>
+<p><img src="http://i2.itc.cn/20160801/aac_3750d2c4_9c09_ac0c_443e_3d1c4a54b6f9_2.png" alt=""><br><img src="http://i2.itc.cn/20160801/aac_3750d2c4_9c09_ac0c_443e_3d1c4a54b6f9_1.png" alt=""></p>
+<blockquote>
+<p>git插件使用问题</p>
+</blockquote>
+<p>git对应liunx所有版本列表: <a href="https://www.kernel.org/pub/software/scm/git/" target="_blank" rel="external">查看</a></p>
+<ul>
+<li><p>centos系统安装安装git版本问题：</p>
+<pre><code>在CentOS5的时代，由于yum源中没有git，所以需要预先安装一系列的依赖包。但在CentOS6的yum源中已经有git的版本了，可以直接使用yum源进行安装。
+$ sudo yum install git
+但是yum源中安装的git版本是1.7.1，太老了，Github等需要的Git版本最低都不能低于1.7.2 。所以我们一般不用上面的方法。而是下载git源码，编译安装。
+
+编译安装的步骤是【4】：
+（1）首先先更新系统sudo yum update
+（2）安装依赖的包
+sudo yum install curl-devel expat-devel gettext-devel openssl-devel zlib-devel gcc perl-ExtUtils-MakeMaker
+（3）下载git源码并解压缩
+$ wget https://github.com/git/git/archive/v2.3.0.zip
+$ unzip v2.3.0.zip
+$ cd git-2.3.0
+（4）编译安装
+将其安装在“/usr/local/git”目录下。
+make prefix=/usr/local/git all
+sudo make prefix=/usr/local/git install
+（5）此时你如果使用git --version 查看git版本的话，发现git仍然是1.7.1版本。这是因为它默认使用了&quot;/usr/bin&quot;下的git。
+
+你可以用下面的命令查看git所在的路径：
+$ whereis git
+git: /usr/bin/git /usr/local/git /usr/share/man/man1/git.1.gz
+
+（6）我们要把编译安装的git路径放到环境变量里，让它替换&quot;/usr/bin&quot;下的git。为此我们可以修改“/etc/profile”文件（或者/etc/bashrc文件）。
+sudo vim /etc/profile
+然后在文件的最后一行，添加下面的内容，然后保存退出。
+export PATH=/usr/local/git/bin:$PATH
+
+（7）使用source命令应用修改。
+source /etc/profile
+（8）然后再次使用git --version 查看git版本，发现输出2.3.0，表明安装成功。
+</code></pre></li>
+</ul>
+<h4 id="jenkin配置git项目访问"><a href="#jenkin配置git项目访问" class="headerlink" title="jenkin配置git项目访问"></a>jenkin配置git项目访问</h4><ul>
+<li><p>用户名/密码访问</p>
+<p>  github或者私服的git上 登陆账号密码登陆<br>  <img src="http://i0.itc.cn/20160801/aac_2e44bd50_880d_9e3d_cdd9_4f3549cb1316_3.png" alt="">    </p>
+</li>
+</ul>
+<ul>
+<li><p>ssh互信配置</p>
+</li>
+<li><p>ssh-keygen -t rsa -C “test@163.com”   生成public key</p>
+<pre><code>Generating public/private rsa key pair.
+Enter file in which to save the key (/root/.ssh/id_rsa): 
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /root/.ssh/id_rsa.
+Your public key has been saved in /root/.ssh/id_rsa.pub.
+The key fingerprint is:
+a6:51:70:c6:fb:75:ee:1e:4a:63:97:73:c6:f5:40:e0 test@163.com
+The key&apos;s randomart image is:
++--[ RSA 2048]----+
+|      ..o   .    |
+|       +.  . .   |
+|        ..  E .  |
+|       ..   ...  |
+|      . S. . o. .|
+|       +  .   .+o|
+|      .     +.= =|
+|           o +.= |
+|            ...  |
++-----------------+
+</code></pre></li>
+</ul>
+<ul>
+<li>手动添加机器公钥 cat /root/.ssh/id_rsa.pub  拷贝public key到github上</li>
+</ul>
+<p><img src="http://i2.itc.cn/20160801/aac_2e44bd50_880d_9e3d_cdd9_4f3549cb1316_1.png" alt=""></p>
+<ul>
+<li>配置项目</li>
+</ul>
+<p><img src="http://i2.itc.cn/20160801/aac_2e44bd50_880d_9e3d_cdd9_4f3549cb1316_2.png" alt=""></p>
+<h3 id="注意问题"><a href="#注意问题" class="headerlink" title="注意问题"></a>注意问题</h3><ul>
+<li>jenkins集成git,maven等插件，需要注意版本问题</li>
+<li>需要服务器拥有外网访问权限，不然下载插件 更新会有问题</li>
+</ul>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>博客：<a href="http://www.cnblogs.com/zhcncn/p/4030078.html" target="_blank" rel="external">http://www.cnblogs.com/zhcncn/p/4030078.html</a></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/02/03/(2.3).版本管理工具-svn,git的安装使用/" itemprop="url">
+                  Svn和Git的使用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-02-03T11:20:00+08:00" content="2016-02-03">
+              2016-02-03
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/工具/" itemprop="url" rel="index">
+                    <span itemprop="name">工具</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="gitlab使用"><a href="#gitlab使用" class="headerlink" title="gitlab使用"></a>gitlab使用</h3><p>官网：<a href="https://about.gitlab.com/downloads/#centos6" target="_blank" rel="external">https://about.gitlab.com/downloads/#centos6</a><br>参考安装：<a href="http://www.cnblogs.com/wintersun/p/3930900.html" target="_blank" rel="external">http://www.cnblogs.com/wintersun/p/3930900.html</a></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/02/02/(2.2).项目管理-maven,gradle的安装使用/" itemprop="url">
+                  Maven和Grale的使用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-02-02T11:20:00+08:00" content="2016-02-02">
+              2016-02-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/工具/" itemprop="url" rel="index">
+                    <span itemprop="name">工具</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="编译工具"><a href="#编译工具" class="headerlink" title="编译工具"></a>编译工具</h2><h3 id="gradle"><a href="#gradle" class="headerlink" title="gradle"></a>gradle</h3><p>参考官网wiki:<a href="https://gradle.org/getting-started-gradle-java/#toggle-id-4" target="_blank" rel="external">https://gradle.org/getting-started-gradle-java/#toggle-id-4</a><br><a href="http://yidwo.iteye.com/blog/1848990" target="_blank" rel="external">http://yidwo.iteye.com/blog/1848990</a></p>
+<h4 id="安装下载"><a href="#安装下载" class="headerlink" title="安装下载"></a>安装下载</h4><ul>
+<li><p>官网下载:</p>
+<p>  <a href="http://www.gradle.org/downloads" target="_blank" rel="external">下载地址</a></p>
+</li>
+<li><p>环境要求:</p>
+<p>  Install java（jdk1.6版本以上，推荐安装jdk1.8）</p>
+<p>  配置gradle的私有JDK： </p>
+<pre><code>1.启动脚本：%GRADLE_HOME%/bin/gradle.bat
+
+   2.添加java_home : set JAVA_HOME=C:/Program Files/jdk1.8    
+</code></pre></li>
+<li><p>gradle安装：     </p>
+<p>  Does the project use the Gradle wrapper?(判断项目gradlew file)</p>
+<ul>
+<li><p>有：可以直接执行 gradlew <task></task></p>
+</li>
+<li><p>无：需要<a href="https://docs.gradle.org/current/userguide/installation.html" target="_blank" rel="external">安装</a><br>gradle环境，并配置GRADLE_HOME=安装路径；配置JVM_OPTS</p>
+</li>
+<li><p>安装：<a href="http://bryanlor.com/blog/gradle-tutorial-how-install-gradle-windows" target="_blank" rel="external">windows详细安装</a> <a href="http://linuxg.net/how-to-install-gradle-2-3-on-ubuntu-15-04-ubuntu-14-10-ubuntu-14-04-ubuntu-12-04-and-derivatives/" target="_blank" rel="external">liunx详细安装</a> <a href="http://www.jayway.com/2013/05/12/getting-started-with-gradle/" target="_blank" rel="external">MAC详细安装</a></p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h3><ul>
+<li><p>编译方式</p>
+<ul>
+<li>ide编译</li>
+<li>command line编译</li>
+</ul>
+</li>
+<li><p>命令</p>
+<p>  参考命令：<a href="https://docs.gradle.org/current/userguide/gradle_command_line.html" target="_blank" rel="external">https://docs.gradle.org/current/userguide/gradle_command_line.html</a></p>
+<ul>
+<li><p>生命周期依赖 compile &lt;- compiltTest(cT) &lt;- test &lt;- dist(di)</p>
+<pre><code>task compile &lt;&lt; {
+println &apos;compiling source&apos;
+}
+
+task compileTest(dependsOn: compile) &lt;&lt; {
+    println &apos;compiling unit tests&apos;
+}
+
+task test(dependsOn: [compile, compileTest]) &lt;&lt; {
+    println &apos;running unit tests&apos;
+}
+
+task dist(dependsOn: [compile, test]) &lt;&lt; {
+    println &apos;building the distribution&apos;
+}
+</code></pre></li>
+<li><p>execute task 执行任务</p>
+<p>  例如： 执行 gradle dist test 和执行gradle dist效果一样<br>  执行依赖如下图：<br>  <img src="https://docs.gradle.org/current/userguide/img/commandLineTutorialTasks.png" alt="task dependency"></p>
+<pre><code>&gt; gradle dist test
+:compile
+compiling source
+:compileTest
+compiling unit tests
+:test
+running unit tests
+:dist
+building the distribution
+
+BUILD SUCCESSFUL
+
+Total time: 1 secs
+</code></pre></li>
+<li><p>Excluding tasks 排除某个执行周期(gradle dist -x test)</p>
+<pre><code>&gt; gradle dist -x test
+:compile
+compiling source
+:dist
+building the distribution
+BUILD SUCCESSFU
+</code></pre></li>
+<li><p>Forcing tasks to execute（gradle doIt）</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><ul>
+<li><p>gradle.propertie配置文件</p>
+<ul>
+<li>配置守护进程： org.gradle.daemon=true</li>
+</ul>
+</li>
+</ul>
+<h3 id="maven"><a href="#maven" class="headerlink" title="maven"></a>maven</h3>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/02/01/(2.1).ide工具-Eclipse,IDEA的安装使用/" itemprop="url">
+                  Elispe和IDEA使用文档
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-02-01T11:20:00+08:00" content="2016-02-01">
+              2016-02-01
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/工具/" itemprop="url" rel="index">
+                    <span itemprop="name">工具</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="开发工具"><a href="#开发工具" class="headerlink" title="开发工具"></a>开发工具</h2><h3 id="eclipse"><a href="#eclipse" class="headerlink" title="eclipse"></a>eclipse</h3><h3 id="idea"><a href="#idea" class="headerlink" title="idea"></a>idea</h3><h4 id="快捷键"><a href="#快捷键" class="headerlink" title="快捷键"></a>快捷键</h4><p>参考：<a href="http://blog.csdn.net/xuanze520/article/details/6773976" target="_blank" rel="external">http://blog.csdn.net/xuanze520/article/details/6773976</a></p>
+<ul>
+<li><p>常用快捷键</p>
+<pre><code>CTRL+N           查找类
+CTRL+SHIFT+N     查找文件
+CTRL+ALT ←/→     返回上次编辑的位置
+CTRL+H           显示类结构图
+CTRL+ALT+B       查看接口对应的实现类
+
+Ctrl+F              查找文本
+CTRL+SHIFT+F     查找项目中的文件
+CTRL+R           在当前窗口替换文本
+
+ALT+ENTER        导入包,自动修正
+CTRL+ALT+L       格式化代码
+ALT+INSERT       生成代码(如GET,SET方法,构造函数等)
+
+CTRL+D             复制行
+CTRL+X             剪切,删除行
+ALT+SHIFT+Up/Down 移动上下行
+
+CTRL+/           注释//
+CTRL+SHIFT+/     注释/*...*/
+
+SHIFT+F6         重构-重命名
+
+ALT+ENTER         进行try catch或throw exception
+sout+Tab键          快速输出System.out.println(“”)
+psvm的提示          public static void main()
+</code></pre></li>
+</ul>
+<ul>
+<li><p>查询快捷键</p>
+<pre><code>CTRL+SHIFT+ALT+N 查找类中的方法或变量
+CTRL+SHIFT+F     在指定窗口查找文本
+CTRL+SHIFT+R     在指定窗口替换文本
+CTRL+E           最近打开的文件
+CTRL+ALT+F7      选中的字符查找工程出现的地方
+CTRL+SHIFT+O     弹出显示查找内容
+</code></pre></li>
+<li><p>自动代码</p>
+<pre><code>CTRL+ALT+I       自动缩进
+CTRL+ALT+O       优化导入的类和包
+CTRL+E           最近更改的代码
+CTRL+ALT+T       把选中的代码放在 TRY{} IF{} ELSE{} 里
+</code></pre></li>
+<li><p>复制快捷方式</p>
+<pre><code>F5            拷贝文件快捷方式
+CTRL+SHIFT+V  可以复制多个文本
+</code></pre></li>
+<li><p>其他快捷方式</p>
+<pre><code>CIRL+U            大小写切换
+CTRL+Z            倒退
+CTRL+SHIFT+Z      向前
+CTRL+ALT+F12      资源管理器打开文件夹
+ALT+F1            查找文件所在目录位置
+SHIFT+ALT+INSERT  竖编辑模式
+
+CTRL+W            选中代码，连续按会 有其他效果
+CTRL+B            快速打开光标处的类或方法
+ALT+ ←/→          切换代码视图
+ALT+ ↑/↓          在方法间快速移动定位
+CTRL+Q            显示注释文档
+ALT+1             快速打开或隐藏工程面板
+</code></pre></li>
+</ul>
+<p>开启自动测试<br>File-&gt;setting-&gt;compiler</p>
+<h4 id="idea图标含义"><a href="#idea图标含义" class="headerlink" title="idea图标含义"></a>idea图标含义</h4><p><a href="http://blog.csdn.net/qq_24489717/article/details/52252316" target="_blank" rel="external">http://blog.csdn.net/qq_24489717/article/details/52252316</a></p>
+<p><img src="http://i1.itc.cn/20161011/aac_3d5f777a_71bc_e908_8fa9_524d71da39a2_4.png" alt=""><br><img src="http://i1.itc.cn/20161011/aac_3d5f777a_71bc_e908_8fa9_524d71da39a2_3.png" alt=""><br><img src="http://i3.itc.cn/20161011/aac_3d5f777a_71bc_e908_8fa9_524d71da39a2_2.png" alt=""><br><img src="http://i0.itc.cn/20161011/aac_3d5f777a_71bc_e908_8fa9_524d71da39a2_1.png" alt=""></p>
+<h4 id="idea配置maven"><a href="#idea配置maven" class="headerlink" title="idea配置maven"></a>idea配置maven</h4><p>可参考:<a href="http://www.cnblogs.com/jifeng/p/4658765.html" target="_blank" rel="external">http://www.cnblogs.com/jifeng/p/4658765.html</a></p>
+<h4 id="安装下载"><a href="#安装下载" class="headerlink" title="安装下载"></a>安装下载</h4>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+  </section>
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span>
+  </nav>
+
+
+
+          </div>
+          
+
+
+          
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/metor.ico"
+               alt="Pedestrian" />
+          <p class="site-author-name" itemprop="name">Pedestrian</p>
+          <p class="site-description motion-element" itemprop="description">study for goal</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">46</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/yanan0628" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://carlosfu.github.io/" target="_blank" title="fudada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  fudada
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://jolinzhangg.github.io/" target="_blank" title="xiaodada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  xiaodada
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pedestrian</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+                            
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').mousedown(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+  
+
+  
+
+  
+
+</body>
+</html>
