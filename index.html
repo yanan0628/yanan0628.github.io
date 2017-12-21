@@ -267,6 +267,134 @@
             
               
                 
+                <a class="post-title-link" href="/2017/12/22/goal/redis/redis在migrate批量键迁移存在bug/" itemprop="url">
+                  redis在migrate批量键迁移存在bug
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-22T00:00:00+08:00" content="2017-12-22">
+              2017-12-22
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/redis集群/" itemprop="url" rel="index">
+                    <span itemprop="name">redis集群</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="redis批量键操作bug"><a href="#redis批量键操作bug" class="headerlink" title="redis批量键操作bug"></a>redis批量键操作bug</h2><h3 id="jedis-migrate的api"><a href="#jedis-migrate的api" class="headerlink" title="jedis migrate的api"></a>jedis migrate的api</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> String <span class="title">migrate</span><span class="params">(<span class="keyword">final</span> String host, <span class="keyword">final</span> <span class="keyword">int</span> port, <span class="keyword">final</span> String key,</span></span></div><div class="line"><span class="function"><span class="params">    <span class="keyword">final</span> <span class="keyword">int</span> destinationDb, <span class="keyword">final</span> <span class="keyword">int</span> timeout)</span> </span>&#123;</div><div class="line">  checkIsInMultiOrPipeline();</div><div class="line">  client.migrate(host, port, key, destinationDb, timeout);</div><div class="line">  <span class="keyword">return</span> client.getStatusCodeReply();</div><div class="line">&#125;</div><div class="line"> </div><div class="line"><span class="function"><span class="keyword">public</span> String <span class="title">migrate</span><span class="params">(<span class="keyword">final</span> String host, <span class="keyword">final</span> <span class="keyword">int</span> port,</span></span></div><div class="line"><span class="function"><span class="params">        <span class="keyword">final</span> <span class="keyword">int</span> destinationDb, <span class="keyword">final</span> <span class="keyword">int</span> timeout, <span class="keyword">final</span> String... keys)</span> </span>&#123;</div><div class="line">    checkIsInMultiOrPipeline();</div><div class="line">    client.migrate(host, port, destinationDb, timeout, keys);</div><div class="line">    <span class="keyword">return</span> client.getStatusCodeReply();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>首先注意现在使用的redis版本是3.0.7 ，cc在水平迁移键的时候 是循环 每次对单个key做迁移，而没有使用批量迁移?这里产生疑问，批量操作的可以减少网络开销、迁移耗时 ，然而其实在redis 3.0.7 批量键操作是有问题。下面具体分析下这个问题。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/12/22/goal/redis/redis在migrate批量键迁移存在bug/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/12/22/goal/redis/jedis代码迁移槽/" itemprop="url">
                   jedis代码迁移槽
                 </a>
@@ -394,8 +522,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/12/22/goal/redis/redis在migrate批量键迁移存在bug/" itemprop="url">
-                  redis在migrate批量键迁移存在bug
+                <a class="post-title-link" href="/2017/12/21/goal/redis/redis-trib.rb工具搭建集群/" itemprop="url">
+                  redis-trib搭建集群
                 </a>
               
             
@@ -408,8 +536,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-12-22T00:00:00+08:00" content="2017-12-22">
-              2017-12-22
+            <time itemprop="dateCreated" datetime="2017-12-21T00:00:00+08:00" content="2017-12-21">
+              2017-12-21
             </time>
           </span>
 
@@ -468,10 +596,9 @@
 
       
         
-          <h2 id="redis批量键操作bug"><a href="#redis批量键操作bug" class="headerlink" title="redis批量键操作bug"></a>redis批量键操作bug</h2><h3 id="jedis-migrate的api"><a href="#jedis-migrate的api" class="headerlink" title="jedis migrate的api"></a>jedis migrate的api</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> String <span class="title">migrate</span><span class="params">(<span class="keyword">final</span> String host, <span class="keyword">final</span> <span class="keyword">int</span> port, <span class="keyword">final</span> String key,</span></span></div><div class="line"><span class="function"><span class="params">    <span class="keyword">final</span> <span class="keyword">int</span> destinationDb, <span class="keyword">final</span> <span class="keyword">int</span> timeout)</span> </span>&#123;</div><div class="line">  checkIsInMultiOrPipeline();</div><div class="line">  client.migrate(host, port, key, destinationDb, timeout);</div><div class="line">  <span class="keyword">return</span> client.getStatusCodeReply();</div><div class="line">&#125;</div><div class="line"> </div><div class="line"><span class="function"><span class="keyword">public</span> String <span class="title">migrate</span><span class="params">(<span class="keyword">final</span> String host, <span class="keyword">final</span> <span class="keyword">int</span> port,</span></span></div><div class="line"><span class="function"><span class="params">        <span class="keyword">final</span> <span class="keyword">int</span> destinationDb, <span class="keyword">final</span> <span class="keyword">int</span> timeout, <span class="keyword">final</span> String... keys)</span> </span>&#123;</div><div class="line">    checkIsInMultiOrPipeline();</div><div class="line">    client.migrate(host, port, destinationDb, timeout, keys);</div><div class="line">    <span class="keyword">return</span> client.getStatusCodeReply();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>首先注意现在使用的redis版本是3.0.7 ，cc在水平迁移键的时候 是循环 每次对单个key做迁移，而没有使用批量迁移?这里产生疑问，批量操作的可以减少网络开销、迁移耗时 ，然而其实在redis 3.0.7 批量键操作是有问题。下面具体分析下这个问题。</p>
+          <h2 id="redis-trib安装"><a href="#redis-trib安装" class="headerlink" title="redis-trib安装"></a>redis-trib安装</h2><p>redis-trib.rb是采用ruby实现的redis集群管理工具。内部通过cluster相关命令帮我们简化集群创建，检查，槽迁移和均衡等常见运维操作。使用之前需要安装ruby依赖环境，redis作者用这个工具有很多我们值得借鉴学习的方法和习惯(像集群水平扩容/缩容 集群创建等可以避免知识误区)。从以下下部分开始使用讲解:</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2017/12/22/goal/redis/redis在migrate批量键迁移存在bug/#more" rel="contents">
+            <a class="btn" href="/2017/12/21/goal/redis/redis-trib.rb工具搭建集群/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -622,133 +749,6 @@
 </ul>
 
           
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/12/21/goal/redis/redis-trib.rb工具搭建集群/" itemprop="url">
-                  redis-trib搭建集群
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-12-21T00:00:00+08:00" content="2017-12-21">
-              2017-12-21
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/redis集群/" itemprop="url" rel="index">
-                    <span itemprop="name">redis集群</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="redis-trib安装"><a href="#redis-trib安装" class="headerlink" title="redis-trib安装"></a>redis-trib安装</h2><p>redis-trib.rb是采用ruby实现的redis集群管理工具。内部通过cluster相关命令帮我们简化集群创建，检查，槽迁移和均衡等常见运维操作。使用之前需要安装ruby依赖环境，redis作者用这个工具有很多我们值得借鉴学习的方法和习惯(像集群水平扩容/缩容 集群创建等可以避免知识误区)。从以下下部分开始使用讲解:</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/12/21/goal/redis/redis-trib.rb工具搭建集群/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
         
       
     </div>
@@ -972,8 +972,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/redis常用运维/" itemprop="url" rel="index">
-                    <span itemprop="name">redis常用运维</span>
+                  <a href="/categories/redis/redis运维/" itemprop="url" rel="index">
+                    <span itemprop="name">redis运维</span>
                   </a>
                 </span>
 
@@ -1343,157 +1343,6 @@
             
               
                 
-                <a class="post-title-link" href="/2017/11/07/goal/redis运维/redis数据对象倾斜/" itemprop="url">
-                  redis数据对象倾斜
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-11-07T10:33:00+08:00" content="2017-11-07">
-              2017-11-07
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/redis常用运维/" itemprop="url" rel="index">
-                    <span itemprop="name">redis常用运维</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h2><p><img src="http://i0.itc.cn/20171107/aac_6393f47f_6480_a438_3a64_40a4c30c1bba_1.png" alt=""></p>
-<p>主节点(id=1114)的实例对象数，远大于其他三个master节点。</p>
-<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>对象分布不均可能有以下几个方面分析: </p>
-<ul>
-<li>集群节点对应槽分布不均</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">10.10.83.177:6383&gt; cluster nodes</div><div class="line">7c12e127a4f8b837559374c371e29a5104241fe4 10.10.77.79:6381 slave dc8279d9d612f3af72a68662a465d290a17e8c8c 0 1510022042090 3 connected</div><div class="line">dc8279d9d612f3af72a68662a465d290a17e8c8c 10.10.81.95:7499 master - 0 1510022043594 0 connected 12291-16383</div><div class="line">556f974464f871b322f2b182773c18062a75a040 10.10.83.177:6384 slave 0c175b0abb9904d9e0fc449519d84d8b43302691 0 1510022044600 4 connected</div><div class="line">1b8765e4cbd047e2de3a9eff74d6465e0d7ed07c 10.10.83.179:6385 slave 1c0f011512663870bad7f40320051b72d71ce51a 0 1510022043091 7 connected</div><div class="line">1443ea2252975356ac9c762ce541d8a4b116b75f 10.10.81.98:7497 slave b219075360b0af9922b2b0d20380e561e2be1f82 0 1510022042590 3 connected</div><div class="line">b219075360b0af9922b2b0d20380e561e2be1f82 10.10.83.179:6386 master - 0 1510022045602 2 connected 4097-8193</div><div class="line">1c0f011512663870bad7f40320051b72d71ce51a 10.10.83.177:6383 myself,master - 0 0 7 connected 0-4096</div><div class="line">0c175b0abb9904d9e0fc449519d84d8b43302691 10.10.81.98:7498 master - 0 1510022046603 4 connected 8194-12290</div></pre></td></tr></table></figure>
-<p>节点对应槽分布是均匀的。</p>
-<ul>
-<li>是否使用hashtag</li>
-</ul>
-<p>没有使用hashtag</p>
-<ul>
-<li>实例的数据结构配置优化</li>
-</ul>
-<p>没有做过数据结构压缩优化。</p>
-<ul>
-<li>死键(<strong>没有问题</strong>)</li>
-</ul>
-<p>过期的键没有被清除，通过scan扫描一遍redis实例，没有发现问题。</p>
-<ul>
-<li>idlekey问题(<strong>没有问题</strong>)</li>
-</ul>
-<p>历史遗留下来没有访问的数据对象,使用工具扫描，只有几十个key。</p>
-<ul>
-<li>关于key过期</li>
-</ul>
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2>
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2017/11/07/goal/redis运维/redis内存倾斜分析/" itemprop="url">
                   redis内存倾斜
                 </a>
@@ -1534,8 +1383,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/redis常用运维/" itemprop="url" rel="index">
-                    <span itemprop="name">redis常用运维</span>
+                  <a href="/categories/redis/redis运维/" itemprop="url" rel="index">
+                    <span itemprop="name">redis运维</span>
                   </a>
                 </span>
 
@@ -1598,6 +1447,157 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">主节点:</div><div class="line">复制缓冲区:repl-backlog-size	10000000</div><div class="line">客户端输出缓冲区:client-output-buffer-limit	normal 0 0 0 slave 536870912 134217728 60 pubsub 33554432 8388608 60</div><div class="line">是否rdb/aof:当前未执行</div></pre></td></tr></table></figure>
 <h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>这部分100mb 差异 主要是： 主分片碎片率高 + 主内存挤压缓冲区repl_backlog (10MB) + 客户端连接内存消耗(master连接数较多)。100MB差异问题不大。</p>
 
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/11/07/goal/redis运维/redis数据对象倾斜/" itemprop="url">
+                  redis数据对象倾斜
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-11-07T10:33:00+08:00" content="2017-11-07">
+              2017-11-07
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/redis运维/" itemprop="url" rel="index">
+                    <span itemprop="name">redis运维</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h2><p><img src="http://i0.itc.cn/20171107/aac_6393f47f_6480_a438_3a64_40a4c30c1bba_1.png" alt=""></p>
+<p>主节点(id=1114)的实例对象数，远大于其他三个master节点。</p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>对象分布不均可能有以下几个方面分析: </p>
+<ul>
+<li>集群节点对应槽分布不均</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">10.10.83.177:6383&gt; cluster nodes</div><div class="line">7c12e127a4f8b837559374c371e29a5104241fe4 10.10.77.79:6381 slave dc8279d9d612f3af72a68662a465d290a17e8c8c 0 1510022042090 3 connected</div><div class="line">dc8279d9d612f3af72a68662a465d290a17e8c8c 10.10.81.95:7499 master - 0 1510022043594 0 connected 12291-16383</div><div class="line">556f974464f871b322f2b182773c18062a75a040 10.10.83.177:6384 slave 0c175b0abb9904d9e0fc449519d84d8b43302691 0 1510022044600 4 connected</div><div class="line">1b8765e4cbd047e2de3a9eff74d6465e0d7ed07c 10.10.83.179:6385 slave 1c0f011512663870bad7f40320051b72d71ce51a 0 1510022043091 7 connected</div><div class="line">1443ea2252975356ac9c762ce541d8a4b116b75f 10.10.81.98:7497 slave b219075360b0af9922b2b0d20380e561e2be1f82 0 1510022042590 3 connected</div><div class="line">b219075360b0af9922b2b0d20380e561e2be1f82 10.10.83.179:6386 master - 0 1510022045602 2 connected 4097-8193</div><div class="line">1c0f011512663870bad7f40320051b72d71ce51a 10.10.83.177:6383 myself,master - 0 0 7 connected 0-4096</div><div class="line">0c175b0abb9904d9e0fc449519d84d8b43302691 10.10.81.98:7498 master - 0 1510022046603 4 connected 8194-12290</div></pre></td></tr></table></figure>
+<p>节点对应槽分布是均匀的。</p>
+<ul>
+<li>是否使用hashtag</li>
+</ul>
+<p>没有使用hashtag</p>
+<ul>
+<li>实例的数据结构配置优化</li>
+</ul>
+<p>没有做过数据结构压缩优化。</p>
+<ul>
+<li>死键(<strong>没有问题</strong>)</li>
+</ul>
+<p>过期的键没有被清除，通过scan扫描一遍redis实例，没有发现问题。</p>
+<ul>
+<li>idlekey问题(<strong>没有问题</strong>)</li>
+</ul>
+<p>历史遗留下来没有访问的数据对象,使用工具扫描，只有几十个key。</p>
+<ul>
+<li>关于key过期</li>
+</ul>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2>
           
         
       
