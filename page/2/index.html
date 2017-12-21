@@ -462,135 +462,6 @@
             
               
                 
-                <a class="post-title-link" href="/2017/10/24/9.6) jedispool连接池总结/" itemprop="url">
-                  jedispool连接池总结
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-10-24T10:33:00+08:00" content="2017-10-24">
-              2017-10-24
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/连接池/" itemprop="url" rel="index">
-                    <span itemprop="name">连接池</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>apache对象池:<a href="http://commons.apache.org/proper/commons-pool/" target="_blank" rel="external">对象池</a></p>
-<h2 id="对象池"><a href="#对象池" class="headerlink" title="对象池"></a>对象池</h2><p>我们常用的池子像 数据库连接池、jedis连接池、线程池等，查看源码会发现这些池管理类都是继承于GenericObjectPool<t>，所以我们需要了解下GenericObjectPool的工作机制。</t></p>
-<p>对象池的类图:<br><img src="http://img.blog.csdn.net/20160501212832585?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="类图"></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/10/24/9.6) jedispool连接池总结/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2017/10/24/9.8)redis多路复用技术/" itemprop="url">
                   redis  I/O 多路复用
                 </a>
@@ -693,6 +564,135 @@
 <h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">下面举一个例子，模拟一个tcp服务器处理30个客户socket。</div><div class="line">假设你是一个老师，让30个学生解答一道题目，然后检查学生做的是否正确，你有下面几个选择：</div><div class="line"></div><div class="line">1.第一种选择：按顺序逐个检查，先检查A，然后是B，之后是C、D。。。这中间如果有一个学生卡主，</div><div class="line">全班都会被耽误。这种模式就好比，你用循环挨个处理socket，根本不具有并发能力。</div><div class="line">2.第二种选择：你创建30个分身，每个分身检查一个学生的答案是否正确。 这种类似于为每一个用户创建</div><div class="line">一个进程或者线程处理连接。</div><div class="line">3.第三种选择，你站在讲台上等，谁解答完谁举手。这时C、D举手，表示他们解答问题完毕，你下去依次检查C、D的答案，然后继续回到讲台上等。此时E、A又举手，然后去处理E和A。。。 这种就是IO复用模型，Linux下的select、poll和epoll就是干这个的。将用户socket对应的fd注册进epoll，然后</div><div class="line">epoll帮你监听哪些socket上有消息到达，这样就避免了大量的无用操作。此时的socket应该采用非</div><div class="line">阻塞模式。</div><div class="line"></div><div class="line">这样，整个过程只在调用select、poll、epoll这些调用的时候才会阻塞，收发客户消息是</div><div class="line">不会阻塞的，整个进程或者线程就被充分利用起来，这就是事件驱动，所谓的reactor模式。</div></pre></td></tr></table></figure>
 </image>
           
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/10/24/9.6) jedispool连接池总结/" itemprop="url">
+                  jedispool连接池总结
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-10-24T10:33:00+08:00" content="2017-10-24">
+              2017-10-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/连接池/" itemprop="url" rel="index">
+                    <span itemprop="name">连接池</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>apache对象池:<a href="http://commons.apache.org/proper/commons-pool/" target="_blank" rel="external">对象池</a></p>
+<h2 id="对象池"><a href="#对象池" class="headerlink" title="对象池"></a>对象池</h2><p>我们常用的池子像 数据库连接池、jedis连接池、线程池等，查看源码会发现这些池管理类都是继承于GenericObjectPool<t>，所以我们需要了解下GenericObjectPool的工作机制。</t></p>
+<p>对象池的类图:<br><img src="http://img.blog.csdn.net/20160501212832585?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="类图"></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/10/24/9.6) jedispool连接池总结/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -1161,8 +1161,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/redis运维/" itemprop="url" rel="index">
-                    <span itemprop="name">redis运维</span>
+                  <a href="/categories/redis/redis运维2/" itemprop="url" rel="index">
+                    <span itemprop="name">redis运维2</span>
                   </a>
                 </span>
 
@@ -1516,7 +1516,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-count">7</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
