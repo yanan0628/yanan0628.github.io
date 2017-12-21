@@ -87,7 +87,7 @@
 <meta name="description" content="apache对象池:对象池 对象池我们常用的池子像 数据库连接池、jedis连接池、线程池等，查看源码会发现这些池管理类都是继承于GenericObjectPool，所以我们需要了解下GenericObjectPool的工作机制。 对象池的类图:">
 <meta name="keywords" content="redis">
 <meta property="og:type" content="article">
-<meta property="og:title" content="jedispool总结">
+<meta property="og:title" content="jedispool连接池总结">
 <meta property="og:url" content="/2017/10/24/9.6) jedispool连接池总结/index.html">
 <meta property="og:site_name" content="Meteor">
 <meta property="og:description" content="apache对象池:对象池 对象池我们常用的池子像 数据库连接池、jedis连接池、线程池等，查看源码会发现这些池管理类都是继承于GenericObjectPool，所以我们需要了解下GenericObjectPool的工作机制。 对象池的类图:">
@@ -101,9 +101,9 @@
 <meta property="og:image" content="http://img.blog.csdn.net/20160501212630803?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
 <meta property="og:image" content="http://i1.itc.cn/20171024/aac_04f62f37_04a7_86e6_b7ca_435e4f25d23b_1.png">
 <meta property="og:image" content="http://i1.itc.cn/20171024/aac_43c64ed6_0468_bb9c_03d5_2549887d9287_1.png">
-<meta property="og:updated_time" content="2017-10-24T05:52:12.000Z">
+<meta property="og:updated_time" content="2017-10-27T09:40:52.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="jedispool总结">
+<meta name="twitter:title" content="jedispool连接池总结">
 <meta name="twitter:description" content="apache对象池:对象池 对象池我们常用的池子像 数据库连接池、jedis连接池、线程池等，查看源码会发现这些池管理类都是继承于GenericObjectPool，所以我们需要了解下GenericObjectPool的工作机制。 对象池的类图:">
 <meta name="twitter:image" content="http://img.blog.csdn.net/20160501212832585?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
 
@@ -123,7 +123,7 @@
   };
 </script>
 
-  <title> jedispool总结 | Meteor </title>
+  <title> jedispool连接池总结 | Meteor </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -276,7 +276,7 @@
             
             
               
-                jedispool总结
+                jedispool连接池总结
               
             
           </h1>
@@ -416,8 +416,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/10/25/9.6)redis运维列表/" rel="prev" title="redis原理和cachecloud运维目录">
-                redis原理和cachecloud运维目录 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/10/24/9.8)redis多路复用技术/" rel="prev" title="redis  I/O 多路复用">
+                redis  I/O 多路复用 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -492,7 +492,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">46</span>
+              <span class="site-state-item-count">60</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -500,7 +500,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-count">40</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -509,7 +509,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-count">59</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

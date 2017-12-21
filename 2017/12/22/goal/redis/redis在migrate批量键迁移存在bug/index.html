@@ -1,0 +1,810 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Redis,Redis bug," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="redis批量键操作bugjedis migrate的api12345678910111213public String migrate(final String host, final int port, final String key,    final int destinationDb, final int timeout) &amp;#123;  checkIsInMultiOrPipelin">
+<meta name="keywords" content="Redis,Redis bug">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis在migrate批量键迁移存在bug">
+<meta property="og:url" content="/2017/12/22/goal/redis/redis在migrate批量键迁移存在bug/index.html">
+<meta property="og:site_name" content="Meteor">
+<meta property="og:description" content="redis批量键操作bugjedis migrate的api12345678910111213public String migrate(final String host, final int port, final String key,    final int destinationDb, final int timeout) &amp;#123;  checkIsInMultiOrPipelin">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-12-21T11:01:01.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="redis在migrate批量键迁移存在bug">
+<meta name="twitter:description" content="redis批量键操作bugjedis migrate的api12345678910111213public String migrate(final String host, final int port, final String key,    final int destinationDb, final int timeout) &amp;#123;  checkIsInMultiOrPipelin">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> redis在migrate批量键迁移存在bug | Meteor </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Meteor</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                redis在migrate批量键迁移存在bug
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-22T00:00:00+08:00" content="2017-12-22">
+              2017-12-22
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Redis/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Redis/redis-cluster/" itemprop="url" rel="index">
+                    <span itemprop="name">redis-cluster</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="redis批量键操作bug"><a href="#redis批量键操作bug" class="headerlink" title="redis批量键操作bug"></a>redis批量键操作bug</h2><h3 id="jedis-migrate的api"><a href="#jedis-migrate的api" class="headerlink" title="jedis migrate的api"></a>jedis migrate的api</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> String <span class="title">migrate</span><span class="params">(<span class="keyword">final</span> String host, <span class="keyword">final</span> <span class="keyword">int</span> port, <span class="keyword">final</span> String key,</span></span></div><div class="line"><span class="function"><span class="params">    <span class="keyword">final</span> <span class="keyword">int</span> destinationDb, <span class="keyword">final</span> <span class="keyword">int</span> timeout)</span> </span>&#123;</div><div class="line">  checkIsInMultiOrPipeline();</div><div class="line">  client.migrate(host, port, key, destinationDb, timeout);</div><div class="line">  <span class="keyword">return</span> client.getStatusCodeReply();</div><div class="line">&#125;</div><div class="line"> </div><div class="line"><span class="function"><span class="keyword">public</span> String <span class="title">migrate</span><span class="params">(<span class="keyword">final</span> String host, <span class="keyword">final</span> <span class="keyword">int</span> port,</span></span></div><div class="line"><span class="function"><span class="params">        <span class="keyword">final</span> <span class="keyword">int</span> destinationDb, <span class="keyword">final</span> <span class="keyword">int</span> timeout, <span class="keyword">final</span> String... keys)</span> </span>&#123;</div><div class="line">    checkIsInMultiOrPipeline();</div><div class="line">    client.migrate(host, port, destinationDb, timeout, keys);</div><div class="line">    <span class="keyword">return</span> client.getStatusCodeReply();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>首先注意现在使用的redis版本是3.0.7 ，cc在水平迁移键的时候 是循环 每次对单个key做迁移，而没有使用批量迁移?这里产生疑问，批量操作的可以减少网络开销、迁移耗时 ，然而其实在redis 3.0.7 批量键操作是有问题。下面具体分析下这个问题。</p>
+<a id="more"></a>
+<h3 id="测试批量键迁移操作"><a href="#测试批量键迁移操作" class="headerlink" title="测试批量键迁移操作"></a>测试批量键迁移操作</h3><h4 id="准备迁移的jedis节点"><a href="#准备迁移的jedis节点" class="headerlink" title="准备迁移的jedis节点"></a>准备迁移的jedis节点</h4><p>源节点:127.0.0.1:6380   目标节点:127.0.0.1:6383<br>当前slot槽分配情况：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">127.0.0.1:6383&gt; cluster nodes</div><div class="line">0715d82c97fcf71bccb6f26e94bf1a91b5269adf 127.0.0.1:6382 master - 0 1513327314271 3 connected 10923-16383</div><div class="line">ea6307898d149e9043a9f55ea176e65f98b275ce 127.0.0.1:6383 myself,master - 0 0 4 connected 0-7</div><div class="line">7c1332aab6ace2b6d8c9f24996c6bf1c8d41c771 127.0.0.1:6381 master - 0 1513327310239 2 connected 5461-10922</div><div class="line">66dc9c4d57be6c5acb8e38f131eddef3f6075ac3 127.0.0.1:6380 master - 0 1513327315279 1 connected 8-5460</div></pre></td></tr></table></figure></p>
+<p>测试过程中 将127.0.0.1:6383  的slot=8 进行迁移 ==&gt;127.0.0.1:6380</p>
+<h4 id="查看源节点槽-slot-8-的数据"><a href="#查看源节点槽-slot-8-的数据" class="headerlink" title="查看源节点槽(slot=8)的数据"></a>查看源节点槽(slot=8)的数据</h4><p>查看槽slot=8的前15条数据,对前三个key 执行mget操作</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">127.0.0.1:6380&gt; CLUSTER GETKEYSINSLOT 8 15</div><div class="line"> 1) &quot;key245124&quot;</div><div class="line"> 2) &quot;key251617&quot;</div><div class="line"> 3) &quot;key254165&quot;</div><div class="line"> 4) &quot;key2548&quot;</div><div class="line"> 5) &quot;key268831&quot;</div><div class="line"> 6) &quot;key273695&quot;</div><div class="line"> 7) &quot;key27417&quot;</div><div class="line"> 8) &quot;key279870&quot;</div><div class="line"> 9) &quot;key302658&quot;</div><div class="line">10) &quot;key313619&quot;</div><div class="line">11) &quot;key33324&quot;</div><div class="line">12) &quot;key341207&quot;</div><div class="line">13) &quot;key344575&quot;</div><div class="line">14) &quot;key350246&quot;</div><div class="line">15) &quot;key355534&quot;</div></pre></td></tr></table></figure>
+<h4 id="设置某个键过期-开始迁移槽"><a href="#设置某个键过期-开始迁移槽" class="headerlink" title="设置某个键过期,开始迁移槽"></a>设置某个键过期,开始迁移槽</h4><ul>
+<li>执行 mget key245124 key251617 key254165 ，<strong>对第一个key 设置过期时间 key245124 60s</strong></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">127.0.0.1:6380&gt; mget key245124 key251617 key254165</div><div class="line">1) &quot;245124&quot;</div><div class="line">2) &quot;251617&quot;</div><div class="line">3) &quot;254165&quot;</div><div class="line">127.0.0.1:6380&gt; EXPIRE key245124 60</div><div class="line">(integer) 1</div><div class="line">127.0.0.1:6380&gt; ttl key245124</div><div class="line">(integer) 50</div><div class="line">127.0.0.1:6380&gt; ttl key251617</div><div class="line">(integer) -1</div></pre></td></tr></table></figure>
+<ul>
+<li>期间用程序将槽 迁移到127.0.0.1:6380上，每次批量操作的key的数量=10个</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">[key245124, key251617, key254165, key2548, key268831, key273695, key27417, key279870, key302658, key313619]</div><div class="line">[key33324, key341207, key344575, key350246, key355534, key363285, key36456, key441353, key444421, key450312]</div><div class="line">[key455460, key472390, key481049, key490008, key540702, key545070, key551743, key554031, key562780, key568965]</div><div class="line">[key579924, key580418, key591459, key639188, key64048, key649514, key658555, key729598, key748145, key75009]</div><div class="line">[key756893, key759104, key765850, key774811, key828361, key839320, key843959, key852918, key901957, key910916]</div><div class="line">[key929730, key932994, key938771, key97391, key987960, key996921]</div><div class="line">migrate keys num =56</div><div class="line"># 迁移槽成功</div><div class="line">127.0.0.1:6383&gt; cluster nodes</div><div class="line">0715d82c97fcf71bccb6f26e94bf1a91b5269adf 127.0.0.1:6382 master - 0 1513328128290 3 connected 10923-16383</div><div class="line">ea6307898d149e9043a9f55ea176e65f98b275ce 127.0.0.1:6383 myself,master - 0 0 4 connected 0-8</div><div class="line">7c1332aab6ace2b6d8c9f24996c6bf1c8d41c771 127.0.0.1:6381 master - 0 1513328124271 2 connected 5461-10922</div><div class="line">66dc9c4d57be6c5acb8e38f131eddef3f6075ac3 127.0.0.1:6380 master - 0 1513328125274 1 connected 9-5460</div></pre></td></tr></table></figure>
+<ul>
+<li>迁移后键的情况<br>查看6383，6380端口 键数据情况：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"># 键已经迁移到 6383节点</div><div class="line">127.0.0.1:6380&gt; mget key245124 key251617 key254165</div><div class="line">(error) MOVED 8 127.0.0.1:6383</div><div class="line"># 在6383 查看键情况</div><div class="line">localhos:data chenshi$ redis-cli -p 6383</div><div class="line">127.0.0.1:6383&gt; ttl key245124</div><div class="line">(integer) 12</div><div class="line">127.0.0.1:6383&gt; ttl key251617</div><div class="line">(integer) 8</div><div class="line">127.0.0.1:6383&gt; mget key245124 key251617 key254165</div><div class="line">1) (nil)</div><div class="line">2) (nil)</div><div class="line">3) (nil)</div></pre></td></tr></table></figure>
+<p>发现同一次批量迁移的键都出现过期。</p>
+<h4 id="客户端调用产生ask转向异常"><a href="#客户端调用产生ask转向异常" class="headerlink" title="客户端调用产生ask转向异常"></a>客户端调用产生ask转向异常</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line">redis.clients.jedis.exceptions.JedisAskDataException: ASK 2 127.0.0.1:6383</div><div class="line">    at redis.clients.jedis.Protocol.processError(Protocol.java:121)</div><div class="line">    at redis.clients.jedis.Protocol.process(Protocol.java:167)</div><div class="line">    at redis.clients.jedis.Protocol.read(Protocol.java:221)</div><div class="line">    at redis.clients.jedis.Connection.readProtocolWithCheckingBroken(Connection.java:328)</div><div class="line">    at redis.clients.jedis.Connection.getBinaryBulkReply(Connection.java:269)</div><div class="line">    at redis.clients.jedis.Connection.getBulkReply(Connection.java:259)</div><div class="line">    at redis.clients.jedis.Jedis.get(Jedis.java:167)</div><div class="line">    at com.sohu.index.demo.test.cluster.ClusterTest.testMigrateGet(ClusterTest.java:84)</div><div class="line">    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)</div><div class="line">    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)</div><div class="line">    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)</div><div class="line">    at java.lang.reflect.Method.invoke(Method.java:498)</div><div class="line">    at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)</div><div class="line">    at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)</div><div class="line">    at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)</div><div class="line">    at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)</div><div class="line">    at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)</div><div class="line">    at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)</div><div class="line">    at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)</div><div class="line">    at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)</div><div class="line">    at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)</div><div class="line">    at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)</div><div class="line">    at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)</div><div class="line">    at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)</div><div class="line">    at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)</div><div class="line">    at org.junit.runners.ParentRunner.run(ParentRunner.java:363)</div><div class="line">    at org.junit.runner.JUnitCore.run(JUnitCore.java:137)</div><div class="line">    at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)</div><div class="line">    at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:51)</div><div class="line">    at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:237)</div><div class="line">    at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)</div><div class="line">    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)</div><div class="line">    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)</div><div class="line">    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)</div><div class="line">    at java.lang.reflect.Method.invoke(Method.java:498)</div><div class="line">    at com.intellij.rt.execution.application.AppMain.main(AppMain.java:147)</div></pre></td></tr></table></figure>
+<h3 id="问题总结"><a href="#问题总结" class="headerlink" title="问题总结"></a>问题总结</h3><p>redis 3.0.7 集群迁移过程中ttl判断: ttl这里是全局变量 ，如果在一次批量迁移键过程中(上面一次批量迁移10个键)，所有键都会被赋值ttl。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">/*</div><div class="line">问题出在这个for循环，对于不过期的key,ttl应该是0，但是如果前面有过期的key,ttl&gt;0.在处理不过期key时，expireat=-1，导致ttl还是使用前一个ttl.</div><div class="line">导致一个永不过期的key因为ttl&gt;0而过期。</div><div class="line">*/</div><div class="line">/* Create RESTORE payload and generate the protocol to call the command. */</div><div class="line">for (j = 0; j &lt; num_keys; j++) &#123;</div><div class="line">    expireat = getExpire(c-&gt;db,kv[j]);</div><div class="line">    if (expireat != -1) &#123;</div><div class="line">        ttl = expireat-mstime();</div><div class="line">        if (ttl &lt; 1) ttl = 1;</div><div class="line">    &#125;</div><div class="line">    ...</div></pre></td></tr></table></figure>
+<p>redis 3.2.10 版本中，增加ttl局部变量ttl=0,防止批量键中 包含 过期和不过期key 的混乱，所以这是一个比较严重的bug。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">/* Create RESTORE payload and generate the protocol to call the command. */</div><div class="line">for (j = 0; j &lt; num_keys; j++) &#123;</div><div class="line">    long long ttl = 0;</div><div class="line">    long long expireat = getExpire(c-&gt;db,kv[j]);</div><div class="line"> </div><div class="line">    if (expireat != -1) &#123;</div><div class="line">        ttl = expireat-mstime();</div><div class="line">        if (ttl &lt; 1) ttl = 1;</div><div class="line">    &#125;</div><div class="line">...</div></pre></td></tr></table></figure></p>
+<p>在使用本地和线上进行运维redis过程中，需要<strong>特别注意 redis 3.* 有些版本存在该bug 尽量不要使用 键批量迁移 api。</strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Redis/" rel="tag">#Redis</a>
+          
+            <a href="/tags/Redis-bug/" rel="tag">#Redis bug</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/22/goal/redis/jedis代码迁移槽/" rel="next" title="jedis代码迁移槽">
+                <i class="fa fa-chevron-left"></i> jedis代码迁移槽
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/metor.ico"
+               alt="Pedestrian" />
+          <p class="site-author-name" itemprop="name">Pedestrian</p>
+          <p class="site-description motion-element" itemprop="description">study for goal</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">60</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">40</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">59</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/yanan0628" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://carlosfu.github.io/" target="_blank" title="fudada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  fudada
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://jolinzhangg.github.io/" target="_blank" title="xiaodada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  xiaodada
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#redis批量键操作bug"><span class="nav-number">1.</span> <span class="nav-text">redis批量键操作bug</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#jedis-migrate的api"><span class="nav-number">1.1.</span> <span class="nav-text">jedis migrate的api</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测试批量键迁移操作"><span class="nav-number">1.2.</span> <span class="nav-text">测试批量键迁移操作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#准备迁移的jedis节点"><span class="nav-number">1.2.1.</span> <span class="nav-text">准备迁移的jedis节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#查看源节点槽-slot-8-的数据"><span class="nav-number">1.2.2.</span> <span class="nav-text">查看源节点槽(slot=8)的数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#设置某个键过期-开始迁移槽"><span class="nav-number">1.2.3.</span> <span class="nav-text">设置某个键过期,开始迁移槽</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#客户端调用产生ask转向异常"><span class="nav-number">1.2.4.</span> <span class="nav-text">客户端调用产生ask转向异常</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题总结"><span class="nav-number">1.3.</span> <span class="nav-text">问题总结</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pedestrian</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+                            
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').mousedown(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+  
+
+  
+
+  
+
+</body>
+</html>

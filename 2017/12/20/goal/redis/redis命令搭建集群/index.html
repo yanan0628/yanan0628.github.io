@@ -1,0 +1,938 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Redis," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="环境准备相关目录 redis安装目录:/opt/soft/redis redis节点配置目录:/opt/soft/conf  redis数据日志目录:/opt/soft/data redis版本:   123localhos:soft chenshi$ redis-server -vRedis server v=3.0.7 sha=00000000:0 malloc=libc bits=64 bu">
+<meta name="keywords" content="Redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis命令搭建集群">
+<meta property="og:url" content="/2017/12/20/goal/redis/redis命令搭建集群/index.html">
+<meta property="og:site_name" content="Meteor">
+<meta property="og:description" content="环境准备相关目录 redis安装目录:/opt/soft/redis redis节点配置目录:/opt/soft/conf  redis数据日志目录:/opt/soft/data redis版本:   123localhos:soft chenshi$ redis-server -vRedis server v=3.0.7 sha=00000000:0 malloc=libc bits=64 bu">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-12-21T11:00:41.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="redis命令搭建集群">
+<meta name="twitter:description" content="环境准备相关目录 redis安装目录:/opt/soft/redis redis节点配置目录:/opt/soft/conf  redis数据日志目录:/opt/soft/data redis版本:   123localhos:soft chenshi$ redis-server -vRedis server v=3.0.7 sha=00000000:0 malloc=libc bits=64 bu">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> redis命令搭建集群 | Meteor </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Meteor</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                redis命令搭建集群
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-20T00:00:00+08:00" content="2017-12-20">
+              2017-12-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Redis/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Redis/redis-cluster/" itemprop="url" rel="index">
+                    <span itemprop="name">redis-cluster</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><h3 id="相关目录"><a href="#相关目录" class="headerlink" title="相关目录"></a>相关目录</h3><ul>
+<li>redis安装目录:/opt/soft/redis</li>
+<li>redis节点配置目录:/opt/soft/conf </li>
+<li>redis数据日志目录:/opt/soft/data</li>
+<li><p>redis版本:</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">localhos:soft chenshi$ redis-server -v</div><div class="line">Redis server v=3.0.7 sha=00000000:0 malloc=libc bits=64 </div><div class="line">build=fb816918fe2492c2</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<a id="more"></a>
+<h3 id="准备节点"><a href="#准备节点" class="headerlink" title="准备节点"></a>准备节点</h3><p>准备至少3个master节点:(否则集群不能进行故障转移)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">node1:	127.0.0.1 6380</div><div class="line">node2:	127.0.0.1 6381</div><div class="line">node3:	127.0.0.1 6382</div></pre></td></tr></table></figure>
+<h3 id="集群配置"><a href="#集群配置" class="headerlink" title="集群配置"></a>集群配置</h3><h4 id="集群相关参数"><a href="#集群相关参数" class="headerlink" title="集群相关参数:"></a>集群相关参数:</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">#节点端口</div><div class="line">port $&#123;port&#125;</div><div class="line"># 开启集群模式</div><div class="line">cluster-enabled yes</div><div class="line"># 节点超时时间，单位毫秒</div><div class="line">cluster-node-timeout 15000</div><div class="line"># 每节点集群相关配置文件</div><div class="line">cluster-config-file &quot;nodes-$&#123;port&#125;.conf&quot;</div></pre></td></tr></table></figure>
+<h4 id="节点配置"><a href="#节点配置" class="headerlink" title="节点配置:"></a>节点配置:</h4><ul>
+<li><strong>1).配置文件格式:</strong></li>
+</ul>
+<p>redis配置文件:redis-${port}.conf<br>redis日志:${port}.log<br>redis持久化:appendonly-${port}.aof dump-${port}.rdb<br>redis集群配置:node-${port}.conf</p>
+<p>所有相关配置文件都以端口来区分。</p>
+<ul>
+<li><strong>2).节点6380配置:</strong> </li>
+</ul>
+<p>数据目录:/opt/soft/data （包含redis的log、aof、rdb、node.conf文件）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">&gt; cat /opt/soft/conf/redis-6380.conf</div><div class="line">port 6380</div><div class="line">cluster-enabled yes</div><div class="line">cluster-config-file nodes-6380.conf</div><div class="line">cluster-node-timeout 15000</div><div class="line">dir &quot;/opt/soft/data/&quot;</div><div class="line">appendonly yes</div><div class="line">appendfilename &quot;appendonly-6380.aof&quot;</div><div class="line">logfile &quot;6380.log&quot;</div><div class="line">daemonize yes</div><div class="line">pidfile /var/run/redis-6380.pid</div><div class="line">dbfilename &quot;dump-6380.rdb&quot;</div></pre></td></tr></table></figure>
+<ul>
+<li><strong>3).拷贝节点(6381,6382)配置</strong></li>
+</ul>
+<p>sed命令替换配置文件每一行的端口为新端口.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sed &apos;s/6380/6381/g&apos; redis-6380.conf &gt; redis-6381.conf</div><div class="line">sed &apos;s/6380/6382/g&apos; redis-6380.conf &gt; redis-6382.conf</div></pre></td></tr></table></figure>
+<ul>
+<li><strong>4).启动6380节点</strong></li>
+</ul>
+<p>查看/opt/soft/data: 集群配置文件、日志、持久化文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">localhos:data chenshi$ pwd</div><div class="line">/opt/soft/data</div><div class="line">localhos:data chenshi$ ls -l</div><div class="line">total 16</div><div class="line">-rw-r--r--  1 chenshi  wheel  1522 12 21 09:38 6380.log</div><div class="line">-rw-r--r--  1 chenshi  wheel     0 12 21 09:38 appendonly-6380.aof</div><div class="line">-rw-r--r--  1 chenshi  wheel   112 12 21 09:38 nodes-6380.conf</div></pre></td></tr></table></figure>
+<p>查看日志:6380.log</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">localhos:data chenshi$ tail -30f 6380.log</div><div class="line">83065:M 21 Dec 09:38:11.451 * Increased maximum number of open files to 10032 (it was originally set to 4864).</div><div class="line">83065:M 21 Dec 09:38:11.453 * No cluster configuration found, I&apos;m 506f9638b4ec6af24228ce2dde21baefd689856b</div><div class="line">                _._</div><div class="line">           _.-``__ &apos;&apos;-._</div><div class="line">      _.-``    `.  `_.  &apos;&apos;-._           Redis 3.0.7 (00000000/0) 64 bit</div><div class="line">  .-`` .-```.  ```\/    _.,_ &apos;&apos;-._</div><div class="line"> (    &apos;      ,       .-`  | `,    )     Running in cluster mode</div><div class="line"> |`-._`-...-` __...-.``-._|&apos;` _.-&apos;|     Port: 6380</div><div class="line"> |    `-._   `._    /     _.-&apos;    |     PID: 83065</div><div class="line">  `-._    `-._  `-./  _.-&apos;    _.-&apos;</div><div class="line"> |`-._`-._    `-.__.-&apos;    _.-&apos;_.-&apos;|</div><div class="line"> |    `-._`-._        _.-&apos;_.-&apos;    |           http://redis.io</div><div class="line">  `-._    `-._`-.__.-&apos;_.-&apos;    _.-&apos;</div><div class="line"> |`-._`-._    `-.__.-&apos;    _.-&apos;_.-&apos;|</div><div class="line"> |    `-._`-._        _.-&apos;_.-&apos;    |</div><div class="line">  `-._    `-._`-.__.-&apos;_.-&apos;    _.-&apos;</div><div class="line">      `-._    `-.__.-&apos;    _.-&apos;</div><div class="line">          `-._        _.-&apos;</div><div class="line">              `-.__.-&apos;</div><div class="line"></div><div class="line">83065:M 21 Dec 09:38:11.455 # Server started, Redis version 3.0.7</div><div class="line">83065:M 21 Dec 09:38:11.455 * The server is now ready to accept connections on port 6380</div></pre></td></tr></table></figure>
+<p>查看集群配置:node-6380.conf</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&gt; cat nodes-6380.conf</div><div class="line">506f9638b4ec6af24228ce2dde21baefd689856b :0 myself,master - 0 0 0 connected</div><div class="line">vars currentEpoch 0 lastVoteEpoch 0</div></pre></td></tr></table></figure>
+<h2 id="集群搭建"><a href="#集群搭建" class="headerlink" title="集群搭建"></a>集群搭建</h2><h3 id="集群搭建步骤"><a href="#集群搭建步骤" class="headerlink" title="集群搭建步骤"></a>集群搭建步骤</h3><ul>
+<li>1.启动所有redis节点(6380-6382)</li>
+<li>2.节点握手</li>
+<li>3.分配槽</li>
+<li>4.添加从节点</li>
+</ul>
+<image src="http://i2.itc.cn/20171221/aac_c07ae483_705e_7045_8889_38895be10acc_1.png" height="200" width="%50">
+
+
+<h4 id="启动所有redis节点"><a href="#启动所有redis节点" class="headerlink" title="启动所有redis节点"></a>启动所有redis节点</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">/opt/soft/conf</div><div class="line">localhos:conf chenshi$ redis-server redis-6380.conf</div><div class="line">localhos:conf chenshi$ redis-server redis-6381.conf</div><div class="line">localhos:conf chenshi$ redis-server redis-6382.conf</div><div class="line"></div><div class="line">查看Redis进程</div><div class="line">ps -ef | grep redis</div><div class="line">  501 83065     1   0  9:38上午 ??         0:00.49 redis-server *:6380 [cluster]</div><div class="line">  501 83152     1   0  9:49上午 ??         0:00.04 redis-server *:6381 [cluster]</div><div class="line">  501 83155     1   0  9:49上午 ??         0:00.03 redis-server *:6382 [cluster]</div><div class="line">  501 83163 99675   0  9:50上午 ttys002    0:00.00 grep redis</div></pre></td></tr></table></figure>
+<h4 id="节点握手"><a href="#节点握手" class="headerlink" title="节点握手"></a>节点握手</h4><p><strong>握手命令</strong>: cluster meet ${targethost} ${targetport}<br><strong>握手过程</strong>: 节点握手过程通过Gossip协议彼此通讯达到认识过程。</p>
+<p>6380认识6381过程:(集群内部通讯接口 10000+${port})</p>
+<ul>
+<li>1).节点6380本地创建6381节点信息对象，并发送meet消息。</li>
+<li>2).节点6381接受到meet消息后，保存6380节点信息并回复pong消息。</li>
+<li>3).之后节点6380定期发送ping消息进行正常的节点通信。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">tcp        0      0 0.0.0.0:6380            0.0.0.0:*               LISTEN      1316/redis-server *</div><div class="line">tcp        0      0 0.0.0.0:6381            0.0.0.0:*               LISTEN      1440/redis-server *</div><div class="line">tcp        0      0 0.0.0.0:6382            0.0.0.0:*               LISTEN      1560/redis-server *</div><div class="line">tcp        0      0 0.0.0.0:6383            0.0.0.0:*               LISTEN      2010/redis-server *</div><div class="line">tcp        0      0 0.0.0.0:16380           0.0.0.0:*               LISTEN      1316/redis-server *</div><div class="line">tcp        0      0 0.0.0.0:16381           0.0.0.0:*               LISTEN      1440/redis-server *</div><div class="line">tcp        0      0 0.0.0.0:16382           0.0.0.0:*               LISTEN      1560/redis-server *</div><div class="line">tcp        0      0 0.0.0.0:16383           0.0.0.0:*               LISTEN      2010/redis-server *</div></pre></td></tr></table></figure>
+<p><strong>节点握手</strong>:</p>
+<p>节点相互认识，观察集群状态：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">redis-cli -p 6380</div><div class="line">127.0.0.1:6380&gt; cluster meet 127.0.0.1 6381</div><div class="line">OK</div><div class="line">127.0.0.1:6380&gt; cluster meet 127.0.0.1 6382</div><div class="line">OK</div><div class="line">127.0.0.1:6380&gt; cluster nodes</div><div class="line">a6f0c6f4d9bbe773c69fd88a1f6ccc25d792f10e 127.0.0.1:6382 master - 0 1513821336961 0 connected</div><div class="line">506f9638b4ec6af24228ce2dde21baefd689856b 127.0.0.1:6380 myself,master - 0 0 2 connected</div><div class="line">499950f8da98d39f75342fddbe030d2c094dbe55 127.0.0.1:6381 master - 0 1513821337969 1 connected</div></pre></td></tr></table></figure>
+<h4 id="分配槽"><a href="#分配槽" class="headerlink" title="分配槽"></a>分配槽</h4><blockquote>
+<p>节点分配槽(16384)均匀分配:</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">1).客户端循环添加slot:</div><div class="line">redis-cli -h 127.0.0.1 -p 6380 cluster addslots &#123;0...5461&#125;</div><div class="line">redis-cli -h 127.0.0.1 -p 6381 cluster addslots &#123;5462...10922&#125;</div><div class="line">redis-cli -h 127.0.0.1 -p 6382 cluster addslots &#123;10923...16383&#125;</div><div class="line"></div><div class="line"></div><div class="line">2).命令封装脚本执行:</div><div class="line">sh /opt/soft/sh/addslots.sh 0 5461 6380</div><div class="line">sh /opt/soft/sh/addslots.sh 5462 10922 6381</div><div class="line">sh /opt/soft/sh/addslots.sh 10923 16383 6382</div></pre></td></tr></table></figure>
+<blockquote>
+<p>查看集群情况，数据槽都分配成功</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line">127.0.0.1:6382&gt; cluster nodes</div><div class="line">499950f8da98d39f75342fddbe030d2c094dbe55 127.0.0.1:6381 master - 0 1513824518289 1 connected 5462-10922</div><div class="line">506f9638b4ec6af24228ce2dde21baefd689856b 127.0.0.1:6380 master - 0 1513824516274 2 connected 0-5461</div><div class="line">a6f0c6f4d9bbe773c69fd88a1f6ccc25d792f10e 127.0.0.1:6382 myself,master - 0 0 0 connected 10923-16383</div><div class="line"></div><div class="line">集群状态cluster_state:ok表明集群正常，槽分配完毕</div><div class="line">127.0.0.1:6382&gt; cluster info</div><div class="line">cluster_state:ok</div><div class="line">cluster_slots_assigned:16384</div><div class="line">cluster_slots_ok:16384</div><div class="line">cluster_slots_pfail:0</div><div class="line">cluster_slots_fail:0</div><div class="line">cluster_known_nodes:3</div><div class="line">cluster_size:3</div><div class="line">cluster_current_epoch:2</div><div class="line">cluster_my_epoch:0</div><div class="line">cluster_stats_messages_sent:6199</div><div class="line">cluster_stats_messages_received:6199</div><div class="line">127.0.0.1:6382&gt; get key</div><div class="line">(nil)</div><div class="line"></div><div class="line">删除一个槽，集群状态为fail,集群不可用</div><div class="line">127.0.0.1:6382&gt; CLUSTER DELSLOTS 16383</div><div class="line">OK</div><div class="line">127.0.0.1:6382&gt; cluster info</div><div class="line">cluster_state:fail</div><div class="line">cluster_slots_assigned:16383</div><div class="line">cluster_slots_ok:16383</div><div class="line">cluster_slots_pfail:0</div><div class="line">cluster_slots_fail:0</div><div class="line">cluster_known_nodes:3</div><div class="line">cluster_size:3</div><div class="line">cluster_current_epoch:2</div><div class="line">cluster_my_epoch:0</div><div class="line">cluster_stats_messages_sent:6245</div><div class="line">cluster_stats_messages_received:6245</div><div class="line">127.0.0.1:6382&gt; get key</div><div class="line">(error) CLUSTERDOWN The cluster is down</div></pre></td></tr></table></figure>
+<p>如何保证节点部分失败，集群仍然工作:</p>
+<p>如果集群槽意外丢失，可能会造成集群不可用，所有请求都不可用，在我们运维redis集群过程中，肯定会遇到机器宕机、进程kill等等情况，可能会造成槽丢失。这里redis提供一个参数控制：</p>
+<blockquote>
+<p><code>cluster-require-full-coverage</code>:yes(默认值)/no 集群丢失槽后，是否接受客户端调用</p>
+</blockquote>
+<p>yes:不接受客户端调用<br>no: 正常数据槽仍然可以接受客户端调用 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">127.0.0.1:6382&gt; config get cluster-require-full-coverage</div><div class="line">1) &quot;cluster-require-full-coverage&quot;</div><div class="line">2) &quot;yes&quot;</div><div class="line">127.0.0.1:6382&gt; config set cluster-require-full-coverage no</div><div class="line">OK</div><div class="line">127.0.0.1:6382&gt; config get cluster-require-full-coverage</div><div class="line">1) &quot;cluster-require-full-coverage&quot;</div><div class="line">2) &quot;no&quot;</div><div class="line">127.0.0.1:6382&gt; CLUSTER DELSLOTS 16383</div><div class="line">OK</div><div class="line">127.0.0.1:6382&gt; get key</div><div class="line">(nil)</div></pre></td></tr></table></figure>
+<h4 id="集群添加slave"><a href="#集群添加slave" class="headerlink" title="集群添加slave"></a>集群添加slave</h4><blockquote>
+<p>命令:cluster replicate {nodeId}</p>
+</blockquote>
+<p>从中也发现集群搭建需要很多步骤，当集群节点众多时，必然会加大我们搭建集群的复杂度和运维成本。因此Redis官方提供了redis-trib.rb工具可用于快速搭建集群。</p>
+<h3 id="集群伸缩"><a href="#集群伸缩" class="headerlink" title="集群伸缩"></a>集群伸缩</h3><p>Redis集群提供了灵活的节点扩容和收缩方案。在运维期间:<br>1).避免不了因机器下线、宕机需要对节点迁移;<br>2) 集群容量扩容由于分片足够大需要做水平扩容;<br>3).缩容需求 等等<br>这里主要讲redis原生命令操作。</p>
+<p><strong>参考文章</strong>：[redis-trib文章]、[cachecloud水平扩容] </p>
+<p><code>集群伸缩的原理</code>: 其实就是变更节点-slot关系的过程，当我们在增加或减少redis节点过程期间需要将部分槽迁移到指定目标节点。</p>
+<p>相关流程和命令参考: <a href="https://redis.io/topics/cluster-tutorial" target="_blank" rel="external">集群官方文档</a> <a href="https://redis.io/commands/cluster-addslots" target="_blank" rel="external">集群相关命令</a></p>
+<h4 id="槽迁移"><a href="#槽迁移" class="headerlink" title="槽迁移"></a>槽迁移</h4><blockquote>
+<p>不论扩容还是缩容，最重要一步就是<code>槽迁移过程</code>:</p>
+</blockquote>
+<image src="http://i0.itc.cn/20171221/aac_d9b5c4fb_67f7_0014_ec2e_303b03b8918f_2.png" width="250" height="150">
+
+<ul>
+<li><p>1).目标节点准备导入槽：</p>
+<p>  源节点 &gt; cluster setslot ${slot} importing ${targetNodeid}</p>
+</li>
+<li><p>2).源节点准备导出槽</p>
+<p>  目标节点 &gt; cluster setslot ${slot} migrating ${sourceNodeId}</p>
+</li>
+<li><p>3).源节点获取slot的键【循环开始】</p>
+<p>  目标节点 &gt; cluster getkeysinslot ${slot} ${count}</p>
+</li>
+<li><p>4).源节点开始迁移slot上的槽的键，直到迁移槽上所有键 【循环结束】</p>
+<p>  目标节点 &gt; migrate ${targetHost} ${targetPort} “” 0 ${timeout} keys ${key}</p>
+</li>
+<li><p>6).通知所有master节点更新 槽的变化。</p>
+<p>  每个master节点 &gt; cluster setslot {slot} node {targetNodeId}</p>
+</li>
+</ul>
+<blockquote>
+<p>实例槽进行迁移</p>
+</blockquote>
+<p>现在redis-cluster集群有四个节点 6380-6383,先讲6383节点(sourceNode)槽slot=0 迁移到 6380节点(targetNode)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">redis-cli -p 6380</div><div class="line">127.0.0.1:6380&gt; cluster nodes</div><div class="line">cefa08a1d5da0650d25a4bba112a36a9a3578d3e 127.0.0.1:6380 myself,master - 0 0 4 connected 1465-5560</div><div class="line">110ef7ea822f6eebdb866c852a6f862c2d313e8a 127.0.0.1:6383 master - 0 1513849731189 5 connected 0-1464 5561-6826 10923-12287</div><div class="line">bc56af114f1a51968bf890264ec67e083ed5e3e6 127.0.0.1:6381 master - 0 1513849732197 2 connected 6827-10922</div><div class="line">12c14b8474e0e3b1e5fcb3347fecce6114587c1a 127.0.0.1:6382 master - 0 1513849733202 3 connected 12288-16383</div></pre></td></tr></table></figure>
+<p><strong>开始迁移:</strong></p>
+<ul>
+<li>1).目标节点准备导入槽</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">redis-cli -p 6380</div><div class="line">127.0.0.1:6380&gt; CLUSTER SETSLOT 0 importing cefa08a1d5da0650d25a4bba112a36a9a3578d3e</div><div class="line">OK</div><div class="line">127.0.0.1:6380&gt; cluster nodes</div><div class="line">cefa08a1d5da0650d25a4bba112a36a9a3578d3e 127.0.0.1:6380 myself,master - 0 0 4 connected 1465-5560 [0-&lt;-cefa08a1d5da0650d25a4bba112a36a9a3578d3e]</div><div class="line">110ef7ea822f6eebdb866c852a6f862c2d313e8a 127.0.0.1:6383 master - 0 1513850196587 5 connected 0-1464 5561-6826 10923-12287</div><div class="line">bc56af114f1a51968bf890264ec67e083ed5e3e6 127.0.0.1:6381 master - 0 1513850197598 2 connected 6827-10922</div><div class="line">12c14b8474e0e3b1e5fcb3347fecce6114587c1a 127.0.0.1:6382 master - 0 1513850194571 3 connected 12288-16383</div></pre></td></tr></table></figure>
+<ul>
+<li>2).源节点准备导出槽</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">redis-cli -p 6383</div><div class="line">127.0.0.1:6383&gt; CLUSTER SETSLOT 0 migrating 110ef7ea822f6eebdb866c852a6f862c2d313e8a</div><div class="line">OK</div><div class="line">127.0.0.1:6383&gt; cluster nodes</div><div class="line">cefa08a1d5da0650d25a4bba112a36a9a3578d3e 127.0.0.1:6380 master - 0 1513850334048 4 connected 1465-5560</div><div class="line">12c14b8474e0e3b1e5fcb3347fecce6114587c1a 127.0.0.1:6382 master - 0 1513850333040 3 connected 12288-16383</div><div class="line">bc56af114f1a51968bf890264ec67e083ed5e3e6 127.0.0.1:6381 master - 0 1513850332033 2 connected 6827-10922</div><div class="line">110ef7ea822f6eebdb866c852a6f862c2d313e8a 127.0.0.1:6383 myself,master - 0 0 5 connected 0-1464 5561-6826 10923-12287 [0-&gt;-110ef7ea822f6eebdb866c852a6f862c2d313e8a]</div></pre></td></tr></table></figure>
+<ul>
+<li>3,4).循环取出源节点键，migrate到目标节点</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">127.0.0.1:6383&gt; CLUSTER COUNTKEYSINSLOT 0  #键数量</div><div class="line">(integer) 78</div><div class="line">127.0.0.1:6383&gt; CLUSTER GETKEYSINSLOT 0 5  #取槽0 前5个key</div><div class="line">1) &quot;key104884&quot;</div><div class="line">2) &quot;key126806&quot;</div><div class="line">3) &quot;key129191&quot;</div><div class="line">4) &quot;key137847&quot;</div><div class="line">5) &quot;key188656&quot;</div><div class="line">127.0.0.1:6383&gt; mget key104884 key126806 key129191</div><div class="line">1) &quot;104884&quot;</div><div class="line">2) &quot;126806&quot;</div><div class="line">3) &quot;129191&quot;</div><div class="line">127.0.0.1:6383&gt; migrate 127.0.0.1 6380 &quot;&quot;  0 2000 keys key104884 key126806 key129191 key137847 key188656  # 迁移前5个键</div><div class="line">OK</div><div class="line">127.0.0.1:6383&gt; mget key104884 key126806 key129191  # 迁移期间key的值访问不到</div><div class="line">1) (nil)</div><div class="line">2) (nil)</div><div class="line">3) (nil)</div><div class="line">127.0.0.1:6380&gt; get key104884  # 目标节点key的值也访问不到</div><div class="line">(error) MOVED 0 127.0.0.1:6383</div></pre></td></tr></table></figure>
+<ul>
+<li><p>5).待循环迁移所有键</p>
+</li>
+<li><p>6).通知所有master 节点更新slot=0的变化</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">127.0.0.1:6380&gt; CLUSTER SETSLOT 0 node cefa08a1d5da0650d25a4bba112a36a9a3578d3e</div><div class="line">127.0.0.1:6381&gt; CLUSTER SETSLOT 0 node cefa08a1d5da0650d25a4bba112a36a9a3578d3e</div><div class="line">127.0.0.1:6382&gt; CLUSTER SETSLOT 0 node cefa08a1d5da0650d25a4bba112a36a9a3578d3e</div><div class="line">127.0.0.1:6383&gt; CLUSTER SETSLOT 0 node cefa08a1d5da0650d25a4bba112a36a9a3578d3e</div><div class="line"></div><div class="line">查看集群配置的每个6380节点是否已经拥有槽0</div><div class="line">localhos:conf chenshi cat ../data/nodes-638* | grep 6380</div><div class="line">cefa08a1d5da0650d25a4bba112a36a9a3578d3e 127.0.0.1:6380 myself,master - 0 0 6 connected 0 1465-5560</div><div class="line">cefa08a1d5da0650d25a4bba112a36a9a3578d3e 127.0.0.1:6380 master - 0 1513851122860 6 connected 0 1465-5560</div><div class="line">cefa08a1d5da0650d25a4bba112a36a9a3578d3e 127.0.0.1:6380 master - 0 1513851131325 6 connected 0 1465-5560</div><div class="line">cefa08a1d5da0650d25a4bba112a36a9a3578d3e 127.0.0.1:6380 master - 0 1513851156619 6 connected 0 1465-5560</div></pre></td></tr></table></figure>
+<ul>
+<li>7).验证slot key访问</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">localhos:conf chenshi redis-cli -p 6380</div><div class="line">127.0.0.1:6380&gt; mget key104884 key126806 key129191  #说明已经迁移成功</div><div class="line">1) &quot;104884&quot;</div><div class="line">2) &quot;126806&quot;</div><div class="line">3) &quot;129191&quot;</div></pre></td></tr></table></figure>
+<h4 id="槽批量迁移bug"><a href="#槽批量迁移bug" class="headerlink" title="槽批量迁移bug"></a>槽批量迁移bug</h4><p>参考文章:<a href="http://index.tv.sohuno.com/confluence/pages/viewpage.action?pageId=13604621" target="_blank" rel="external">redis在migrate批量键迁移存在bug</a>    </p>
+<h4 id="集群扩容"><a href="#集群扩容" class="headerlink" title="集群扩容"></a>集群扩容</h4><p>扩容是分布式存储最常见的需求，Redis集群扩容流程如下:</p>
+<ul>
+<li>1).准备新节点</li>
+<li>2).加入集群</li>
+<li><p>3).迁移槽和数据</p>
+<image src="http://i2.itc.cn/20171221/aac_d9b5c4fb_67f7_0014_ec2e_303b03b8918f_1.png" height="100" width="250">
+
+</image></li>
+</ul>
+<h4 id="集群缩容"><a href="#集群缩容" class="headerlink" title="集群缩容"></a>集群缩容</h4><p>收缩集群意味着缩减规模，需要从现有集群中安全下线部分节点。安全下线节点流程:</p>
+<ul>
+<li>1).首先需要确定下线节点是否持有槽， 如果是需要把槽迁移到其它节点，保证节点下线后整个集群槽节点映射的完整性。 </li>
+<li>2).当节点不再负责槽或者本身是从节点时，就可以通知集群内其它节点忘记下线节点。</li>
+<li><p>3).当集群内所有的节点忘记该节点后，可以正常关闭节点从而完成安全下线。</p>
+<image src="http://i2.itc.cn/20171221/aac_d9b5c4fb_67f7_0014_ec2e_303b03b8918f_3.png" height="200" width="180">
+
+</image></li>
+</ul>
+<p>在集群伸缩这一节，主要说道槽迁移过程的步骤较为复杂，集群扩容和缩容也是对于槽的一个迁移过程，可以使用redis-trib.rb工具或代码迁移去解决，手工迁移较为麻烦。 </p>
+</image></image>
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Redis/" rel="tag">#Redis</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/17/10.5) minikube安装及使用/" rel="next" title="minikube单机版mac安装">
+                <i class="fa fa-chevron-left"></i> minikube单机版mac安装
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/20/goal/redis-cluster集群运维/" rel="prev" title="redis-cluster文章汇总">
+                redis-cluster文章汇总 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/metor.ico"
+               alt="Pedestrian" />
+          <p class="site-author-name" itemprop="name">Pedestrian</p>
+          <p class="site-description motion-element" itemprop="description">study for goal</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">60</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">40</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">59</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/yanan0628" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://carlosfu.github.io/" target="_blank" title="fudada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  fudada
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://jolinzhangg.github.io/" target="_blank" title="xiaodada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  xiaodada
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#环境准备"><span class="nav-number">1.</span> <span class="nav-text">环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#相关目录"><span class="nav-number">1.1.</span> <span class="nav-text">相关目录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#准备节点"><span class="nav-number">1.2.</span> <span class="nav-text">准备节点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#集群配置"><span class="nav-number">1.3.</span> <span class="nav-text">集群配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#集群相关参数"><span class="nav-number">1.3.1.</span> <span class="nav-text">集群相关参数:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#节点配置"><span class="nav-number">1.3.2.</span> <span class="nav-text">节点配置:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#集群搭建"><span class="nav-number">2.</span> <span class="nav-text">集群搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#集群搭建步骤"><span class="nav-number">2.1.</span> <span class="nav-text">集群搭建步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#启动所有redis节点"><span class="nav-number">2.1.1.</span> <span class="nav-text">启动所有redis节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#节点握手"><span class="nav-number">2.1.2.</span> <span class="nav-text">节点握手</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分配槽"><span class="nav-number">2.1.3.</span> <span class="nav-text">分配槽</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#集群添加slave"><span class="nav-number">2.1.4.</span> <span class="nav-text">集群添加slave</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#集群伸缩"><span class="nav-number">2.2.</span> <span class="nav-text">集群伸缩</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#槽迁移"><span class="nav-number">2.2.1.</span> <span class="nav-text">槽迁移</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#槽批量迁移bug"><span class="nav-number">2.2.2.</span> <span class="nav-text">槽批量迁移bug</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#集群扩容"><span class="nav-number">2.2.3.</span> <span class="nav-text">集群扩容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#集群缩容"><span class="nav-number">2.2.4.</span> <span class="nav-text">集群缩容</span></a></li></ol></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pedestrian</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+                            
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').mousedown(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+  
+
+  
+
+  
+
+</body>
+</html>

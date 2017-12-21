@@ -1,0 +1,819 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="redis,epoll," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="参考：Redis 和 I/O 多路复用多路复用-知乎liunx的I/O模型redis官方wiki  为什么 Redis 中要使用 I/O 多路复用这种技术呢？12345678I/O多路复用(又被称为“事件驱动”):即是多个网路连接共享同一个线程。当你的某个socket可读或者可写的时候，它可以给你一个通知。操作系统的这个功能通过select/poll/epoll/kqueue之类的系统调用函数来">
+<meta name="keywords" content="redis,epoll">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis  I&#x2F;O 多路复用">
+<meta property="og:url" content="/2017/10/24/9.8)redis多路复用技术/index.html">
+<meta property="og:site_name" content="Meteor">
+<meta property="og:description" content="参考：Redis 和 I/O 多路复用多路复用-知乎liunx的I/O模型redis官方wiki  为什么 Redis 中要使用 I/O 多路复用这种技术呢？12345678I/O多路复用(又被称为“事件驱动”):即是多个网路连接共享同一个线程。当你的某个socket可读或者可写的时候，它可以给你一个通知。操作系统的这个功能通过select/poll/epoll/kqueue之类的系统调用函数来">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://pic4.zhimg.com/v2-93c716f502a769042cd26f357972b687_b.jpgs">
+<meta property="og:image" content="https://pic2.zhimg.com/v2-ecdd648dff385412db4aea1014ee1d51_b.png">
+<meta property="og:image" content="https://pic3.zhimg.com/v2-4769dd88e9cf685b052610f36f5e177e_b.png">
+<meta property="og:image" content="https://pic3.zhimg.com/v2-4cff43ccb083a587b0e4834acff884fa_b.png">
+<meta property="og:updated_time" content="2017-10-30T01:53:49.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="redis  I&#x2F;O 多路复用">
+<meta name="twitter:description" content="参考：Redis 和 I/O 多路复用多路复用-知乎liunx的I/O模型redis官方wiki  为什么 Redis 中要使用 I/O 多路复用这种技术呢？12345678I/O多路复用(又被称为“事件驱动”):即是多个网路连接共享同一个线程。当你的某个socket可读或者可写的时候，它可以给你一个通知。操作系统的这个功能通过select/poll/epoll/kqueue之类的系统调用函数来">
+<meta name="twitter:image" content="https://pic4.zhimg.com/v2-93c716f502a769042cd26f357972b687_b.jpgs">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> redis  I/O 多路复用 | Meteor </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Meteor</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                redis  I/O 多路复用
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-10-24T10:33:00+08:00" content="2017-10-24">
+              2017-10-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/多路复用/" itemprop="url" rel="index">
+                    <span itemprop="name">多路复用</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>参考：<br><a href="https://zhuanlan.zhihu.com/p/24252862?refer=belief" target="_blank" rel="external">Redis 和 I/O 多路复用</a><br><a href="https://www.zhihu.com/question/28594409" target="_blank" rel="external">多路复用-知乎</a><br><a href="https://segmentfault.com/a/1190000003063859#articleHeader6" target="_blank" rel="external">liunx的I/O模型</a><br><a href="https://github.com/antirez/redis" target="_blank" rel="external">redis官方wiki</a></p>
+</blockquote>
+<h2 id="为什么-Redis-中要使用-I-O-多路复用这种技术呢？"><a href="#为什么-Redis-中要使用-I-O-多路复用这种技术呢？" class="headerlink" title="为什么 Redis 中要使用 I/O 多路复用这种技术呢？"></a>为什么 Redis 中要使用 I/O 多路复用这种技术呢？</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">I/O多路复用(又被称为“事件驱动”):即是多个网路连接共享同一个线程。</div><div class="line">当你的某个socket可读或者可写的时候，它可以给你一个通知。操作系统的这个功能通过select/poll</div><div class="line">/epoll/kqueue之类的系统调用函数来使用，这些函数都可以同时监视多个描述符的读写就绪状况，这</div><div class="line">样，多个描述符的I/O操作都能在一个线程内并发交替地顺序完成，这就叫I/O多路复用，这里的“复用”指</div><div class="line">的是复用同一个线程。</div><div class="line">Linux环境下，Redis数据库服务器大部分时间以单进程单线程模式运行(执行持久化BGSAVE任务时会开</div><div class="line">启子进程)，即非阻塞的socket文件描述符号加上监控这些描述符的I/O多路复用机制（在Linux下可以使用select/poll/epoll系统调用命令）,使用reactor模式时间监听模式：文件事件和时间事件。</div><div class="line">文件事件指的是socket文件描述符的读写就绪情况，时间事件分为一次性定时器和周期性定时器。</div></pre></td></tr></table></figure>
+<p>I/O 多路复用模块：</p>
+<p><img src="https://pic4.zhimg.com/v2-93c716f502a769042cd26f357972b687_b.jpgs" alt=""></p>
+<p>mutliplex io好处:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">1.线程是有内存开销的，1个线程可能需要512K（或2M）存放栈，那么1000个线程就要512M（或2G）</div><div class="line">内存。redis单线程节省大量开销。</div><div class="line">2.线程的切换，或者说上下文切换是有CPU开销的，当大量时间花在上下文切换的时候，分配给真正的操</div><div class="line">作的CPU就要少很多。redis单线程避免了线程切换开销。(aof重写,rdb fork子进程)</div><div class="line">3.基于事件模型，数据处理的状态 通过selector队列器 监控，一旦状态到达就通知处理。</div></pre></td></tr></table></figure></p>
+<p><strong>redis处理模型:</strong></p>
+<ul>
+<li>建立socket连接(单线程处理多个socket连接，默认maxclient:10000)</li>
+<li>执行redis命令(数据读取过程,事件触发读/写)</li>
+</ul>
+<p><strong>redis epoll模式：</strong></p>
+<image src="http://i3.itc.cn/20171030/aac_f2bfb40f_f3fb_88bf_94f7_2540ee2b8361_1.png" height="300" width="400">
+
+<h2 id="IO方式"><a href="#IO方式" class="headerlink" title="IO方式"></a>IO方式</h2><h3 id="Blocking-IO"><a href="#Blocking-IO" class="headerlink" title="Blocking IO"></a>Blocking IO</h3><p><img src="https://pic2.zhimg.com/v2-ecdd648dff385412db4aea1014ee1d51_b.png" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">当使用 read 或者 write 对某一个文件描述符（File Descriptor 以下简称 FD)进行读写时，如果</div><div class="line">当前 FD 不可读或不可写，整个 Redis 服务就不会对其它的操作作出响应，导致整个服务不可用。</div><div class="line">redis主线程被阻塞。</div></pre></td></tr></table></figure>
+<h3 id="多路复用-IO"><a href="#多路复用-IO" class="headerlink" title="多路复用 IO"></a>多路复用 IO</h3><p>阻塞式的 I/O 模型并不能满足这里的需求，我们需要一种效率更高的 I/O 模型来支撑 Redis 的多个客户（redis-cli），这里涉及的就是 I/O 多路复用模型了。</p>
+<p><img src="https://pic3.zhimg.com/v2-4769dd88e9cf685b052610f36f5e177e_b.png" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">解释1:在 I/O 多路复用模型中，最重要的函数调用就是 select，该方法的能够同时监控多个文件描述</div><div class="line">符的可读可写情况，当其中的某些文件描述符可读或者可写时，select 方法就会返回可读以及可写的文</div><div class="line">件描述符个数。</div><div class="line"></div><div class="line">解释2:多路复用是指使用一个线程来检查多个文件描述符（Socket）的就绪状态，比如调用select和</div><div class="line">poll函数，传入多个文件描述符，如果有一个文件描述符就绪，则返回，否则阻塞直到超时。得到就绪</div><div class="line">状态后进行真正的操作可以在同一个线程里执行，也可以启动线程执行（比如使用线程池）。</div></pre></td></tr></table></figure>
+<h3 id="Reactor-设计模式"><a href="#Reactor-设计模式" class="headerlink" title="Reactor 设计模式"></a>Reactor 设计模式</h3><p>Redis 服务采用 Reactor 的方式来实现文件事件处理器（每一个网络连接其实都对应一个文件描述符）</p>
+<p><img src="https://pic3.zhimg.com/v2-4cff43ccb083a587b0e4834acff884fa_b.png" alt=""></p>
+<p>事件类型: accept(socket建立连接事件) + read(数据读事件) + write(数据写事件) + close（关闭事件）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">文件事件处理器使用 I/O 多路复用模块同时监听多个 FD，当 accept、read、write 和 close </div><div class="line">文件事件产生时，文件事件处理器就会回调 FD 绑定的事件处理器。</div><div class="line">虽然整个文件事件处理器是在单线程上运行的，但是通过 I/O 多路复用模块的引入，实现了同时对多</div><div class="line">个 FD 读写的监控，提高了网络通信模型的性能，同时也可以保证整个 Redis 服务实现的简单.</div></pre></td></tr></table></figure>
+<h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">下面举一个例子，模拟一个tcp服务器处理30个客户socket。</div><div class="line">假设你是一个老师，让30个学生解答一道题目，然后检查学生做的是否正确，你有下面几个选择：</div><div class="line"></div><div class="line">1.第一种选择：按顺序逐个检查，先检查A，然后是B，之后是C、D。。。这中间如果有一个学生卡主，</div><div class="line">全班都会被耽误。这种模式就好比，你用循环挨个处理socket，根本不具有并发能力。</div><div class="line">2.第二种选择：你创建30个分身，每个分身检查一个学生的答案是否正确。 这种类似于为每一个用户创建</div><div class="line">一个进程或者线程处理连接。</div><div class="line">3.第三种选择，你站在讲台上等，谁解答完谁举手。这时C、D举手，表示他们解答问题完毕，你下去依次检查C、D的答案，然后继续回到讲台上等。此时E、A又举手，然后去处理E和A。。。 这种就是IO复用模型，Linux下的select、poll和epoll就是干这个的。将用户socket对应的fd注册进epoll，然后</div><div class="line">epoll帮你监听哪些socket上有消息到达，这样就避免了大量的无用操作。此时的socket应该采用非</div><div class="line">阻塞模式。</div><div class="line"></div><div class="line">这样，整个过程只在调用select、poll、epoll这些调用的时候才会阻塞，收发客户消息是</div><div class="line">不会阻塞的，整个进程或者线程就被充分利用起来，这就是事件驱动，所谓的reactor模式。</div></pre></td></tr></table></figure>
+</image>
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/redis/" rel="tag">#redis</a>
+          
+            <a href="/tags/epoll/" rel="tag">#epoll</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/24/9.6) jedispool连接池总结/" rel="next" title="jedispool连接池总结">
+                <i class="fa fa-chevron-left"></i> jedispool连接池总结
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/10/25/9.6)redis运维列表/" rel="prev" title="redis原理和cachecloud运维目录">
+                redis原理和cachecloud运维目录 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/metor.ico"
+               alt="Pedestrian" />
+          <p class="site-author-name" itemprop="name">Pedestrian</p>
+          <p class="site-description motion-element" itemprop="description">study for goal</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">60</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">40</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">59</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/yanan0628" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://carlosfu.github.io/" target="_blank" title="fudada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  fudada
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://jolinzhangg.github.io/" target="_blank" title="xiaodada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  xiaodada
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么-Redis-中要使用-I-O-多路复用这种技术呢？"><span class="nav-number">1.</span> <span class="nav-text">为什么 Redis 中要使用 I/O 多路复用这种技术呢？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IO方式"><span class="nav-number">2.</span> <span class="nav-text">IO方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Blocking-IO"><span class="nav-number">2.1.</span> <span class="nav-text">Blocking IO</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多路复用-IO"><span class="nav-number">2.2.</span> <span class="nav-text">多路复用 IO</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reactor-设计模式"><span class="nav-number">2.3.</span> <span class="nav-text">Reactor 设计模式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#例子"><span class="nav-number">3.</span> <span class="nav-text">例子</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pedestrian</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+                            
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').mousedown(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+  
+
+  
+
+  
+
+</body>
+</html>
