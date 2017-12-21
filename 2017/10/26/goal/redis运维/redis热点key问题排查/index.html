@@ -1,0 +1,862 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Redis运维," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="网络输入/输出流量问题排查流量影响现在公司用的是千兆网卡(bit)，换算流量最大阈值125MB左右，如果当前机器网络流量过大(redis在数据流入/流出会消耗大量流量)，当出现打满机器的网卡流量，就会造成当前机器的丢包或拥塞。会影响当前机器所有redis实例的访问和结果返回。 有以下几种情况:  bigkey大对象,慢查询分析.比如:每秒50次get操作1M的对象（输出流量 50M/s） ops暴">
+<meta name="keywords" content="Redis运维">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis 热点key排查">
+<meta property="og:url" content="/2017/10/26/goal/redis运维/redis热点key问题排查/index.html">
+<meta property="og:site_name" content="Meteor">
+<meta property="og:description" content="网络输入/输出流量问题排查流量影响现在公司用的是千兆网卡(bit)，换算流量最大阈值125MB左右，如果当前机器网络流量过大(redis在数据流入/流出会消耗大量流量)，当出现打满机器的网卡流量，就会造成当前机器的丢包或拥塞。会影响当前机器所有redis实例的访问和结果返回。 有以下几种情况:  bigkey大对象,慢查询分析.比如:每秒50次get操作1M的对象（输出流量 50M/s） ops暴">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://i3.itc.cn/20171026/aac_a468f656_656f_f25f_0ff6_7493b7f9956d_1.png">
+<meta property="og:image" content="http://i1.itc.cn/20171026/aac_a468f656_656f_f25f_0ff6_7493b7f9956d_2.png">
+<meta property="og:image" content="http://i1.itc.cn/20171026/aac_a468f656_656f_f25f_0ff6_7493b7f9956d_3.png">
+<meta property="og:updated_time" content="2017-12-21T11:36:44.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="redis 热点key排查">
+<meta name="twitter:description" content="网络输入/输出流量问题排查流量影响现在公司用的是千兆网卡(bit)，换算流量最大阈值125MB左右，如果当前机器网络流量过大(redis在数据流入/流出会消耗大量流量)，当出现打满机器的网卡流量，就会造成当前机器的丢包或拥塞。会影响当前机器所有redis实例的访问和结果返回。 有以下几种情况:  bigkey大对象,慢查询分析.比如:每秒50次get操作1M的对象（输出流量 50M/s） ops暴">
+<meta name="twitter:image" content="http://i3.itc.cn/20171026/aac_a468f656_656f_f25f_0ff6_7493b7f9956d_1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> redis 热点key排查 | Meteor </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Meteor</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                redis 热点key排查
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-10-26T11:00:35+08:00" content="2017-10-26">
+              2017-10-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Redis/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Redis/Redis运维/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis运维</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="网络输入-输出流量问题排查"><a href="#网络输入-输出流量问题排查" class="headerlink" title="网络输入/输出流量问题排查"></a>网络输入/输出流量问题排查</h2><h3 id="流量影响"><a href="#流量影响" class="headerlink" title="流量影响"></a>流量影响</h3><p>现在公司用的是千兆网卡(bit)，换算流量最大阈值125MB左右，如果当前机器网络流量过大(redis在数据流入/流出会消耗大量流量)，当出现打满机器的网卡流量，就会造成当前机器的丢包或拥塞。会影响当前机器所有redis实例的访问和结果返回。</p>
+<p>有以下几种情况:</p>
+<ul>
+<li>bigkey大对象,慢查询分析.比如:每秒50次get操作1M的对象（输出流量 50M/s）</li>
+<li>ops暴增，比如:正常ops get操作200次,突然增到2000甚至更高,流量*10倍</li>
+<li>ops增长不明显,慢查询也没有.可能有热点key流量都访问该redis实例(检查ops和instantaneous_output_kbps情况)</li>
+</ul>
+<h3 id="排查步骤"><a href="#排查步骤" class="headerlink" title="排查步骤"></a>排查步骤</h3><ul>
+<li>1.先看应用是否有慢查询,大对象访问造成流量过高  </li>
+<li>2.当前redis命令ops(如果是cluster 对比其他master节点)  </li>
+<li>3.热点key分析  到服务器本地执行最近1分钟monitor命令  </li>
+<li>4.facebook工具或脚本分析当前 热点command以及热点key</li>
+<li>5.按ip 频次 key进行排序</li>
+<li>6.计算每个ip key 对应流量 value*频次 </li>
+<li>7.提供给客户端排查key 客户端ip 占用流量情况</li>
+</ul>
+<h3 id="工具排查"><a href="#工具排查" class="headerlink" title="工具排查"></a>工具排查</h3><ul>
+<li><p>执行monitor命令导出文件</p>
+</li>
+<li><p>执行facebook脚本</p>
+</li>
+</ul>
+<p><code>redis-faina.py</code>脚本:<a href="https://github.com/facebookarchive/redis-faina" target="_blank" rel="external">redis-faina使用方法</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line">localhos:log chenshi$ ./redis-faina.py 78.41:6382.log</div><div class="line">Overall Stats</div><div class="line">========================================</div><div class="line">Lines Processed  	33072</div><div class="line">Commands/Sec     	1203.72</div><div class="line"></div><div class="line">Top Prefixes</div><div class="line">========================================</div><div class="line">m             	9480	(28.66%)</div><div class="line">p             	7963	(24.08%)</div><div class="line">pcl           	4511	(13.64%)</div><div class="line">card          	3468	(10.49%)</div><div class="line">catecodeinfo  	1698	(5.13%)</div><div class="line">pclcates      	257 	(0.78%)</div><div class="line">pcluser       	150 	(0.45%)</div><div class="line">pclcatef      	129 	(0.39%)</div><div class="line"></div><div class="line">Top Keys</div><div class="line">========================================</div><div class="line">m:pcl:pad:fircate:73  	8159	(24.67%)</div><div class="line">catecodeinfo:tag:v2   	1698	(5.13%)</div><div class="line">card:56:92655095,2    	1007	(3.04%)</div><div class="line">card:56:92400031,2    	879 	(2.66%)</div><div class="line">pcl:pad:seccate:60    	578 	(1.75%)</div><div class="line">pcl:pad:seccate:82    	541 	(1.64%)</div><div class="line">p:v:ee:92469530,2     	518 	(1.57%)</div><div class="line">p:s:sort:20171025:22  	426 	(1.29%)</div><div class="line"></div><div class="line">Top Commands</div><div class="line">========================================</div><div class="line">GET      	29435	(89.00%)</div><div class="line">SETEX    	3411 	(10.31%)</div><div class="line">TTL      	217  	(0.66%)</div><div class="line">HGETALL  	8    	(0.02%)</div><div class="line"></div><div class="line">Command Time (microsecs)</div><div class="line">========================================</div><div class="line">Median  	432.75</div><div class="line">75%     	1079.0</div><div class="line">90%     	2150.0</div><div class="line">99%     	5313.0</div><div class="line"></div><div class="line">Heaviest Commands (microsecs)</div><div class="line">========================================</div><div class="line">GET      	23233082.75</div><div class="line">SETEX    	3999394.75</div><div class="line">TTL      	229730.25</div><div class="line">HGETALL  	12561.25</div><div class="line"></div><div class="line">Slowest Calls</div><div class="line">========================================</div><div class="line">17639.0   	&quot;GET&quot; &quot;RVF#93579800,2&quot;</div><div class="line">16154.0   	&quot;SETEX&quot; &quot;p:v:ms:90570158,2&quot; &quot;86400&quot; &quot;2.5&quot;</div><div class="line">16146.0   	&quot;GET&quot; &quot;m:pcl:pad:topic:12540&quot;</div><div class="line">15166.0   	&quot;SETEX&quot; &quot;RG#93445677#2&quot; &quot;86400&quot; &quot;[&#123;\&quot;name\&quot;:\&quot;93445677,2\&quot;,\&quot;score\&quot;:0.01129842,\&quot;tag\&quot;:\&quot;\xe6\xbe\xa1\xe5\xa0\x82\&quot;&#125;]&quot;</div><div class="line">14765.0   	&quot;GET&quot; &quot;m:pcl:pad:fircate:73&quot;</div><div class="line">14495.0   	&quot;GET&quot; &quot;catecodeinfo:tag:v2&quot;</div><div class="line">12783.0   	&quot;GET&quot; &quot;p:v:ee:93842379,2&quot;</div><div class="line">11970.25  	&quot;GET&quot; &quot;m:pcl:pad:fircate:73&quot;</div></pre></td></tr></table></figure>
+<ul>
+<li>commands比例和top keys需要重点排查</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">Top Commands</div><div class="line">========================================</div><div class="line">GET      	29435	(89.00%)</div><div class="line"></div><div class="line">Top Keys</div><div class="line">========================================</div><div class="line">m:pcl:pad:fircate:73  	8159	(24.67%)</div><div class="line">catecodeinfo:tag:v2   	1698	(5.13%)</div><div class="line">card:56:92655095,2    	1007	(3.04%)</div><div class="line">card:56:92400031,2    	879 	(2.66%)</div><div class="line">pcl:pad:seccate:60    	578 	(1.75%)</div><div class="line">pcl:pad:seccate:82    	541 	(1.64%)</div><div class="line">p:v:ee:92469530,2     	518 	(1.57%)</div><div class="line">p:s:sort:20171025:22  	426 	(1.29%)</div></pre></td></tr></table></figure>
+<ul>
+<li>get命令top20</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cat 78.41:6382.log | grep GET | awk &apos;&#123;print $5&#125;&apos;  | sort | uniq -c | sort -rn | head -20</div></pre></td></tr></table></figure>
+<ul>
+<li>debug object查看key值大小</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">*.*.78.41:6382&gt; DEBUG OBJECT catecodeinfo:tag:v2</div><div class="line">Value at:0x7fa68584e230 refcount:1 encoding:raw serializedlength:840478 lru:15826073 lru_seconds_idle:549</div></pre></td></tr></table></figure>
+<ul>
+<li>客户端ip调用情况</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cat 78.41:6382.log | grep GET | awk &apos;&#123;print $3&quot;=&gt;&quot;$5&#125;&apos; | grep &quot;catecodeinfo:tag:v2&quot; | sort | uniq -c | sort -rn | head -20</div></pre></td></tr></table></figure>
+<h2 id="案例分析1-流量报警"><a href="#案例分析1-流量报警" class="headerlink" title="案例分析1:流量报警"></a>案例分析1:流量报警</h2><h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><ul>
+<li><strong>redis报警信息</strong></li>
+</ul>
+<p><img src="http://i3.itc.cn/20171026/aac_a468f656_656f_f25f_0ff6_7493b7f9956d_1.png" alt=""></p>
+<ul>
+<li><strong>info stat快照</strong>(*.78.41 <code>redis实例流量报警快照</code>)</li>
+</ul>
+<p><img src="http://i1.itc.cn/20171026/aac_a468f656_656f_f25f_0ff6_7493b7f9956d_2.png" alt=""></p>
+<p>当前ops：1637 当前网络输出流量:67.4M (千兆网卡流量120MB/s)</p>
+<ul>
+<li><strong>info stat快照</strong>(*.78.41 <code>redis正常时间实例流量快照</code>)</li>
+</ul>
+<p><img src="http://i1.itc.cn/20171026/aac_a468f656_656f_f25f_0ff6_7493b7f9956d_3.png" alt=""></p>
+<h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><ul>
+<li>1.快照分析 </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">1.通过分析正常/流量报警快照，redis实例的基础统计信息 ops/instantaneous_output_kbps</div><div class="line">2.流量高的时候也可以对比下其他master节点的ops/instantaneous_output_kbps</div><div class="line">3.正常时候ops更高，但输出流量更小。ops低的时候流量高反而流量大，但并没有产生慢查询(&gt;10ms请求)</div><div class="line">4.基本确定有大对象访问</div></pre></td></tr></table></figure>
+<ul>
+<li>2.执行minitor导出文件</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">1.上redis服务器执行monitor(报警期间)最近一分钟/最近10000执行命令分析。</div><div class="line">redis-cli -p 6382 -a *** monitor | head -n 100000 &gt; 78.41:6382.log</div></pre></td></tr></table></figure>
+<ul>
+<li>3.分析当前command操作占比以及top20情况</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">get调用占比较高</div><div class="line">Top Commands</div><div class="line">========================================</div><div class="line">GET      	29435	(89.00%)</div><div class="line">SETEX    	3411 	(10.31%)</div><div class="line">TTL      	217  	(0.66%)</div><div class="line">HGETALL  	8    	(0.02%)</div><div class="line"></div><div class="line">localhos:log chenshi$ cat 78.41:6382.log | grep GET | awk &apos;&#123;print $5&#125;&apos;  | sort | uniq -c | sort -rn | head -20</div><div class="line">8159 &quot;m:pcl:pad:fircate:73&quot;</div><div class="line">1698 &quot;catecodeinfo:tag:v2&quot;</div><div class="line">1007 &quot;card:56:92655095,2&quot;</div><div class="line"> 879 &quot;card:56:92400031,2&quot;</div><div class="line"> 578 &quot;pcl:pad:seccate:60&quot;</div><div class="line"> 541 &quot;pcl:pad:seccate:82&quot;</div><div class="line"> 518 &quot;p:v:ee:92469530,2&quot;</div><div class="line"> 375 &quot;p:v:ee:92760970,2&quot;</div><div class="line"> 264 &quot;p:v:ee:92414925,2&quot;</div><div class="line"> 264 &quot;card:56:92785886,2&quot;</div><div class="line"> 213 &quot;p:s:sort:20171025:22&quot;</div><div class="line"> 163 &quot;pcl:pad:user:306132492&quot;</div><div class="line"> 161 &quot;p:v:ee:92200421,2&quot;</div><div class="line"> 149 &quot;pcl:pad:topic:12540&quot;</div><div class="line"> 149 &quot;pcl:pad:topic:12020&quot;</div><div class="line"> 149 &quot;m:pcl:pad:topic:12540&quot;</div><div class="line"> 134 &quot;pclcates:56:10080:1&quot;</div><div class="line"> 132 &quot;pcl:pad:seccate:11531&quot;</div><div class="line"> 120 &quot;pcl:pad:topic:10228&quot;</div><div class="line"> 120 &quot;m:pcl:pad:topic:10228&quot;</div><div class="line">``` </div><div class="line"> </div><div class="line">- 4.key产生流量分析,找出大对象</div></pre></td></tr></table></figure>
+<p>扫描结果如下：<br>card:56:92785886,2: 264(次)<em>106(字节) =27 kb<br>p:v:ee:92469530,2: 518(次)</em>33(字节) =17 kb<br>p:v:ee:92414925,2: 264(次)<em>34(字节) =8 kb<br>card:56:92655095,2: 1007(次)</em>106(字节) =106 kb<br>card:56:92400031,2: 879(次)<em>106(字节) =93 kb<br>p:v:ee:92760970,2: 375(次)</em>32(字节) =12 kb<br>pclcates:56:10080:1: 134(次)<em>629(字节) =84 kb<br>catecodeinfo:tag:v2: 1698(次)</em>840478(字节) =1427131 kb<br>p:v:ee:92200421,2: 161(次)<em>33(字节) =5 kb<br>p:s:sort:20171025:22: 213(次)</em>16(字节) =3 kb</p>
+<p><em>.</em>.78.41:6382&gt; DEBUG OBJECT catecodeinfo:tag:v2<br>Value at:0x7fa5be68c0a0 refcount:1 encoding:raw serializedlength:840844 lru:15816789 lru_seconds_idle:165<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">- 5.分析大对象key所有客户端ip执行GET调用情况</div></pre></td></tr></table></figure></p>
+<p>localhos:log chenshi$ cat 78.41:6382.log | grep GET | awk ‘{print $3”=&gt;”$5}’ | grep “catecodeinfo:tag:v2” | sort | uniq -c | sort -rn | head -20<br> 420 10.23.194.5:37363]=&gt;”catecodeinfo:tag:v2”<br> 377 10.23.194.6:41135]=&gt;”catecodeinfo:tag:v2”<br> 132 192.168.42.26:35184]=&gt;”catecodeinfo:tag:v2”<br>  64 10.23.194.2:37984]=&gt;”catecodeinfo:tag:v2”<br>  60 10.23.194.6:33715]=&gt;”catecodeinfo:tag:v2”<br>  56 10.23.194.3:48388]=&gt;”catecodeinfo:tag:v2”<br>  54 192.168.42.30:42056]=&gt;”catecodeinfo:tag:v2”<br>  54 10.23.194.2:52091]=&gt;”catecodeinfo:tag:v2”<br>  50 10.23.194.4:37498]=&gt;”catecodeinfo:tag:v2”<br>  46 10.23.194.5:59113]=&gt;”catecodeinfo:tag:v2”<br>  42 192.168.42.23:57718]=&gt;”catecodeinfo:tag:v2”<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">## 案例分析1:OPS报警</div><div class="line"></div><div class="line">### 现象</div><div class="line"></div><div class="line">![](http://i3.itc.cn/20171109/aac_f0c5e218_4428_a7d2_8517_1f997b6246ca_1.png)</div><div class="line"></div><div class="line">检查应用报警节点和其他节点</div><div class="line">![](http://i3.itc.cn/20171109/aac_ea19aacd_829b_8723_3eba_7276b59af8aa_2.jpg)</div><div class="line"></div><div class="line">cachecloud调用量情况：(调用量峰值qpm：1700w/min)</div><div class="line">![](http://i3.itc.cn/20171109/aac_3b5ea243_d14c_7b45_1491_3d508ffb8d06_1.png)</div><div class="line">![](http://i3.itc.cn/20171109/aac_ea19aacd_829b_8723_3eba_7276b59af8aa_1.jpg)</div><div class="line"></div><div class="line"></div><div class="line">### 分析</div><div class="line"></div><div class="line">由于10.10.53.184:6393实例 ops总是在5w-6w左右，可能会有热点key</div><div class="line"></div><div class="line">- 执行monitor</div></pre></td></tr></table></figure></p>
+<p>执行几秒的monitor命令(服务器上执行)<br>redis-cli -p 6393 monitor &gt; 6393.log.1204<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">- 并发量主要分析GET操作</div></pre></td></tr></table></figure></p>
+<p>[@zw-53-184 opt]# cat 6393.log.1204 | grep GET | awk ‘{print $5}’ | sort | uniq -c | sort -rn | head -10<br> 153179 “RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>    520 “rrh:a:312813498”<br>    353 “pclcates:56:10080:0”<br>     80 “card:56:92801540,2”<br>     75 “p:v:ee:92399947,2”<br>     39 “card:56:91840554,2”<br>     36 “p:s:version:20171109:122”<br>     33 “CATEGORYCF_V1#4#11682”<br>     25 “m:pcl:pad:fircate:83”<br>     25 “card:56:92845925,2”<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"> 153179/6s 近似 3w左右调用</div><div class="line"></div><div class="line">- 断定热点key影响,分析客户端调用ip</div><div class="line"></div><div class="line">调用次数 客户端ip  key</div></pre></td></tr></table></figure></p>
+<p>[@zw-53-184 opt]# cat 6393.log.1204 | grep GET | awk ‘{print $3”=&gt;”$5}’ | grep ‘RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9’ | sort | uniq -c | sort -rn | head -20<br>   1040 192.168.42.40:11081]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1035 192.168.42.40:11593]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1034 192.168.42.40:11637]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1034 192.168.42.40:11557]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1033 192.168.42.40:11683]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1033 192.168.42.40:11662]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1033 192.168.42.40:11539]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1032 192.168.42.40:11664]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1032 192.168.42.40:11646]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1029 192.168.42.41:57043]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1028 192.168.42.40:11658]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1028 192.168.42.40:11581]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1025 192.168.42.40:11598]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1025 192.168.42.40:11425]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1023 192.168.42.41:57297]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1023 192.168.42.40:11663]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1023 192.168.42.40:11537]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1022 192.168.42.40:11645]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1021 192.168.42.40:11544]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1013 192.168.42.40:11599]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>```</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Redis运维/" rel="tag">#Redis运维</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/24/9.8)redis多路复用技术/" rel="next" title="redis  I/O 多路复用">
+                <i class="fa fa-chevron-left"></i> redis  I/O 多路复用
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/07/goal/redis运维/redis内存倾斜分析/" rel="prev" title="redis内存倾斜">
+                redis内存倾斜 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/metor.ico"
+               alt="Pedestrian" />
+          <p class="site-author-name" itemprop="name">Pedestrian</p>
+          <p class="site-description motion-element" itemprop="description">study for goal</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/yanan0628" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://carlosfu.github.io/" target="_blank" title="fudada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  fudada
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://jolinzhangg.github.io/" target="_blank" title="xiaodada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  xiaodada
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#网络输入-输出流量问题排查"><span class="nav-number">1.</span> <span class="nav-text">网络输入/输出流量问题排查</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#流量影响"><span class="nav-number">1.1.</span> <span class="nav-text">流量影响</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#排查步骤"><span class="nav-number">1.2.</span> <span class="nav-text">排查步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#工具排查"><span class="nav-number">1.3.</span> <span class="nav-text">工具排查</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#案例分析1-流量报警"><span class="nav-number">2.</span> <span class="nav-text">案例分析1:流量报警</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#现象"><span class="nav-number">2.1.</span> <span class="nav-text">现象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分析"><span class="nav-number">2.2.</span> <span class="nav-text">分析</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pedestrian</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+                            
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').mousedown(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+  
+
+  
+
+  
+
+</body>
+</html>

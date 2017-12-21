@@ -259,9 +259,9 @@
 
       <h1 class="post-title">
         
-            <a class="post-title-link" href="/2017/12/22/goal/redis/redis在migrate批量键迁移存在bug/" itemprop="url">
+            <a class="post-title-link" href="/2017/12/22/goal/redis/jedis代码迁移槽/" itemprop="url">
               
-                <span itemprop="name">redis在migrate批量键迁移存在bug</span>
+                <span itemprop="name">jedis代码迁移槽</span>
               
             </a>
         
@@ -287,9 +287,9 @@
 
       <h1 class="post-title">
         
-            <a class="post-title-link" href="/2017/12/22/goal/redis/jedis代码迁移槽/" itemprop="url">
+            <a class="post-title-link" href="/2017/12/22/goal/redis/redis在migrate批量键迁移存在bug/" itemprop="url">
               
-                <span itemprop="name">jedis代码迁移槽</span>
+                <span itemprop="name">redis在migrate批量键迁移存在bug</span>
               
             </a>
         
@@ -343,9 +343,9 @@
 
       <h1 class="post-title">
         
-            <a class="post-title-link" href="/2017/12/20/goal/redis-cluster集群运维/" itemprop="url">
+            <a class="post-title-link" href="/2017/12/20/goal/redis集群文章汇总/" itemprop="url">
               
-                <span itemprop="name">redis-cluster文章汇总</span>
+                <span itemprop="name">redis集群文章汇总</span>
               
             </a>
         
@@ -433,7 +433,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">27</span>
+              <span class="site-state-item-count">18</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -441,7 +441,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-count">8</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -450,7 +450,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-count">9</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -693,66 +693,6 @@
                             // cut out 100 characters
                             var start = first_occur - 20;
                             var end = first_occur + 80;
-                            if(start < 0){
-                                start = 0;
-                            }
-                            if(start == 0){
-                                end = 50;
-                            }
-                            if(end > content.length){
-                                end = content.length;
-                            }
-                            var match_content = content.substring(start, end);
-                            // highlight all keywords
-                            keywords.forEach(function(keyword){
-                                var regS = new RegExp(keyword, "gi");
-                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
-                            });
-                            
-                            str += "<p class=\"search-result\">" + match_content +"...</p>"
-                        }
-                        str += "</li>";
-                    }
-                })};
-                str += "</ul>";
-                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
-                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
-                $resultContent.innerHTML = str;
-            });
-            proceedsearch();
-        }
-    });}
-
-    // handle and trigger popup window;
-    $('.popup-trigger').mousedown(function(e) {
-      e.stopPropagation();
-      if (isfetched == false) {
-        searchFunc(path, 'local-search-input', 'local-search-result');
-      } else {
-        proceedsearch();
-      };
-
-    });
-
-    $('.popup-btn-close').click(function(e){
-      $('.popup').hide();
-      $(".popoverlay").remove();
-      $('body').css('overflow', '');
-    });
-    $('.popup').click(function(e){
-      e.stopPropagation();
-    });
-  </script>
-
-  
-
-  
-
-  
-
-</body>
-</html>
-= first_occur + 80;
                             if(start < 0){
                                 start = 0;
                             }

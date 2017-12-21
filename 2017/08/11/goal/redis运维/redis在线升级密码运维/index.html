@@ -1,0 +1,900 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Redis运维,CacheCloud运维," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="cachecloud在线升级密码在线升级过程 1.【cc客户端】1.确认依赖该appid服务升级，可以先逐步升级cachecloud-client-redis 1.7.0-SNAPSHOT版本，不影响客户端正常使用(无密码连接)  12345&amp;lt;dependency&amp;gt;     &amp;lt;groupId&amp;gt;com.sohu.tv&amp;lt;/groupId&amp;gt;     &amp;lt;artif">
+<meta name="keywords" content="Redis运维,CacheCloud运维">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cachecloud在线升级密码">
+<meta property="og:url" content="/2017/08/11/goal/redis运维/redis在线升级密码运维/index.html">
+<meta property="og:site_name" content="Meteor">
+<meta property="og:description" content="cachecloud在线升级密码在线升级过程 1.【cc客户端】1.确认依赖该appid服务升级，可以先逐步升级cachecloud-client-redis 1.7.0-SNAPSHOT版本，不影响客户端正常使用(无密码连接)  12345&amp;lt;dependency&amp;gt;     &amp;lt;groupId&amp;gt;com.sohu.tv&amp;lt;/groupId&amp;gt;     &amp;lt;artif">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://i2.itc.cn/20170920/aac_68fe4d07_8bee_c0e8_0e16_6f573477609e_1.png">
+<meta property="og:image" content="http://i0.itc.cn/20170920/aac_68fe4d07_8bee_c0e8_0e16_6f573477609e_2.png">
+<meta property="og:updated_time" content="2017-12-21T11:35:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="cachecloud在线升级密码">
+<meta name="twitter:description" content="cachecloud在线升级密码在线升级过程 1.【cc客户端】1.确认依赖该appid服务升级，可以先逐步升级cachecloud-client-redis 1.7.0-SNAPSHOT版本，不影响客户端正常使用(无密码连接)  12345&amp;lt;dependency&amp;gt;     &amp;lt;groupId&amp;gt;com.sohu.tv&amp;lt;/groupId&amp;gt;     &amp;lt;artif">
+<meta name="twitter:image" content="http://i2.itc.cn/20170920/aac_68fe4d07_8bee_c0e8_0e16_6f573477609e_1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> cachecloud在线升级密码 | Meteor </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Meteor</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                cachecloud在线升级密码
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-08-11T16:37:35+08:00" content="2017-08-11">
+              2017-08-11
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Redis/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Redis/Redis运维/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis运维</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="cachecloud在线升级密码"><a href="#cachecloud在线升级密码" class="headerlink" title="cachecloud在线升级密码"></a>cachecloud在线升级密码</h1><h2 id="在线升级过程"><a href="#在线升级过程" class="headerlink" title="在线升级过程"></a>在线升级过程</h2><ul>
+<li>1.【cc客户端】1.确认依赖该appid服务升级，可以先逐步升级cachecloud-client-redis 1.7.0-SNAPSHOT版本，不影响客户端正常使用(无密码连接)</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&lt;dependency&gt; </div><div class="line">    &lt;groupId&gt;com.sohu.tv&lt;/groupId&gt; </div><div class="line">    &lt;artifactId&gt;cachecloud-client-redis&lt;/artifactId&gt; </div><div class="line">    &lt;version&gt;1.7.0-SNAPSHOT&lt;/version&gt; </div><div class="line">&lt;/dependency&gt;</div></pre></td></tr></table></figure>
+<ul>
+<li>2.客户端依赖检查</li>
+</ul>
+<p>确保升级版本cachecloud-client-redis 1.7.0-SNAPSHOT,jedis 2.9.0-CC-3-SNAPSHOT,jedis-common 1.2.2-SNAPSHOT,cachecloud-client-basic 1.1-SNAPSHOT</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[INFO]\- com.sohu.tv:cachecloud-client-redis:jar:1.7.0-SNAPSHOT:compile</div><div class="line">[INFO]    +- redis.clients:jedis:jar:2.9.0-CC-3-SNAPSHOT:compile</div><div class="line">[INFO]    |  +- org.apache.commons:commons-pool2:jar:2.4.2:compile</div><div class="line">[INFO]    |  \- com.sohu.tv:jedis-common:jar:1.2.2-SNAPSHOT:compile</div><div class="line">[INFO]    \- com.sohu.tv:cachecloud-client-basic:jar:1.1-SNAPSHOT:compile</div><div class="line">[INFO]       \- com.alibaba:fastjson:jar:1.2.28:compile</div></pre></td></tr></table></figure>
+<ul>
+<li><p>3.【cc客户端】3.如果客户端依赖跨机房redis:请升级cachecloud-client-crossroom-redis到1.3-SNAPSHOT</p>
+</li>
+<li><p>4.【cc客户端】4.提交申请密码配置工单，应用首页-申请修改配置  里注明即可(“申请配置应用密码“)</p>
+</li>
+<li><p>5.【cc后台】5.cachechcloud确认所有客户端最新上报版本以及redis版本，准备配置密码 观察日志</p>
+</li>
+</ul>
+<p>运维对密码修改:<br><img src="http://i2.itc.cn/20170920/aac_68fe4d07_8bee_c0e8_0e16_6f573477609e_1.png" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">更新:这个过程是对当前redis所有实例进行密码配置</div><div class="line">校验:这个过程是为校验每个redis实例上密码是否和设置密码一致</div><div class="line"></div><div class="line">密码设置规则: md5(key+&#123;appId&#125;)</div></pre></td></tr></table></figure>
+<ul>
+<li><p>6.【cc后台】6.后台配置密码后,appid对应cluster/sentinel/standalone所有redis节点密码生效，客户端jedis连接异常后会自动重连 拉取埋点密码重试成功(重连成功后为有密码连接)</p>
+</li>
+<li><p>7.客户端可在应用首页查看应用密码<br><img src="http://i0.itc.cn/20170920/aac_68fe4d07_8bee_c0e8_0e16_6f573477609e_2.png" alt=""></p>
+</li>
+</ul>
+<h2 id="jedis源码改造"><a href="#jedis源码改造" class="headerlink" title="jedis源码改造"></a>jedis源码改造</h2><blockquote>
+<p>1.改造Jedis</p>
+</blockquote>
+<p>优点:升级sdk支持在线切换，数据没有丢失。缺点：只支持Jedis，其他接入方式需要手动修改修改密码，密码生成过程固定。</p>
+<ul>
+<li>a.standalone 模式: 改造JeidsPool.makeObject.</li>
+<li>b.cluster 模式: 集群内所有节点使用同一密码，防止failover失败。Jedis改造<br>JedisClusterConnectionHandler.initializeSlotsCache 方法。</li>
+<li>c.sentinel模式:  主从所有节点必须使用同一个密码。改造JedisSentinelPool.initPool </li>
+<li>d.支持失败判定：NOAUTH Authentication required 异常后，中断连接下次重连。</li>
+</ul>
+<blockquote>
+<p>2.RESTful请求携带密码。</p>
+</blockquote>
+<p>优点:不需要改造客户端，密码生成规则灵活 缺点：升级协同困难。</p>
+<ul>
+<li>a.RESTful数据中密码字段使用对称加密，防止直接传输明文。</li>
+<li>b.客户端sdk加入判断是否设置密码功能。</li>
+</ul>
+<blockquote>
+<p>3.在线修改密码:</p>
+</blockquote>
+<ul>
+<li>a.redis客户端连接未使用密码时，修改密码后报错需要重连。</li>
+<li>b.redis客户端连接使用密码连接时，修改密码原有连接继续可用。</li>
+</ul>
+<h2 id="升级过程问题"><a href="#升级过程问题" class="headerlink" title="升级过程问题"></a>升级过程问题</h2><ul>
+<li><ol>
+<li>为什么要升级到cachecloud-client-redis 1.7.0-SNAPSHOT?</li>
+</ol>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">1.jedis客户端相关代码改造以及cachecloud相关依赖改造，需要重新获取依赖，才能支持密码在线升级。</div><div class="line">2.提前埋点到RESTful-API: 可支持无密码/默认密码/动态密码模式。</div></pre></td></tr></table></figure>
+<ul>
+<li><ol>
+<li>如何实现在线升级支持redis密码？</li>
+</ol>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">1.客户端更新服务依赖后重启服务，此时cachecloud-client-redis 1.7.0-SNAPSHOT可以支持密码功能。</div><div class="line">2.cc后台设置密码，appid对应所有redis实例密码生效，此时客户端原来无密码连接报错。</div><div class="line">3.客户端抛出异常后会重试，新建连接会获取埋点默认密码，重新连接redis。</div></pre></td></tr></table></figure>
+<ul>
+<li><ol>
+<li>cachecloud-client-redis已经升级到1.7.0-SNAPSHOT，但是上报cachecloud版本仍然是1.4?</li>
+</ol>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">10.10.193.153 - - [28/Aug/2017:10:58:34 +0800] &quot;GET /cache/client/redis/cluster/10380.json?clientVersion=1.4-SNAPSHOT HTTP/1.1&quot; 200 298 &quot;-&quot; &quot;Java/1.8.0_101&quot; &quot;-&quot; &quot;0.010&quot; &quot;0.011&quot;</div><div class="line">10.10.193.153 - - [28/Aug/2017:14:45:10 +0800] &quot;GET /cache/client/redis/cluster/10380.json?clientVersion=1.4-SNAPSHOT HTTP/1.1&quot; 200 298 &quot;-&quot; &quot;Java/1.8.0_101&quot; &quot;-&quot; &quot;0.010&quot; &quot;0.011&quot;</div><div class="line">10.10.193.153 - - [28/Aug/2017:14:59:16 +0800] &quot;GET /cache/client/redis/cluster/10380.json?clientVersion=1.4-SNAPSHOT HTTP/1.1&quot; 200 298 &quot;-&quot; &quot;Java/1.8.0_101&quot; &quot;-&quot; &quot;0.011&quot; &quot;0.013&quot;</div><div class="line">10.10.193.153 - - [28/Aug/2017:15:57:28 +0800] &quot;GET /cache/client/redis/cluster/10380.json?clientVersion=1.4-SNAPSHOT HTTP/1.1&quot; 200 298 &quot;-&quot; &quot;Java/1.8.0_101&quot; &quot;-&quot; &quot;4.009&quot; &quot;4.010&quot;</div><div class="line"></div><div class="line">a.如果是只是依赖cachecloud-client-redis1.7.0-SNAPSHOT ，确认cachecloud-client-basic</div><div class="line">是否为1.1-SNAPSHOT,不是的话 需要做mvn -U 重新拉取下依赖.</div><div class="line"></div><div class="line">b.如果依赖cachecloud-client-redis1.7.0-SNAPSHOT 还依赖跨机房包cachecloud-client-</div><div class="line">crossroom-redis，会有cachecloud-client-basic包冲突，请检查crossroom-redis版本是否升</div><div class="line">级到1.3-SNAPSHOT</div></pre></td></tr></table></figure>
+<ul>
+<li><ol>
+<li>使用sentinel pool,在线升级密码之后客户端一直抛出jedisConnectionException NOAUTH异常?</li>
+</ol>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">检查客户端使用sentinelPool 关闭连接的方式 确保使用的下面第2种方式：</div><div class="line">try &#123;</div><div class="line">    //获取连接</div><div class="line">    jedis = sentinelPool.getResource();</div><div class="line">    String key = &quot;test&quot;;</div><div class="line">    System.out.println(&quot;get &quot; + key + &quot; ,value =&quot; + jedis.get(key));</div><div class="line">&#125; catch (Exception e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125; finally &#123;</div><div class="line">    // 第1种.不支持中断的归还连接 （问题在这）</div><div class="line">    // jedisSentinelPool.returnResource(jedis);</div><div class="line">    // 第2种.支持中断的归还连接</div><div class="line">    if (jedis != null) &#123;</div><div class="line">        jedis.close();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li><ol>
+<li>master-slave 主从结构在升级密码期间，会发生什么?</li>
+</ol>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line">master：10.10.193.189:6380  slave:10.10.193.148:6381</div><div class="line"></div><div class="line">a.master设置密码后，slave与master为断开,master redis log:</div><div class="line">27192:M 19 Sep 10:01:36.554 # Disconnecting timedout slave: 10.10.193.148:6381</div><div class="line">27192:M 19 Sep 10:01:36.554 # Connection with slave 10.10.193.148:6381 lost.</div><div class="line">1).master添加密码成功,slave表现为断开状态</div><div class="line">27192:M 19 Sep 10:01:36.982 * Slave 10.10.193.148:6381 asks for synchronization</div><div class="line">27192:M 19 Sep 10:01:36.982 * Unable to partial resync with slave 10.10.193.148:6381 for lack of backlog (Slave request was: 188517104780).</div><div class="line">27192:M 19 Sep 10:01:36.982 # Warning: slave 10.10.193.148:6381 tried to PSYNC with an offset that is greater than the master replication offset.</div><div class="line">4).slave请求同步master,master返回不能进行部分复制,原因是slave复制偏移量大于master偏移量)</div><div class="line">27192:M 19 Sep 10:01:36.982 * Starting BGSAVE for SYNC with target: disk</div><div class="line">27192:M 19 Sep 10:01:37.026 * Background saving started by pid 23211</div><div class="line">7).master做全量复制，fork子进程 开始生成rdb文件</div><div class="line">23211:C 19 Sep 10:01:47.077 * DB saved on disk</div><div class="line">23211:C 19 Sep 10:01:47.118 * RDB: 52 MB of memory used by copy-on-write</div><div class="line">27192:M 19 Sep 10:01:47.181 * Background saving terminated with success</div><div class="line">8).rdb文件生成，copyonwrite内存开销为52M，开始同步</div><div class="line">27192:M 19 Sep 10:01:54.237 * Synchronization with slave 10.10.193.148:6381 succeeded</div><div class="line">10).数据发送slave成功</div><div class="line"></div><div class="line">b.slave密码设置成功,slave redis log:</div><div class="line"></div><div class="line">27928:S 19 Sep 10:01:36.555 # Connection with master lost.</div><div class="line">27928:S 19 Sep 10:01:36.555 * Caching the disconnected master state.</div><div class="line">2).由于slave表现为断开</div><div class="line">27928:S 19 Sep 10:01:36.982 * Connecting to MASTER 10.10.193.189:6380</div><div class="line">27928:S 19 Sep 10:01:36.982 * MASTER &lt;-&gt; SLAVE sync started</div><div class="line">27928:S 19 Sep 10:01:36.982 * Non blocking connect for SYNC fired the event.</div><div class="line">27928:S 19 Sep 10:01:36.983 * Master replied to PING, replication can continue...</div><div class="line">27928:S 19 Sep 10:01:36.983 * Trying a partial resynchronization (request 0434b4b3476903d92c67bdb3615bce8e456afbf3:188517104780).</div><div class="line">3).slave密码设置成功，开始重连master节点,发起部分复制请求</div><div class="line">27928:S 19 Sep 10:01:37.027 * Full resync from master: 0434b4b3476903d92c67bdb3615bce8e456afbf3:188517104247</div><div class="line">27928:S 19 Sep 10:01:37.027 * Discarding previously cached master state.</div><div class="line">6).master返回状态 需要全量复制,master runid offset:0434b4b3476903d92c67bdb3615bce8e456afbf3:188517104247</div><div class="line">27928:S 19 Sep 10:01:47.182 * MASTER &lt;-&gt; SLAVE sync: receiving 538594334 bytes from master</div><div class="line">9).接收master数据:538MB</div><div class="line">27928:S 19 Sep 10:01:54.294 * MASTER &lt;-&gt; SLAVE sync: Flushing old data</div><div class="line">27928:S 19 Sep 10:02:01.721 * MASTER &lt;-&gt; SLAVE sync: Loading DB in memory</div><div class="line">27928:S 19 Sep 10:02:30.924 * MASTER &lt;-&gt; SLAVE sync: Finished with success</div><div class="line">11).加载rdb数据到内存成功</div><div class="line">27928:S 19 Sep 10:02:30.958 * Background append only file rewriting started by pid 31740</div><div class="line">27928:S 19 Sep 10:02:35.288 * AOF rewrite child asks to stop sending diffs.</div><div class="line">31740:C 19 Sep 10:02:35.288 * Parent agreed to stop sending diffs. Finalizing AOF...</div><div class="line">31740:C 19 Sep 10:02:35.288 * Concatenating 0.40 MB of AOF diff received from parent.</div><div class="line">31740:C 19 Sep 10:02:35.289 * SYNC append only file rewrite performed</div><div class="line">31740:C 19 Sep 10:02:35.325 * AOF rewrite: 117 MB of memory used by copy-on-write</div><div class="line">27928:S 19 Sep 10:02:35.472 * Background AOF rewrite terminated with success</div><div class="line">12).fork子进程做bgrewriteAof,重写aof文件</div><div class="line">27928:S 19 Sep 10:02:35.473 * Residual parent diff successfully flushed to the rewritten AOF (0.00 MB)</div><div class="line">27928:S 19 Sep 10:02:35.473 * Background AOF rewrite finished successfully</div><div class="line">13).AOF重写缓冲区增量新数据同步成功(copyonwrite复制技术，子进程只能共享fork操作时的内存数据aof_buffer，增量数据在aof_rewrite_buffer)</div></pre></td></tr></table></figure>
+<p>主从密码升级过程中，slave在添加密码过程，master会做一次全量复制.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Warning: slave 10.10.193.148:6381 tried to PSYNC with an offset that is </div><div class="line">greater than the master replication offset.</div></pre></td></tr></table></figure></p>
+<p>看master日志,slave在请求部分复制失败，master返回全量复制状态，这个问题好像是redis的一个bug,主节点设置完密码后，从节点的slave_repl_offset在自己增长，slave_repl_offset代表slave缓存的主节 点的offset。</p>
+<p>github查下相关问题:<br><a href="https://github.com/antirez/redis/issues/3" target="_blank" rel="external">https://github.com/antirez/redis/issues/3</a> </p>
+<p><a href="https://github.com/antirez/redis/issues/1969" target="_blank" rel="external">https://github.com/antirez/redis/issues/1969</a></p>
+<ul>
+<li>6.在线加密码后，客户端抛出jedisConnectionException NOAUTH异常原因?</li>
+</ul>
+<p><strong>客户端异常信息</strong>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">2017-09-19 10:00:44,046 [DataComponentCommand.java:65] [ERROR] NOAUTH Authentication required.</div><div class="line">redis.clients.jedis.exceptions.JedisConnectionException: NOAUTH Authentication required.</div><div class="line">        at redis.clients.jedis.Protocol.processError(Protocol.java:131) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.Protocol.process(Protocol.java:167) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.Protocol.read(Protocol.java:221) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.Connection.readProtocolWithCheckingBroken(Connection.java:328) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.Connection.getIntegerReply(Connection.java:274) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.Jedis.hdel(Jedis.java:842) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisCluster$35.execute(JedisCluster.java:445) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisCluster$35.execute(JedisCluster.java:442) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisClusterCommand.runWithRetries(JedisClusterCommand.java:128) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisClusterCommand.runWithRetries(JedisClusterCommand.java:149) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisClusterCommand.runWithRetries(JedisClusterCommand.java:149) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisClusterCommand.runWithRetries(JedisClusterCommand.java:149) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisClusterCommand.runWithRetries(JedisClusterCommand.java:149) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisClusterCommand.run(JedisClusterCommand.java:36) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisCluster.hdel(JedisCluster.java:447) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at com.sohu.tv.cachecloud.client.redis.crossroom.impl.RedisClusterCrossRoomClientImpl$33.writeMinor(RedisClusterCrossRoomClientImpl.java:724) ~[cachecloud-client-crossroo</div><div class="line">m-redis-1.3-20170829.034859-7.jar:na]</div><div class="line">        at com.sohu.tv.cachecloud.client.redis.crossroom.impl.RedisClusterCrossRoomClientImpl$33.writeMinor(RedisClusterCrossRoomClientImpl.java:716) ~[cachecloud-client-crossroo</div><div class="line">m-redis-1.3-20170829.034859-7.jar:na]</div></pre></td></tr></table></figure>
+<blockquote>
+<p>首先需要理解redis通讯过程: 1.建立socket连接 2.发送命名等待返回</p>
+</blockquote>
+<p>大部分客户端使用的redis cluster，以set命令为例:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">public String set(final String key, final String value) &#123;</div><div class="line">    return (String)(new JedisClusterCommand(this.connectionHandler, this.maxAttempts) &#123;</div><div class="line">        public String execute(Jedis connection) &#123;</div><div class="line">            return connection.set(key, value);</div><div class="line">        &#125;</div><div class="line">    &#125;).run(key);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>过程1:建立socket连接过程 JedisClusterCommand 包一层 执行run</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line">核心代码:</div><div class="line">private T runWithRetries(byte[] key, int attempts, boolean tryRandomNode, boolean asking) &#123;</div><div class="line">    if(attempts &lt;= 0) &#123;</div><div class="line">        JedisClusterMaxRedirectionsException connection1 = new JedisClusterMaxRedirectionsException(&quot;Too many Cluster redirections? key=&quot; + SafeEncoder.encode(key));</div><div class="line">        ....</div><div class="line">        throw connection1;</div><div class="line">    &#125; else &#123;</div><div class="line">    	 // 创建socket connection过程</div><div class="line">        Jedis connection = null;</div><div class="line"></div><div class="line">        Object var7;</div><div class="line">        try &#123;</div><div class="line">            if(asking) &#123;</div><div class="line">                connection = (Jedis)this.askConnection.get();</div><div class="line">                connection.asking();</div><div class="line">                asking = false;</div><div class="line">            &#125; else if(tryRandomNode) &#123;</div><div class="line">                connection = this.connectionHandler.getConnection();</div><div class="line">            &#125; else &#123;</div><div class="line">                connection = this.connectionHandler.getConnectionFromSlot(JedisClusterCRC16.getSlot(key));</div><div class="line">            &#125;</div><div class="line">            Object jre = this.execute(connection);</div><div class="line">            return jre;</div><div class="line">        &#125; catch (JedisNoReachableClusterNodeException var13) &#123;</div><div class="line">            throw var13;</div><div class="line">        &#125; catch (JedisConnectionException var14) &#123;</div><div class="line">            this.releaseConnection(connection);</div><div class="line">            connection = null;</div><div class="line">            if(attempts &lt;= 1) &#123;</div><div class="line">                this.connectionHandler.renewSlotCache();</div><div class="line">                throw var14;</div><div class="line">            &#125;</div><div class="line">            var7 = this.runWithRetries(key, attempts - 1, tryRandomNode, asking);</div><div class="line">        &#125; catch (JedisRedirectionException var15) &#123;</div><div class="line">            .....</div><div class="line">        &#125; finally &#123;</div><div class="line">            this.releaseConnection(connection);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        return var7;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>过程2:发送命令等待返回：connection.set(key, value);</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">public String set(String key, String value) &#123;</div><div class="line">    this.checkIsInMultiOrPipeline();</div><div class="line">    this.client.set(key, value);</div><div class="line">    return this.client.getStatusCodeReply();</div><div class="line">&#125;</div><div class="line"></div><div class="line">protected Object readProtocolWithCheckingBroken() &#123;</div><div class="line">        Object o = null;</div><div class="line">        boolean var10 = false;</div><div class="line"></div><div class="line">        Object exc;</div><div class="line">        try &#123;</div><div class="line">            // 等待流返回结果</div><div class="line">            var10 = true;</div><div class="line">            o = Protocol.read(this.inputStream);</div><div class="line">            exc = o;</div><div class="line">            var10 = false;</div><div class="line">        &#125; catch (JedisConnectionException var11) &#123;</div><div class="line">           ....</div><div class="line">        &#125; finally &#123;</div><div class="line">            ...</div><div class="line">        &#125;</div><div class="line">        ....</div><div class="line">        return exc;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>分析原因:</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">redis.clients.jedis.Connection.readProtocolWithCheckingBroken(Connection.java:328) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div></pre></td></tr></table></figure>
+<p>根据异常日志，发现连接在建立是没有问题，但是执行命令返回抛出异常，也就是在加密码过程中 过程1 ok ，过程二 执行命令 需要密码报错。<br>过程1:建立socket报错，cluster自身默认5次重试，重试失败抛出Too many Cluster redirections?<br>过程2:建立socket连接，执行命令读取报错，则抛出以上异常信息。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Redis运维/" rel="tag">#Redis运维</a>
+          
+            <a href="/tags/CacheCloud运维/" rel="tag">#CacheCloud运维</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/08/21/goal/redis运维/docker机器篡改用户uid/" rel="prev" title="docker机器篡改用户uid">
+                docker机器篡改用户uid <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/metor.ico"
+               alt="Pedestrian" />
+          <p class="site-author-name" itemprop="name">Pedestrian</p>
+          <p class="site-description motion-element" itemprop="description">study for goal</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/yanan0628" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://carlosfu.github.io/" target="_blank" title="fudada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  fudada
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://jolinzhangg.github.io/" target="_blank" title="xiaodada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  xiaodada
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#cachecloud在线升级密码"><span class="nav-number">1.</span> <span class="nav-text">cachecloud在线升级密码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#在线升级过程"><span class="nav-number">1.1.</span> <span class="nav-text">在线升级过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#jedis源码改造"><span class="nav-number">1.2.</span> <span class="nav-text">jedis源码改造</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#升级过程问题"><span class="nav-number">1.3.</span> <span class="nav-text">升级过程问题</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pedestrian</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+                            
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').mousedown(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+  
+
+  
+
+  
+
+</body>
+</html>
