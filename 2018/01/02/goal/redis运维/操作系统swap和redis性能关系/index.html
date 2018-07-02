@@ -1,0 +1,811 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="redis运维," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="机器swap影响操作系统默认是开启swap,默认策略vm.swappiness=60，操作系统会根据策略对内存进行si/so到磁盘。swap操作是将不常用内存空间换出到磁盘，如果机器部署都是redis节点,在高并发环境下，这样redis请求会由内存访问变成磁盘访问,ops会大大降低，可能导致客户端大量线程阻塞，可能出现大量连接/读取超时或是慢查询。 redis官方资料：https://redis.">
+<meta name="keywords" content="redis运维">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis数据对象倾斜">
+<meta property="og:url" content="/2018/01/02/goal/redis运维/操作系统swap和redis性能关系/index.html">
+<meta property="og:site_name" content="Meteor">
+<meta property="og:description" content="机器swap影响操作系统默认是开启swap,默认策略vm.swappiness=60，操作系统会根据策略对内存进行si/so到磁盘。swap操作是将不常用内存空间换出到磁盘，如果机器部署都是redis节点,在高并发环境下，这样redis请求会由内存访问变成磁盘访问,ops会大大降低，可能导致客户端大量线程阻塞，可能出现大量连接/读取超时或是慢查询。 redis官方资料：https://redis.">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://i1.itc.cn/20180104/aac_c6f850fb_3894_93e2_ad3e_ff8dead8b802_1.png">
+<meta property="og:updated_time" content="2018-01-05T07:34:35.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="redis数据对象倾斜">
+<meta name="twitter:description" content="机器swap影响操作系统默认是开启swap,默认策略vm.swappiness=60，操作系统会根据策略对内存进行si/so到磁盘。swap操作是将不常用内存空间换出到磁盘，如果机器部署都是redis节点,在高并发环境下，这样redis请求会由内存访问变成磁盘访问,ops会大大降低，可能导致客户端大量线程阻塞，可能出现大量连接/读取超时或是慢查询。 redis官方资料：https://redis.">
+<meta name="twitter:image" content="http://i1.itc.cn/20180104/aac_c6f850fb_3894_93e2_ad3e_ff8dead8b802_1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> redis数据对象倾斜 | Meteor </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Meteor</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                redis数据对象倾斜
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-01-02T10:33:00+08:00" content="2018-01-02">
+              2018-01-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/redis运维/" itemprop="url" rel="index">
+                    <span itemprop="name">redis运维</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="机器swap影响"><a href="#机器swap影响" class="headerlink" title="机器swap影响"></a>机器swap影响</h2><p>操作系统默认是开启swap,默认策略vm.swappiness=60，操作系统会根据策略对内存进行si/so到磁盘。swap操作是将不常用内存空间换出到磁盘，如果机器部署都是redis节点,在高并发环境下，这样redis请求会由内存访问变成磁盘访问,ops会大大降低，可能导致客户端大量线程阻塞，可能出现大量连接/读取超时或是慢查询。</p>
+<p>redis官方资料：<a href="https://redis.io/topics/latency" target="_blank" rel="external">https://redis.io/topics/latency</a>  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div></pre></td><td class="code"><pre><div class="line">Latency induced by swapping (operating system paging)</div><div class="line"></div><div class="line">If a Redis page is moved by the kernel from the memory to the swap file,This </div><div class="line">is a slow operation involving random I/Os (compared to accessing a page that</div><div class="line">is already in memory) and will result into anomalous latency experienced by</div><div class="line">Redis clients.</div><div class="line">liunx内核进行内存交换三个主要原因:</div><div class="line">- 操作系统的内存使用压力较大，需要更多的物理内存</div><div class="line">- redis实例的数据集处于空闲状态，内存页被系统换出到磁盘</div><div class="line">- 操作系统存在一些进程有较大I/O读写操作(aof、rdb thread或是其他服务进程 es、rocketMQ)</div><div class="line"></div><div class="line">$ redis-cli info | grep process_id</div><div class="line">process_id: 21405</div><div class="line"></div><div class="line">cd /proc/21405</div><div class="line"></div><div class="line">[cachecloud@10 shichen]$ cat /proc/21405/smaps | egrep &apos;^(Swap|Size)&apos;</div><div class="line">Size:                968 kB</div><div class="line">Swap:                  0 kB</div><div class="line">Size:                 20 kB</div><div class="line">Swap:                  0 kB</div><div class="line">Size:                 88 kB</div><div class="line">Swap:                 76 kB</div><div class="line">Size:                132 kB</div><div class="line">Swap:                 36 kB</div><div class="line">Size:            3272704 kB</div><div class="line">Swap:             141068 kB（141MB）</div><div class="line">Size:                  4 kB</div><div class="line">Swap:                  0 kB</div><div class="line">Size:               8192 kB</div><div class="line">Swap:                  0 kB</div><div class="line">Size:                  4 kB</div><div class="line">Swap:                  0 kB</div><div class="line">Size:              12288 kB</div><div class="line">Swap:               3056 kB</div><div class="line">Size:              96836 kB</div><div class="line">Swap:                  0 kB</div><div class="line">Size:               4096 kB</div><div class="line">Swap:               2032 kB</div><div class="line">Size:               1576 kB</div><div class="line">Swap:                  0 kB</div><div class="line">Size:               2048 kB</div><div class="line"></div><div class="line">$ vmstat 1</div><div class="line">procs -----------memory---------- ---swap-- -----io---- -system-- ----cpu----</div><div class="line"> r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa</div><div class="line"> 0  0   3980 697932 147180 1406456    0    0     2     2    2    0  4  4 91  0</div><div class="line"> 0  0   3980 697428 147180 1406580    0    0     0     0 19088 16104  9  6 84  0</div><div class="line"> 0  0   3980 697296 147180 1406616    0    0     0    28 18936 16193  7  6 87  0</div><div class="line"> 0  0   3980 697048 147180 1406640    0    0     0     0 18613 15987  6  6 88  0</div><div class="line"> 2  0   3980 696924 147180 1406656    0    0     0     0 18744 16299  6  5 88  0</div><div class="line"> 0  0   3980 697048 147180 1406688    0    0     0     4 18520 15974  6  6 88  0</div><div class="line"></div><div class="line">I/O activity of the system:</div><div class="line">$ iostat -xk 1</div><div class="line">avg-cpu:  %user   %nice %system %iowait  %steal   %idle</div><div class="line">          13.55    0.04    2.92    0.53    0.00   82.95</div><div class="line"></div><div class="line">Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await  svctm  %util</div><div class="line">sda               0.77     0.00    0.01    0.00     0.40     0.00    73.65     0.00    3.62   2.58   0.00</div><div class="line">sdb               1.27     4.75    0.82    3.54    38.00    32.32    32.19     0.11   24.80   4.24   1.85</div></pre></td></tr></table></figure>
+<a id="more"></a>
+<h2 id="处理流程"><a href="#处理流程" class="headerlink" title="处理流程"></a>处理流程</h2><p>这边目前Redis机器发生swap，会造成客户端在swap期间瞬间大量超时，性能将从内存开销变化磁盘开销，swap相当于内存和磁盘分区等一个缓冲区，如果内存使用不当和不够会造成操作系统OOM killer。可查系统日志 cat /var/log/message.log。<br>分析如下:</p>
+<h3 id="swap相关配置"><a href="#swap相关配置" class="headerlink" title="swap相关配置"></a>swap相关配置</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"># 1.设置swap策略，但和操作系统版本有关</div><div class="line">echo 0 &gt; /proc/sys/vm/swappiness</div><div class="line"># 2.关闭/开启swap</div><div class="line">swapoff -a &amp;&amp; swapon -a</div><div class="line"># 3.设置为系统启动项</div><div class="line">echo &apos;vm.swappiness=0&apos; &gt;&gt; /etc/sysctl.conf</div></pre></td></tr></table></figure>
+<h3 id="操作系统swap策略"><a href="#操作系统swap策略" class="headerlink" title="操作系统swap策略"></a>操作系统swap策略</h3><p><img src="http://i1.itc.cn/20180104/aac_c6f850fb_3894_93e2_ad3e_ff8dead8b802_1.png" alt="操作系统swappiness策略"><br>目前这边服务器操作系统都在linux2.6-2.7版本左右。</p>
+<h3 id="free-vmstat查看swap情况"><a href="#free-vmstat查看swap情况" class="headerlink" title="free/vmstat查看swap情况"></a>free/vmstat查看swap情况</h3><ul>
+<li>free -m查看swap使用情况</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[@zw_52_126 ~]# free -m</div><div class="line">             total       used       free     shared    buffers     cached</div><div class="line">Mem:         15948       8723       7225          0        153       1728</div><div class="line">-/+ buffers/cache:       6841       9107</div><div class="line">Swap:         4095        129       3966</div><div class="line"># swap挂载盘(运维配置)</div><div class="line">[@tc_52_134 ~]# swapon -s</div><div class="line">Filename                Type        Size    Used    Priority</div><div class="line">/dev/sda2               partition   4192956 0    -1</div></pre></td></tr></table></figure>
+<ul>
+<li>vmstat命令查看实时swap</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">si：swap in 换入 ：从交换分区转移到内存之中</div><div class="line">so：swap out 换出 ：从从内存转移到交换分区中</div><div class="line">[@hbase99 proc]# vmstat 1</div><div class="line">procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu------</div><div class="line"> r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st</div><div class="line"> 1  0  25320 6512532  19404 19481612    5    1    93   183    0    0  4  1 94  1  0</div><div class="line"> 1  0  24244 6510456  19428 19483136  432    0   432  1767 13047 26857  2  8 89  1  0</div><div class="line"> 2  0  23032 6509056  19428 19484220  376    0   376  1531 13715 27412  3  9 88  0  0</div><div class="line"> 1  0  22452 6507540  19428 19485180  408    0   408  1368 10702 18039  2  8 90  0  0</div><div class="line"> 1  1  21488 6505564  19436 19486824  532    0   532  1628 11089 18406  2  7 90  1  0</div><div class="line"> 3  0  20416 6503432  19436 19488228  540    0   540  2180 13034 25961  3  8 89  0  0</div><div class="line"> 1  0  19588 6501576  19436 19489680  468    0   468  1735 12275 30586  3  8 89  0  0</div><div class="line"> 2  0  18884 6499700  19460 19490752  476    0   476  1743 11765 22768  2  8 89  1  0</div><div class="line"> 1  0  18332 6498236  19460 19491540  336    0   336  1340 11458 18716  2  8 90  0  0</div></pre></td></tr></table></figure>
+<ul>
+<li>cat /proc/${pid}/smaps | grep Swap | grep -v “0 kB”</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">[@hbase99 proc]# ps -ef | grep redis</div><div class="line">503       1589     1  3  2016 ?        15-05:36:35 redis-server *:6385 [cluster]</div><div class="line">503       3437     1  3  2016 ?        15-01:11:28 redis-server *:6384 [cluster]</div><div class="line"> </div><div class="line">[@hbase99 proc]# cat /proc/1598/smaps | grep Swap | grep -v &quot;0 kB&quot;</div><div class="line">Swap:             10852 kB</div><div class="line">Swap:                 8 kB</div></pre></td></tr></table></figure>
+<h3 id="扫描可疑机器"><a href="#扫描可疑机器" class="headerlink" title="扫描可疑机器"></a>扫描可疑机器</h3><p>swap空间使用大于1g的redis机器列表:</p>
+<p><code>swap占用汇总</code>：cat /proc/${pid}/smaps | grep Swap | grep -v “0 kB” | awk ‘{sum+=$2} END {if(sum&gt;0) print sum”KB”}’</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div></pre></td><td class="code"><pre><div class="line">序号	机器ip	Swapiness	Free Swap  total-used-free(MB)	实例数	实例pid	实例进程	swap总空间(KB)</div><div class="line">1	10.10.81.94	10	8189MB-8187MB-1MB	1</div><div class="line"></div><div class="line">					21919	redis-server*:26379 616KB</div><div class="line">2	10.10.81.95	60	8189MB-8054MB-135MB	1			</div><div class="line">					920	redis-server*:26379	624KB</div><div class="line">3	10.10.81.97	60	8189MB-8189MB-0MB	1			</div><div class="line">					30541	redis-server*:26379	608KB</div><div class="line">4	10.10.81.98	60	8189MB-7774MB-414MB	1			</div><div class="line">5	10.10.81.96	60	8189MB-7889MB-300MB	2			</div><div class="line">					19481	redis-server*:6393	4KB</div><div class="line">6	10.10.34.55	60	8189MB-4595MB-3593MB	2			</div><div class="line">					27482	redis-server*:7665	504KB</div><div class="line">7	10.10.94.154	60	16383MB-1362MB-15021MB	17			</div><div class="line">					2970	redis-server*:6384	3508KB</div><div class="line">					8875	redis-server*:6396	1748KB</div><div class="line">					9147	redis-server*:6379	100892KB</div><div class="line">					9209	redis-server*:6390	2224KB</div><div class="line">					9338	redis-server*:6380	66144KB</div><div class="line">					9400	redis-server*:6391	6456KB</div><div class="line">					9750	redis-server*:6382	74100KB</div><div class="line">					15159	redis-server*:6383	851852KB</div><div class="line">					24318	redis-server*:6385	87344KB</div><div class="line">					24933	redis-server*:6387	5884KB</div><div class="line">					25194	redis-server*:6386	38816KB</div><div class="line">					27132	redis-server*:6381	3988KB</div><div class="line">					28371	redis-server*:6395	5116KB</div><div class="line">					28849	redis-server*:6398	580KB</div><div class="line">					29075	redis-server*:6388	3644KB</div><div class="line">					29413	redis-server*:6399	14604KB</div><div class="line">					30029	redis-server*:6389	35624KB</div><div class="line">8	10.16.61.58	10	4095MB-2800MB-1295MB	7			</div><div class="line">					6402	redis-server*:6379	2228KB</div><div class="line">					6486	redis-server*:6380	2228KB</div><div class="line">					7748	redis-server*:6389	2828KB</div><div class="line">					21405	redis-server*:6381	146256KB</div><div class="line">					21490	redis-server*:6382	121204KB</div><div class="line">					21575	redis-server*:6383	101504KB</div><div class="line">					21659	redis-server*:6384	105672KB</div><div class="line">9	10.16.61.59	10	4095MB-1555MB-2540MB	6			</div><div class="line">					5939	redis-server*:6379	7044KB</div><div class="line">					6145	redis-server*:6380	4760KB</div><div class="line">					21045	redis-server*:6381	119296KB</div><div class="line">					21129	redis-server*:6382	158848KB</div><div class="line">					21214	redis-server*:6383	132988KB</div><div class="line">					21298	redis-server*:6384	204488KB</div><div class="line">10	10.16.61.60	10	4095MB-2092MB-2003MB	5			</div><div class="line">					617	redis-server*:6379	516228KB</div><div class="line">					647	redis-server*:6380	38808KB</div><div class="line">					763	redis-server*:6381	29808KB</div><div class="line">					807	redis-server*:6382	28KB</div><div class="line">					1042	redis-server*:6383	26344KB</div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/redis运维/" rel="tag">#redis运维</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/02/goal/redis集群使用/带密码redis在migrate迁移slot问题(2)/" rel="next" title="带密码redis在migrate迁移slot问题">
+                <i class="fa fa-chevron-left"></i> 带密码redis在migrate迁移slot问题
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/12/goal/redis运维/迁移工具使用说明/" rel="prev" title="迁移工具使用说明">
+                迁移工具使用说明 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/metor.ico"
+               alt="Pedestrian" />
+          <p class="site-author-name" itemprop="name">Pedestrian</p>
+          <p class="site-description motion-element" itemprop="description">study for goal</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/yanan0628" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://carlosfu.github.io/" target="_blank" title="fudada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  fudada
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://jolinzhangg.github.io/" target="_blank" title="xiaodada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  xiaodada
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#机器swap影响"><span class="nav-number">1.</span> <span class="nav-text">机器swap影响</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#处理流程"><span class="nav-number">2.</span> <span class="nav-text">处理流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#swap相关配置"><span class="nav-number">2.1.</span> <span class="nav-text">swap相关配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#操作系统swap策略"><span class="nav-number">2.2.</span> <span class="nav-text">操作系统swap策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#free-vmstat查看swap情况"><span class="nav-number">2.3.</span> <span class="nav-text">free/vmstat查看swap情况</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#扫描可疑机器"><span class="nav-number">2.4.</span> <span class="nav-text">扫描可疑机器</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pedestrian</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+                            
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').mousedown(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+  
+
+  
+
+  
+
+</body>
+</html>

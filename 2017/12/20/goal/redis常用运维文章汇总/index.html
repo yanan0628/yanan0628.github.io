@@ -84,18 +84,18 @@
 
 
 
-<meta name="description" content="Redis常用运维文章汇总 1.docker机器篡改用户uid 2.redis python环境安装 3.redis python工具使用 4.redis客户端超时问题 5.redis在线升级密码运维 6.redis热点key问题排查 7.redis内存倾斜分析 8.redis数据对象倾斜 9.   学习总目录">
+<meta name="description" content="Redis常用运维文章汇总 1.docker机器篡改用户uid 2.redis python环境安装 3.redis python工具使用 4.redis客户端超时问题 5.redis在线升级密码运维 6.redis热点key问题排查 7.redis内存倾斜分析 8.redis数据对象倾斜 9.操作系统swap和redis性能关系 10.redis官方文档-latency problem trou">
 <meta name="keywords" content="redis运维">
 <meta property="og:type" content="article">
 <meta property="og:title" content="redis常用运维文章汇总">
 <meta property="og:url" content="/2017/12/20/goal/redis常用运维文章汇总/index.html">
 <meta property="og:site_name" content="Meteor">
-<meta property="og:description" content="Redis常用运维文章汇总 1.docker机器篡改用户uid 2.redis python环境安装 3.redis python工具使用 4.redis客户端超时问题 5.redis在线升级密码运维 6.redis热点key问题排查 7.redis内存倾斜分析 8.redis数据对象倾斜 9.   学习总目录">
+<meta property="og:description" content="Redis常用运维文章汇总 1.docker机器篡改用户uid 2.redis python环境安装 3.redis python工具使用 4.redis客户端超时问题 5.redis在线升级密码运维 6.redis热点key问题排查 7.redis内存倾斜分析 8.redis数据对象倾斜 9.操作系统swap和redis性能关系 10.redis官方文档-latency problem trou">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-12-21T12:14:50.000Z">
+<meta property="og:updated_time" content="2018-01-12T03:30:32.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="redis常用运维文章汇总">
-<meta name="twitter:description" content="Redis常用运维文章汇总 1.docker机器篡改用户uid 2.redis python环境安装 3.redis python工具使用 4.redis客户端超时问题 5.redis在线升级密码运维 6.redis热点key问题排查 7.redis内存倾斜分析 8.redis数据对象倾斜 9.   学习总目录">
+<meta name="twitter:description" content="Redis常用运维文章汇总 1.docker机器篡改用户uid 2.redis python环境安装 3.redis python工具使用 4.redis客户端超时问题 5.redis在线升级密码运维 6.redis热点key问题排查 7.redis内存倾斜分析 8.redis数据对象倾斜 9.操作系统swap和redis性能关系 10.redis官方文档-latency problem trou">
 
 
 
@@ -346,7 +346,11 @@
 <li>6.<a href="./redis运维/redis热点key问题排查.md">redis热点key问题排查</a></li>
 <li>7.<a href="./redis运维/redis内存倾斜分析.md">redis内存倾斜分析</a></li>
 <li>8.<a href="./redis运维/redis数据对象倾斜.md">redis数据对象倾斜</a></li>
-<li>9.<a href="./redis运维/"></a></li>
+<li>9.<a href="./redis运维/操作系统swap和redis性能关系.md">操作系统swap和redis性能关系</a></li>
+<li>10.<a href="https://redis.io/topics/latency" target="_blank" rel="external">redis官方文档-latency problem troubleshooting</a></li>
+<li>11.redis迁移工具在线迁移使用 <a href="https://cachecloud.github.io/2016/06/28/1.2.%20%E8%BF%81%E7%A7%BB%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/" target="_blank" rel="external">迁移工具介绍</a>  <a href="./redis运维/迁移工具使用说明.md">迁移工具使用说明</a></li>
+<li>12.<a href="./redis运维/redis机器磁盘过小处理流程.md">redis机器磁盘过小处理流程</a></li>
+<li>15.<a href="https://redis.io/topics/benchmarks" target="_blank" rel="external">benchmark压测工具</a></li>
 </ul>
 <blockquote>
 <p><a href="./root.md">学习总目录</a></p>
@@ -381,16 +385,16 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/12/20/goal/redis/redis命令搭建集群/" rel="next" title="redis命令搭建集群">
-                <i class="fa fa-chevron-left"></i> redis命令搭建集群
+              <a href="/2017/12/20/goal/redis集群文章汇总/" rel="next" title="redis集群文章汇总">
+                <i class="fa fa-chevron-left"></i> redis集群文章汇总
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/12/20/goal/redis集群文章汇总/" rel="prev" title="redis集群文章汇总">
-                redis集群文章汇总 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/12/20/goal/root/" rel="prev" title="技术学习">
+                技术学习 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -465,7 +469,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-count">35</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -473,7 +477,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-count">14</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -482,7 +486,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -559,7 +563,7 @@
         <div class="copyright" >
   
   &copy;  2016 - 
-  <span itemprop="copyrightYear">2017</span>
+  <span itemprop="copyrightYear">2018</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

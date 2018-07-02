@@ -1,0 +1,804 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="redis,redis bug," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="1.slot键迁移问题appid=10511(含密码Redis节点) cachecloud在测试水平迁移slot过程，发现migrate过程中抛出异常，无法进行迁移slot 键。不含密码的redis节点迁移slot没有问题。 异常信息12345678910111213141516172017-12-26 17:11:10.465 ERROR 19599 --- [eshard-thread-6]">
+<meta name="keywords" content="redis,redis bug">
+<meta property="og:type" content="article">
+<meta property="og:title" content="带密码redis在migrate迁移slot问题">
+<meta property="og:url" content="/2017/12/26/goal/redis集群使用/带密码redis在migrate迁移slot问题/index.html">
+<meta property="og:site_name" content="Meteor">
+<meta property="og:description" content="1.slot键迁移问题appid=10511(含密码Redis节点) cachecloud在测试水平迁移slot过程，发现migrate过程中抛出异常，无法进行迁移slot 键。不含密码的redis节点迁移slot没有问题。 异常信息12345678910111213141516172017-12-26 17:11:10.465 ERROR 19599 --- [eshard-thread-6]">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://i0.itc.cn/20180105/aac_c59021b9_5e7f_0a77_fd81_e49c04925c18_1.png">
+<meta property="og:image" content="http://i1.itc.cn/20180105/aac_db043e47_20db_b0ba_63fa_6ab4c425891b_1.png">
+<meta property="og:updated_time" content="2018-01-05T07:51:45.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="带密码redis在migrate迁移slot问题">
+<meta name="twitter:description" content="1.slot键迁移问题appid=10511(含密码Redis节点) cachecloud在测试水平迁移slot过程，发现migrate过程中抛出异常，无法进行迁移slot 键。不含密码的redis节点迁移slot没有问题。 异常信息12345678910111213141516172017-12-26 17:11:10.465 ERROR 19599 --- [eshard-thread-6]">
+<meta name="twitter:image" content="http://i0.itc.cn/20180105/aac_c59021b9_5e7f_0a77_fd81_e49c04925c18_1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 带密码redis在migrate迁移slot问题 | Meteor </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Meteor</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                带密码redis在migrate迁移slot问题
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-26T00:00:00+08:00" content="2017-12-26">
+              2017-12-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/redis集群/" itemprop="url" rel="index">
+                    <span itemprop="name">redis集群</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="1-slot键迁移问题"><a href="#1-slot键迁移问题" class="headerlink" title="1.slot键迁移问题"></a>1.slot键迁移问题</h2><p><strong>appid=10511(含密码Redis节点)</strong> cachecloud在测试水平迁移slot过程，发现migrate过程中抛出异常，无法进行迁移slot 键。不含密码的redis节点迁移slot没有问题。<br><img src="http://i0.itc.cn/20180105/aac_c59021b9_5e7f_0a77_fd81_e49c04925c18_1.png" height="" width=""></p>
+<h3 id="异常信息"><a href="#异常信息" class="headerlink" title="异常信息"></a>异常信息</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">2017-12-26 17:11:10.465 ERROR 19599 --- [eshard-thread-6] c.s.cache.redis.RedisClusterReshard$4    : ERR Target instance replied with error: NOAUTH Authentication required.</div><div class="line">redis.clients.jedis.exceptions.JedisConnectionException: ERR Target instance replied with error: NOAUTH Authentication required.</div><div class="line">    at redis.clients.jedis.Protocol.processError(Protocol.java:131)</div><div class="line">    at redis.clients.jedis.Protocol.process(Protocol.java:167)</div><div class="line">    at redis.clients.jedis.Protocol.read(Protocol.java:221)</div><div class="line">    at redis.clients.jedis.Connection.readProtocolWithCheckingBroken(Connection.java:328)</div><div class="line">    at redis.clients.jedis.Connection.getStatusCodeReply(Connection.java:250)</div><div class="line">    at redis.clients.jedis.Jedis.migrate(Jedis.java:3195)</div><div class="line">    at com.sohu.cache.redis.RedisClusterReshard$4.execute(RedisClusterReshard.java:309)</div><div class="line">    at com.sohu.cache.util.IdempotentConfirmer.run(IdempotentConfirmer.java:27)</div><div class="line">    at com.sohu.cache.redis.RedisClusterReshard.moveSlotData(RedisClusterReshard.java:313)</div><div class="line">    at com.sohu.cache.redis.RedisClusterReshard.migrateSlotData(RedisClusterReshard.java:399)</div><div class="line">    at com.sohu.cache.redis.RedisClusterReshard.migrateSlot(RedisClusterReshard.java:255)</div><div class="line">    at com.sohu.cache.stats.app.impl.AppDeployCenterImpl$1.run(AppDeployCenterImpl.java:823)</div><div class="line">    at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)</div><div class="line">    at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)</div><div class="line">    at java.lang.Thread.run(Thread.java:745)</div></pre></td></tr></table></figure>
+<h3 id="迁移代码定位"><a href="#迁移代码定位" class="headerlink" title="迁移代码定位"></a>迁移代码定位</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">//遍历槽中所有键，一个个迁移</div><div class="line">...</div><div class="line">for (final String key : keys) &#123;</div><div class="line">    // 幂等操作重试</div><div class="line">    boolean isKeyMigrate = new IdempotentConfirmer() &#123;</div><div class="line">        // 失败后，迁移时限加倍</div><div class="line">    private int migrateTimeOutFactor = 1;</div><div class="line"> </div><div class="line">    @Override</div><div class="line">    public boolean execute() &#123;</div><div class="line">            // 执行migrate操作迁移slot键，抛出异常</div><div class="line">            String response = source.migrate(target.getClient().getHost(), target.getClient().getPort(),</div><div class="line">                key, 0, migrateTimeout * (migrateTimeOutFactor++));</div><div class="line">            return response != null &amp;&amp; (response.equalsIgnoreCase(&quot;OK&quot;) || response.equalsIgnoreCase(&quot;NOKEY&quot;));</div><div class="line">        &#125;</div><div class="line">    &#125;.run();</div><div class="line">    if (!isKeyMigrate) &#123;</div><div class="line">        throw new RuntimeException(&quot;migrate key=&quot; + key + failedInfo(source, slot));</div><div class="line">    &#125; else &#123;</div><div class="line">        num++;</div><div class="line">    logger.info(&quot;migrate key=&#123;&#125;;response=OK&quot;, key);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">....</div></pre></td></tr></table></figure>
+<p><code>代码这里抛出异常:source.migrate(target.getClient().getHost(), target.getClient().getPort(),key, 0, migrateTimeout * (migrateTimeOutFactor++));</code></p>
+<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>redis在使用migrate进行键迁移 ，如果涉及到带密码的redis，目前暂时不支持，会抛出异常:ERR Target instance replied with error: NOAUTH Authentication required.</p>
+<h3 id="jedis客户端migrate-api"><a href="#jedis客户端migrate-api" class="headerlink" title="jedis客户端migrate api"></a>jedis客户端migrate api</h3><p>jedis.migrate(),jedis自身为带密码连接也不可以，api也没有支持传password。<br><img src="http://i1.itc.cn/20180105/aac_db043e47_20db_b0ba_63fa_6ab4c425891b_1.png" height="" width=""></p>
+<h3 id="redis官方migrate支持"><a href="#redis官方migrate支持" class="headerlink" title="redis官方migrate支持"></a>redis官方migrate支持</h3><p>官方:<a href="https://redis.io/commands/migrate" target="_blank" rel="external">https://redis.io/commands/migrate</a> </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">MIGRATE host port key|&quot;&quot; destination-db timeout[COPY] [REPLACE] [KEYS key [key ...]]</div></pre></td></tr></table></figure>
+<h3 id="redis-github问题"><a href="#redis-github问题" class="headerlink" title="redis github问题"></a>redis github问题</h3><p>redis3.2 issue ：<a href="https://github.com/antirez/redis/pull/4240" target="_blank" rel="external">https://github.com/antirez/redis/pull/4240</a></p>
+<p>关于redis-trib.rb migrate issue：<a href="https://github.com/antirez/redis/pull/4410" target="_blank" rel="external">https://github.com/antirez/redis/pull/4410</a></p>
+<h3 id="redis4-0-6-migrate命令"><a href="#redis4-0-6-migrate命令" class="headerlink" title="redis4.0.6 migrate命令"></a>redis4.0.6 migrate命令</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">/* MIGRATE host port key dbid timeout [COPY | REPLACE]</div><div class="line"> *</div><div class="line"> * On in the multiple keys form:</div><div class="line"> *</div><div class="line"> * MIGRATE host port &quot;&quot; dbid timeout [COPY | REPLACE] KEYS key1 key2 ... keyN */</div><div class="line">void migrateCommand(client *c) &#123;</div><div class="line">    migrateCachedSocket *cs;</div><div class="line">    int copy, replace, j;</div><div class="line">    long timeout;</div><div class="line">    long dbid;</div><div class="line">    robj **ov = NULL; /* Objects to migrate. */</div><div class="line">    robj **kv = NULL; /* Key names. */</div><div class="line">    robj **newargv = NULL; /* Used to rewrite the command as DEL ... keys ... */</div><div class="line">    rio cmd, payload;</div><div class="line">    int may_retry = 1;</div><div class="line">    int write_error = 0;</div><div class="line">    int argv_rewritten = 0;</div><div class="line"> </div><div class="line">    /* To support the KEYS option we need the following additional state. */</div><div class="line">    int first_key = 3; /* Argument index of the first key. */</div><div class="line">    int num_keys = 1;  /* By default only migrate the &apos;key&apos; argument. */</div><div class="line">...</div></pre></td></tr></table></figure>
+<h2 id="测试用例"><a href="#测试用例" class="headerlink" title="测试用例"></a>测试用例</h2><h3 id="redis-3-0-7-3-2-10版本migrate测试"><a href="#redis-3-0-7-3-2-10版本migrate测试" class="headerlink" title="redis 3.0.7|3.2.10版本migrate测试"></a>redis 3.0.7|3.2.10版本migrate测试</h3><p>将源 6380节点 slot=0 迁移到目标 6383节点上：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div></pre></td><td class="code"><pre><div class="line"># redis版本 3.0.7</div><div class="line">localhos:conf chenshi$ redis-server -v</div><div class="line">Redis server v=3.0.7 sha=00000000:0 malloc=libc bits=64 build=fb816918fe2492c2</div><div class="line"># redis密码默认为123</div><div class="line"># 查看redis进程</div><div class="line">lolocalhos:conf chenshi$ ps -ef | grep redis</div><div class="line">  501 21142     1   0  5:56下午 ??         0:03.15 redis-server *:6380 [cluster]</div><div class="line">  501 21145     1   0  5:56下午 ??         0:03.08 redis-server *:6381 [cluster]</div><div class="line">  501 21147     1   0  5:56下午 ??         0:03.07 redis-server *:6382 [cluster]</div><div class="line">  501 21149     1   0  5:56下午 ??         0:03.07 redis-server *:6383 [cluster]</div><div class="line"># 直连验证密码</div><div class="line">localhos:conf chenshi$ redis-cli -p 6380</div><div class="line">127.0.0.1:6380&gt; get test</div><div class="line">(error) NOAUTH Authentication required.</div><div class="line">127.0.0.1:6380&gt; auth 123</div><div class="line">OK</div><div class="line"># 查看集群节点slot情况</div><div class="line">127.0.0.1:6380&gt; cluster nodes</div><div class="line">12c14b8474e0e3b1e5fcb3347fecce6114587c1a 127.0.0.1:6382 master - 0 1514281279963 3 connected 12288-16383</div><div class="line">bc56af114f1a51968bf890264ec67e083ed5e3e6 127.0.0.1:6381 master - 0 1514281280974 2 connected 6827-10922</div><div class="line">110ef7ea822f6eebdb866c852a6f862c2d313e8a 127.0.0.1:6383 master - 0 1514281284001 5 connected 2-1464 5561-6826 10923-12287</div><div class="line">cefa08a1d5da0650d25a4bba112a36a9a3578d3e 127.0.0.1:6380 myself,master - 0 0 6 connected 0-1 1465-5560</div><div class="line">127.0.0.1:6380&gt;</div><div class="line"># 1.目标节点导入槽</div><div class="line">localhos:conf chenshi$ redis-cli -p 6383 -a 123</div><div class="line">127.0.0.1:6383&gt; CLUSTER SETSLOT 0 importing cefa08a1d5da0650d25a4bba112a36a9a3578d3e</div><div class="line">OK</div><div class="line">127.0.0.1:6383&gt; cluster nodes</div><div class="line">110ef7ea822f6eebdb866c852a6f862c2d313e8a 127.0.0.1:6383 myself,master - 0 0 5 connected 2-1464 5561-6826 10923-12287 [0-&lt;-cefa08a1d5da0650d25a4bba112a36a9a3578d3e]</div><div class="line">bc56af114f1a51968bf890264ec67e083ed5e3e6 127.0.0.1:6381 master - 0 1514281328392 2 connected 6827-10922</div><div class="line">12c14b8474e0e3b1e5fcb3347fecce6114587c1a 127.0.0.1:6382 master - 0 1514281330405 3 connected 12288-16383</div><div class="line">cefa08a1d5da0650d25a4bba112a36a9a3578d3e 127.0.0.1:6380 master - 0 1514281329398 6 connected 0-1 1465-5560</div><div class="line">127.0.0.1:6383&gt;</div><div class="line"># 2.源节点槽准备迁移</div><div class="line">localhos:conf chenshi$ redis-cli -p 6380 -a 123</div><div class="line">127.0.0.1:6380&gt; CLUSTER SETSLOT 0 migrating 110ef7ea822f6eebdb866c852a6f862c2d313e8a</div><div class="line">OK</div><div class="line">127.0.0.1:6380&gt; cluster nodes</div><div class="line">12c14b8474e0e3b1e5fcb3347fecce6114587c1a 127.0.0.1:6382 master - 0 1514281373748 3 connected 12288-16383</div><div class="line">bc56af114f1a51968bf890264ec67e083ed5e3e6 127.0.0.1:6381 master - 0 1514281375764 2 connected 6827-10922</div><div class="line">110ef7ea822f6eebdb866c852a6f862c2d313e8a 127.0.0.1:6383 master - 0 1514281376775 5 connected 2-1464 5561-6826 10923-12287</div><div class="line">cefa08a1d5da0650d25a4bba112a36a9a3578d3e 127.0.0.1:6380 myself,master - 0 0 6 connected 0-1 1465-5560 [0-&gt;-110ef7ea822f6eebdb866c852a6f862c2d313e8a]</div><div class="line"># 3.源节点slot=0 槽准备遍历键 迁移</div><div class="line">127.0.0.1:6380&gt; CLUSTER GETKEYSINSLOT 0 5</div><div class="line">1) &quot;key104884&quot;</div><div class="line">2) &quot;key126806&quot;</div><div class="line">3) &quot;key129191&quot;</div><div class="line">4) &quot;key137847&quot;</div><div class="line">5) &quot;key188656&quot;</div><div class="line"># 4.migrate 键异常</div><div class="line">127.0.0.1:6380&gt; migrate 10.10.79.150 6404 &quot;&quot;  0 2000 keys key104884</div><div class="line">(error) ERR Target instance replied with error: NOAUTH Authentication required.</div></pre></td></tr></table></figure>
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/redis/" rel="tag">#redis</a>
+          
+            <a href="/tags/redis-bug/" rel="tag">#redis bug</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/26/goal/redis集群原理/redis集群故障转移/" rel="next" title="redis集群故障转移">
+                <i class="fa fa-chevron-left"></i> redis集群故障转移
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/28/goal/jedis常见问题文章汇总/" rel="prev" title="jedis常见问题文章汇总">
+                jedis常见问题文章汇总 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/metor.ico"
+               alt="Pedestrian" />
+          <p class="site-author-name" itemprop="name">Pedestrian</p>
+          <p class="site-description motion-element" itemprop="description">study for goal</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/yanan0628" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://carlosfu.github.io/" target="_blank" title="fudada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  fudada
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://jolinzhangg.github.io/" target="_blank" title="xiaodada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  xiaodada
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-slot键迁移问题"><span class="nav-number">1.</span> <span class="nav-text">1.slot键迁移问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#异常信息"><span class="nav-number">1.1.</span> <span class="nav-text">异常信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#迁移代码定位"><span class="nav-number">1.2.</span> <span class="nav-text">迁移代码定位</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题分析"><span class="nav-number">2.</span> <span class="nav-text">问题分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#jedis客户端migrate-api"><span class="nav-number">2.1.</span> <span class="nav-text">jedis客户端migrate api</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis官方migrate支持"><span class="nav-number">2.2.</span> <span class="nav-text">redis官方migrate支持</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis-github问题"><span class="nav-number">2.3.</span> <span class="nav-text">redis github问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis4-0-6-migrate命令"><span class="nav-number">2.4.</span> <span class="nav-text">redis4.0.6 migrate命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试用例"><span class="nav-number">3.</span> <span class="nav-text">测试用例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#redis-3-0-7-3-2-10版本migrate测试"><span class="nav-number">3.1.</span> <span class="nav-text">redis 3.0.7|3.2.10版本migrate测试</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pedestrian</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+                            
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').mousedown(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+  
+
+  
+
+  
+
+</body>
+</html>

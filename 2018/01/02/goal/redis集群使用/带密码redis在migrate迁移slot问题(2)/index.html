@@ -1,0 +1,836 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="redis,redis bug," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="问题描述appid=10475 由于集群节点只有2个master节点，故对集群做水平扩容，新加master节点10.18.30.67:6400,迁移完毕，集群节点状态不一致(目标节点)，客户端一直抛异常。 迁移状态 客户端异常:（重试全部失败） redis-cli直连查看某个key 一致在 源节点/目标节点 来回moved 123456789101112131415localhos:~ chens">
+<meta name="keywords" content="redis,redis bug">
+<meta property="og:type" content="article">
+<meta property="og:title" content="带密码redis在migrate迁移slot问题">
+<meta property="og:url" content="/2018/01/02/goal/redis集群使用/带密码redis在migrate迁移slot问题(2)/index.html">
+<meta property="og:site_name" content="Meteor">
+<meta property="og:description" content="问题描述appid=10475 由于集群节点只有2个master节点，故对集群做水平扩容，新加master节点10.18.30.67:6400,迁移完毕，集群节点状态不一致(目标节点)，客户端一直抛异常。 迁移状态 客户端异常:（重试全部失败） redis-cli直连查看某个key 一致在 源节点/目标节点 来回moved 123456789101112131415localhos:~ chens">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://i3.itc.cn/20180105/aac_15d666d3_f2a6_0868_4885_4ae01715cd6b_1.png">
+<meta property="og:image" content="http://i0.itc.cn/20180105/aac_15d666d3_f2a6_0868_4885_4ae01715cd6b_2.png">
+<meta property="og:image" content="http://i3.itc.cn/20180105/aac_15d666d3_f2a6_0868_4885_4ae01715cd6b_3.png">
+<meta property="og:image" content="http://mfiles.sohu.com/20180105/aac_15d666d3_f2a6_0868_4885_4ae01715cd6b_4.png">
+<meta property="og:image" content="http://i2.itc.cn/20180105/aac_9eeea029_63a3_5abc_3923_3ea9317b35f6_1.png">
+<meta property="og:image" content="http://i0.itc.cn/20180105/aac_15d666d3_f2a6_0868_4885_4ae01715cd6b_5.png">
+<meta property="og:image" content="http://i0.itc.cn/20180105/aac_9eeea029_63a3_5abc_3923_3ea9317b35f6_2.png">
+<meta property="og:updated_time" content="2018-01-05T08:12:46.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="带密码redis在migrate迁移slot问题">
+<meta name="twitter:description" content="问题描述appid=10475 由于集群节点只有2个master节点，故对集群做水平扩容，新加master节点10.18.30.67:6400,迁移完毕，集群节点状态不一致(目标节点)，客户端一直抛异常。 迁移状态 客户端异常:（重试全部失败） redis-cli直连查看某个key 一致在 源节点/目标节点 来回moved 123456789101112131415localhos:~ chens">
+<meta name="twitter:image" content="http://i3.itc.cn/20180105/aac_15d666d3_f2a6_0868_4885_4ae01715cd6b_1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 带密码redis在migrate迁移slot问题 | Meteor </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Meteor</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                带密码redis在migrate迁移slot问题
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-01-02T00:00:00+08:00" content="2018-01-02">
+              2018-01-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/redis集群/" itemprop="url" rel="index">
+                    <span itemprop="name">redis集群</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>appid=10475 由于集群节点只有2个master节点，故对集群做水平扩容，新加master节点10.18.30.67:6400,迁移完毕，集群节点状态不一致(目标节点)，客户端一直抛异常。</p>
+<h3 id="迁移状态"><a href="#迁移状态" class="headerlink" title="迁移状态"></a>迁移状态</h3><p><img src="http://i3.itc.cn/20180105/aac_15d666d3_f2a6_0868_4885_4ae01715cd6b_1.png" alt=""><br><img src="http://i0.itc.cn/20180105/aac_15d666d3_f2a6_0868_4885_4ae01715cd6b_2.png" alt=""></p>
+<h3 id="客户端异常-（重试全部失败）"><a href="#客户端异常-（重试全部失败）" class="headerlink" title="客户端异常:（重试全部失败）"></a>客户端异常:（重试全部失败）</h3><p><img src="http://i3.itc.cn/20180105/aac_15d666d3_f2a6_0868_4885_4ae01715cd6b_3.png" alt=""></p>
+<h3 id="redis-cli直连"><a href="#redis-cli直连" class="headerlink" title="redis-cli直连"></a>redis-cli直连</h3><p>查看某个key 一致在 源节点/目标节点 来回moved</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">localhos:~ chenshi$ redis-cli -h 10.18.30.67 -p 6400 -c</div><div class="line">10.18.30.67:6400&gt; type p_v_a_b_i_k_9434509</div><div class="line">-&gt; Redirected to slot [1516] located at 10.18.30.69:6397</div><div class="line">-&gt; Redirected to slot [1516] located at 10.18.30.67:6400</div><div class="line">-&gt; Redirected to slot [1516] located at 10.18.30.69:6397</div><div class="line">-&gt; Redirected to slot [1516] located at 10.18.30.67:6400</div><div class="line">-&gt; Redirected to slot [1516] located at 10.18.30.69:6397</div><div class="line">-&gt; Redirected to slot [1516] located at 10.18.30.67:6400</div><div class="line">-&gt; Redirected to slot [1516] located at 10.18.30.69:6397</div><div class="line">-&gt; Redirected to slot [1516] located at 10.18.30.67:6400</div><div class="line">-&gt; Redirected to slot [1516] located at 10.18.30.69:6397</div><div class="line">-&gt; Redirected to slot [1516] located at 10.18.30.67:6400</div><div class="line">-&gt; Redirected to slot [1516] located at 10.18.30.69:6397</div><div class="line">-&gt; Redirected to slot [1516] located at 10.18.30.67:6400</div><div class="line">...</div></pre></td></tr></table></figure>
+<h3 id="cc迁移日志"><a href="#cc迁移日志" class="headerlink" title="cc迁移日志"></a>cc迁移日志</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line">2018-01-02 09:55:25.990  WARN 26965 --- [http-nio-8585-exec2-6] c.s.c.w.controller.AppManageController   : user shichen horizontalScaleApply appId 10475 appAuditId 1074 sourceId 3638 targetId 3801 star</div><div class="line">tSlot 0 endSlot 2730</div><div class="line">2018-01-02 09:55:26.000  WARN 26965 --- [http-nio-8585-exec2-6] c.s.c.s.app.impl.AppDeployCenterImpl     : start reshard appId=10475 instance=10.18.30.67:6400 deploy done</div><div class="line">2018-01-02 09:55:26.042  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : slot=0,clusterSetSlotImporting=OK</div><div class="line">2018-01-02 09:55:26.045  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : slot=0,clusterSetSlotMigrating=OK</div><div class="line">2018-01-02 09:55:26.172  WARN 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : clusterReshard:10.18.30.69:6397-&gt;10.18.30.67:6400, slot=0, keys=0, costTime=145 ms</div><div class="line">2018-01-02 09:55:26.176  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : slot=1,clusterSetSlotImporting=OK</div><div class="line">2018-01-02 09:55:26.177  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : slot=1,clusterSetSlotMigrating=OK</div><div class="line">2018-01-02 09:55:26.267  WARN 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : clusterReshard:10.18.30.69:6397-&gt;10.18.30.67:6400, slot=1, keys=0, costTime=95 ms</div><div class="line">2018-01-02 09:55:26.272  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : slot=2,clusterSetSlotImporting=OK</div><div class="line">2018-01-02 09:55:26.273  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : slot=2,clusterSetSlotMigrating=OK</div><div class="line">2018-01-02 09:55:26.278  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : migrate key=p_v_v_b_i_k459013;response=OK</div><div class="line">2018-01-02 09:55:26.363  WARN 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : clusterReshard:10.18.30.69:6397-&gt;10.18.30.67:6400, slot=2, keys=1, costTime=95 ms</div><div class="line">2018-01-02 09:55:26.366  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : slot=3,clusterSetSlotImporting=OK</div><div class="line">2018-01-02 09:55:26.368  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : slot=3,clusterSetSlotMigrating=OK</div><div class="line">2018-01-02 09:55:26.371  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : migrate key=p_v_v_b_i_k4368240;response=OK</div><div class="line">2018-01-02 09:55:26.459  WARN 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : clusterReshard:10.18.30.69:6397-&gt;10.18.30.67:6400, slot=3, keys=1, costTime=96 ms</div><div class="line">2018-01-02 09:55:26.463  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : slot=4,clusterSetSlotImporting=OK</div><div class="line">2018-01-02 09:55:26.465  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : slot=4,clusterSetSlotMigrating=OK</div><div class="line">2018-01-02 09:55:26.468  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : migrate key=p_v_v_b_a_k_9374314;response=OK</div><div class="line">2018-01-02 09:55:26.469  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : migrate key=p_v_v_i_k_4323516;response=OK</div><div class="line">....</div><div class="line">2018-01-02 09:59:09.745  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : slot=2727,clusterSetSlotImporting=OK</div><div class="line">2018-01-02 09:59:09.746  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : slot=2727,clusterSetSlotMigrating=OK</div><div class="line">2018-01-02 09:59:09.749  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : migrate key=p_v_v_b_i_k778999;response=OK</div><div class="line">2018-01-02 09:59:09.751  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : migrate key=p_v_v_i_k_2208784;response=OK</div><div class="line">2018-01-02 09:59:09.832  WARN 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : clusterReshard:10.18.30.69:6397-&gt;10.18.30.67:6400, slot=2727, keys=2, costTime=91 ms</div><div class="line">2018-01-02 09:59:09.837  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : slot=2728,clusterSetSlotImporting=OK</div><div class="line">2018-01-02 09:59:09.839  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : slot=2728,clusterSetSlotMigrating=OK</div><div class="line">2018-01-02 09:59:09.842  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : migrate key=p_v_v_i_k_901523;response=OK</div><div class="line">2018-01-02 09:59:09.919  WARN 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : clusterReshard:10.18.30.69:6397-&gt;10.18.30.67:6400, slot=2728, keys=1, costTime=87 ms</div><div class="line">2018-01-02 09:59:09.923  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : slot=2729,clusterSetSlotImporting=OK</div><div class="line">2018-01-02 09:59:09.925  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : slot=2729,clusterSetSlotMigrating=OK</div><div class="line">2018-01-02 09:59:10.004  WARN 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : clusterReshard:10.18.30.69:6397-&gt;10.18.30.67:6400, slot=2729, keys=0, costTime=85 ms</div><div class="line">2018-01-02 09:59:10.008  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : slot=2730,clusterSetSlotImporting=OK</div><div class="line">2018-01-02 09:59:10.010  INFO 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : slot=2730,clusterSetSlotMigrating=OK</div><div class="line">2018-01-02 09:59:10.084  WARN 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : clusterReshard:10.18.30.69:6397-&gt;10.18.30.67:6400, slot=2730, keys=0, costTime=80 ms</div><div class="line">2018-01-02 09:59:10.084  WARN 26965 --- [redis-cluster-reshard-thread-1] c.sohu.cache.redis.RedisClusterReshard   : clusterReshard:10.18.30.69:6397-&gt;10.18.30.67:6400, slot:0-&gt;2730, costTime=224066 ms</div></pre></td></tr></table></figure>
+<p>日志显示 slot 键迁移操作都是成功，迁移耗时4min。</p>
+<h3 id="目标节点集群状态"><a href="#目标节点集群状态" class="headerlink" title="目标节点集群状态"></a>目标节点集群状态</h3><p><img src="http://mfiles.sohu.com/20180105/aac_15d666d3_f2a6_0868_4885_4ae01715cd6b_4.png" alt=""><br>所有slot状态均为导入importing状态。</p>
+<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><h3 id="集群节点状态变化"><a href="#集群节点状态变化" class="headerlink" title="集群节点状态变化"></a>集群节点状态变化</h3><p><img src="http://i2.itc.cn/20180105/aac_9eeea029_63a3_5abc_3923_3ea9317b35f6_1.png" width="" height="150"></p>
+<h3 id="集群migrate迁移过程"><a href="#集群migrate迁移过程" class="headerlink" title="集群migrate迁移过程"></a>集群migrate迁移过程</h3><p><code>步骤:</code></p>
+<ul>
+<li>1.设置目标节点为导入状态importing</li>
+<li>2.设置源节点为迁移状态migrating</li>
+<li>3.遍历源节点${slot}的键，migrate 单键迁移操作，只至当前slot迁移完毕(为什么不批量迁移?<a href="">redis在migrate批量键迁移存在bug</a>)</li>
+<li>4.<strong>对每一个master节点更新 目标节点绑定当前slot信息(问题在于获取集群master节点不准确，参考下节)</strong><br>通过日志和节点集群状态观察，之前集群master节点状态一致，新加master节点10.10.79.150:6407 key全部迁移成功，只是未更新集群信息。</li>
+</ul>
+<h3 id="重新获取集群所有master节点"><a href="#重新获取集群所有master节点" class="headerlink" title="重新获取集群所有master节点"></a>重新获取集群所有master节点</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * 获取所有主节点</div><div class="line"> * @return</div><div class="line"> */</div><div class="line">private List&lt;HostAndPort&gt; getMasterNodeList(long appId) &#123;</div><div class="line">    List&lt;HostAndPort&gt; masterNodeList = new ArrayList&lt;HostAndPort&gt;();</div><div class="line">    //获取RedisCluster所有节点</div><div class="line">    ....</div><div class="line">    JedisCluster jedisCluster = new JedisCluster(hosts,defaultTimeout,defaultTimeout,defaultMaxRedirections,redisPassword,new JedisPoolConfig());</div><div class="line">    Collection&lt;JedisPool&gt; allNodes = jedisCluster.getConnectionHandler().getNodes().values();</div><div class="line">    try &#123;</div><div class="line">        for (JedisPool jedisPool : allNodes) &#123;</div><div class="line">            String host = jedisPool.getHost();</div><div class="line">            int port = jedisPool.getPort();</div><div class="line">            if (!redisCenter.isMaster(appId, host, port)) &#123;</div><div class="line">                continue;</div><div class="line">            &#125;</div><div class="line">            // 添加master节点，之后需要把所有master节点进行bind slot</div><div class="line">            masterNodeList.add(new HostAndPort(host, port));</div><div class="line">        &#125;</div><div class="line">    &#125; finally &#123;</div><div class="line">        jedisCluster.close();</div><div class="line">    &#125;</div><div class="line">    return masterNodeList;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>重新初始化jediscluster, hosts节点为10个，但是重新从JedisClusterInfoCache获取nodes节点个数为8,问题出在这里： jedisCluster.getConnectionHandler().getNodes().values()</li>
+</ul>
+<p><img src="http://i0.itc.cn/20180105/aac_15d666d3_f2a6_0868_4885_4ae01715cd6b_5.png" alt=""></p>
+<ul>
+<li>查看jedisClusterInfoCache源码，setupNodeIfNotExist(targetNode)：变更 nodes(Map<string, jedispool="">)、slots(Map<string, jedispool="">)关系</string,></string,></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div></pre></td><td class="code"><pre><div class="line">public abstract class JedisClusterConnectionHandler implements Closeable &#123;</div><div class="line">  protected final JedisClusterInfoCache cache;</div><div class="line">  // 1.构造方法</div><div class="line">  public JedisClusterConnectionHandler(Set&lt;HostAndPort&gt; nodes,</div><div class="line">                                       final GenericObjectPoolConfig poolConfig, int connectionTimeout, int soTimeout, String password) &#123;</div><div class="line">    this.cache = new JedisClusterInfoCache(poolConfig, connectionTimeout, soTimeout, password);</div><div class="line">    // 2.重新初始化集群</div><div class="line">    initializeSlotsCache(nodes, poolConfig, password);</div><div class="line">  &#125;</div><div class="line">  ....</div><div class="line">&#125;</div><div class="line"> </div><div class="line">//本地cache</div><div class="line">public class JedisClusterInfoCache &#123;</div><div class="line">  private final Map&lt;String, JedisPool&gt; nodes = new HashMap&lt;String, JedisPool&gt;();</div><div class="line">  private final Map&lt;Integer, JedisPool&gt; slots = new HashMap&lt;Integer, JedisPool&gt;();</div><div class="line"> </div><div class="line">  //3.重新发现集群nodes和slots</div><div class="line">  public void discoverClusterNodesAndSlots(Jedis jedis) &#123;</div><div class="line">  w.lock();</div><div class="line"> </div><div class="line">  try &#123;</div><div class="line">    reset();</div><div class="line">    //获取所有包含槽的节点信息</div><div class="line">    List&lt;Object&gt; slots = jedis.clusterSlots();</div><div class="line"> </div><div class="line">    for (Object slotInfoObj : slots) &#123;</div><div class="line">      List&lt;Object&gt; slotInfo = (List&lt;Object&gt;) slotInfoObj;</div><div class="line"> </div><div class="line">      if (slotInfo.size() &lt;= MASTER_NODE_INDEX) &#123;</div><div class="line">        continue;</div><div class="line">      &#125;</div><div class="line">      List&lt;Integer&gt; slotNums = getAssignedSlotArray(slotInfo);</div><div class="line"> </div><div class="line">      // hostInfos</div><div class="line">      int size = slotInfo.size();</div><div class="line">      for (int i = MASTER_NODE_INDEX; i &lt; size; i++) &#123;</div><div class="line">        List&lt;Object&gt; hostInfos = (List&lt;Object&gt;) slotInfo.get(i);</div><div class="line">        if (hostInfos.size() &lt;= 0) &#123;</div><div class="line">          continue;</div><div class="line">        &#125;</div><div class="line">        HostAndPort targetNode = generateHostAndPort(hostInfos);</div><div class="line">        // 更新集群cache状态</div><div class="line">        setupNodeIfNotExist(targetNode);</div><div class="line">        if (i == MASTER_NODE_INDEX) &#123;</div><div class="line">          assignSlotsToNode(slotNums, targetNode);</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125; finally &#123;</div><div class="line">    w.unlock();</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如果新加入节点且未被分配slots,新节点节点不会更新到集群 node cache，所以这里水平扩容需要注意新节点不会set到nodes的问题，最终会导致节点bind slot失败，需要手动设置。</p>
+<h3 id="快速恢复集群状态"><a href="#快速恢复集群状态" class="headerlink" title="快速恢复集群状态"></a>快速恢复集群状态</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">#使用脚本，批量设置目标节点保证一致性</div><div class="line">start=$1</div><div class="line">end=$2</div><div class="line">for slot in `seq $&#123;start&#125; $&#123;end&#125;`</div><div class="line">do</div><div class="line">    echo &quot;slot:$&#123;slot&#125;&quot;</div><div class="line">    redis-cli -h 10.18.30.67 -p 6400 CLUSTER SETSLOT $&#123;slot&#125; NODE bb28c1189c56004c2e1b5796a73107a133ab81fa</div><div class="line">done</div><div class="line"> </div><div class="line">sh slot.sh 0 2730 ，对节点 把槽设置一遍bind slot node</div></pre></td></tr></table></figure>
+<h2 id="单元测试"><a href="#单元测试" class="headerlink" title="单元测试"></a>单元测试</h2><h3 id="准备集群节点"><a href="#准备集群节点" class="headerlink" title="准备集群节点"></a>准备集群节点</h3><p><img src="http://i0.itc.cn/20180105/aac_9eeea029_63a3_5abc_3923_3ea9317b35f6_2.png" width="" height="150"></p>
+<ul>
+<li>集群状态</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">127.0.0.1:6380&gt; cluster nodes</div><div class="line">c08d2049848e4fd80f3f1d2ecceda89cc4b70fd9 127.0.0.1:6384 master - 0 1514878437894 0 connected</div><div class="line">cefa08a1d5da0650d25a4bba112a36a9a3578d3e 127.0.0.1:6380 myself,master - 0 1514878415785 6 connected 0-1 1465-5560</div><div class="line">bc56af114f1a51968bf890264ec67e083ed5e3e6 127.0.0.1:6381 master - 0 1514878435875 2 connected 6827-10922</div><div class="line">110ef7ea822f6eebdb866c852a6f862c2d313e8a 127.0.0.1:6383 master - 0 1514878438902 5 connected 2-1464 5561-6826 10923-12287</div><div class="line">12c14b8474e0e3b1e5fcb3347fecce6114587c1a 127.0.0.1:6382 master - 0 1514878436886 3 connected 12288-16383</div></pre></td></tr></table></figure>
+<h3 id="运行测试，结果分析"><a href="#运行测试，结果分析" class="headerlink" title="运行测试，结果分析"></a>运行测试，结果分析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">@Test</div><div class="line">public void initJedisClusterTest()&#123;</div><div class="line">    // 水平扩容增加节点 127.0.0.1:6384,无slots，重新获取集群节点</div><div class="line">    Set&lt;HostAndPort&gt; hosts = new HashSet&lt;HostAndPort&gt;();</div><div class="line">    hosts.add(new HostAndPort(&quot;127.0.0.1&quot;,6380));</div><div class="line">    hosts.add(new HostAndPort(&quot;127.0.0.1&quot;,6381));</div><div class="line">    hosts.add(new HostAndPort(&quot;127.0.0.1&quot;,6382));</div><div class="line">    hosts.add(new HostAndPort(&quot;127.0.0.1&quot;,6383));</div><div class="line">    hosts.add(new HostAndPort(&quot;127.0.0.1&quot;,6384));</div><div class="line"> </div><div class="line">    JedisCluster jedisCluster = new JedisCluster(hosts,10000);</div><div class="line">    Collection&lt;JedisPool&gt; jedisPools = jedisCluster.getConnectionHandler().getNodes().values();</div><div class="line"> </div><div class="line">    for(Object object : jedisPools.toArray())&#123;</div><div class="line">        JedisPool jedisPool = (JedisPool) object;</div><div class="line">        System.out.println(&quot;jedis :&quot;+jedisPool.getHost()+&quot;:&quot;+jedisPool.getPort());</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">结果输出:</div><div class="line">jedis :127.0.0.1:6383</div><div class="line">jedis :127.0.0.1:6382</div><div class="line">jedis :127.0.0.1:6381</div><div class="line">jedis :127.0.0.1:6380</div><div class="line"></div><div class="line">新加节点初始化过程中，在无分配slot情况下 ，重新发现节点会忽略该节点，这里如果想要获取集群所有master节点可以指定给集群。</div></pre></td></tr></table></figure>
+<h2 id="cluster-setslot相关命令"><a href="#cluster-setslot相关命令" class="headerlink" title="cluster setslot相关命令"></a>cluster setslot相关命令</h2><h3 id="命令种类"><a href="#命令种类" class="headerlink" title="命令种类"></a>命令种类</h3><p>参考：<a href="https://redis.io/commands/cluster-setslot" target="_blank" rel="external">https://redis.io/commands/cluster-setslot</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">1.MIGRATING subcommand: Set a hash slot in migrating state. 设置集群某个节点为migrate迁移状态 </div><div class="line">CLUSTER SETSLOT &lt;slot&gt; MIGRATING &lt;destination-node-id&gt;</div><div class="line"></div><div class="line">2.IMPORTING subcommand: Set a hash slot in importing state. 设置集群某个节点为importing导入状态</div><div class="line">CLUSTER SETSLOT &lt;slot&gt; IMPORTING &lt;source-node-id&gt;</div><div class="line"></div><div class="line">3.STABLE subcommand: Clear any importing / migrating state from hash slot. 清除当前节点 集群slot导入/迁移状态 (迁移键开始过程中报错，可用于恢复集群一致性；操作对象 源节点/目标节点</div><div class="line">CLUSTER SETSLOT &lt;slot&gt; STABLE</div><div class="line"></div><div class="line">4.NODE subcommand: Bind the hash slot to a different node 在对应slot所有键迁移完毕，对当前节点更新 slot node的状态 (迁移键完毕后报错，可用于恢复集群一致性；操作对象 所有master节点)</div><div class="line"></div><div class="line">CLUSTER SETSLOT &lt;slot&gt; NODE &lt;node-id&gt;</div></pre></td></tr></table></figure>
+<p>集群状态在迁移过程中一致性问题：参考下节</p>
+<h3 id="集群状态一致性恢复"><a href="#集群状态一致性恢复" class="headerlink" title="集群状态一致性恢复"></a>集群状态一致性恢复</h3><h4 id="键未开始迁移-还原集群状态一致"><a href="#键未开始迁移-还原集群状态一致" class="headerlink" title="键未开始迁移,还原集群状态一致"></a>键未开始迁移,还原集群状态一致</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"># 1.查看源节点:10.10.193.192:6387节点集群信息，slot 5462导出</div><div class="line">localhos:~ chenshi$ redis-cli -h 10.10.193.192 -p 6387 cluster nodes | grep master</div><div class="line">513cdf2216e36081d0dff5d7a24f184aa2444b4b 10.10.193.192:6387 myself,master - 0 0 4 connected 5462-10923 [5462-&gt;-c5f97a653bc9b4281aa431b23fdeaa5bc849c331]</div><div class="line">45d14d1a39ecbe3e9fac8f766e77f3c647087da3 10.10.79.150:6404 master - 0 1514874108935 7 connected 0-10</div><div class="line">f5a309bc0a4389957414a8b3f1576fd7be84c186 10.10.79.150:6407 master - 0 1514874107433 0 connected</div><div class="line">a8e71895f24ea5608f010e84afdda0532dc568a3 10.10.79.150:6398 master - 0 1514874107934 6 connected 11-5461</div><div class="line">c5f97a653bc9b4281aa431b23fdeaa5bc849c331 10.10.193.191:6387 master - 0 1514874106933 3 connected 10924-16383</div><div class="line"># 2.查看目标节点:10.10.193.191:6387节点集群信息，slot 5462导入</div><div class="line">localhos:~ chenshi$ redis-cli -h 10.10.193.191 -p 6387 cluster nodes | grep master</div><div class="line">c5f97a653bc9b4281aa431b23fdeaa5bc849c331 10.10.193.191:6387 myself,master - 0 0 3 connected 10924-16383 [5462-&lt;-513cdf2216e36081d0dff5d7a24f184aa2444b4b]</div><div class="line">f5a309bc0a4389957414a8b3f1576fd7be84c186 10.10.79.150:6407 master - 0 1514874126644 0 connected</div><div class="line">513cdf2216e36081d0dff5d7a24f184aa2444b4b 10.10.193.192:6387 master - 0 1514874125143 4 connected 5462-10923</div><div class="line">45d14d1a39ecbe3e9fac8f766e77f3c647087da3 10.10.79.150:6404 master - 0 1514874131151 7 connected 0-10</div><div class="line">a8e71895f24ea5608f010e84afdda0532dc568a3 10.10.79.150:6398 master - 0 1514874130150 6 connected 11-5461 </div><div class="line"># 3.发现目标节点未做任何键迁移</div><div class="line"># 3.1) 目标节点slot=5462 key键不存在</div><div class="line">localhos:~ chenshi$ redis-cli -h 10.10.193.191 -p 6387</div><div class="line">10.10.193.191:6387&gt; CLUSTER GETKEYSINSLOT 5462 10</div><div class="line">(empty list or set)</div><div class="line"># 3.1) 源节点slot=5462 key键仍未做迁移</div><div class="line">localhos:~ chenshi$ redis-cli -h 10.10.193.192 -p 6387</div><div class="line">10.10.193.192:6387&gt; CLUSTER GETKEYSINSLOT 5462 10</div><div class="line">1) &quot;key16869&quot;</div><div class="line">2) &quot;key69562&quot;</div><div class="line">3) &quot;key78523&quot;</div><div class="line">...</div><div class="line"># 4).还原集群状态</div><div class="line">10.10.193.192:6387&gt; CLUSTER SETSLOT 5462 stable</div><div class="line">OK</div><div class="line"># 5).集群节点状态一致</div><div class="line">localhos:~ chenshi$ redis-cli -h 10.10.193.191 -p 6387 cluster nodes | grep master</div><div class="line">c5f97a653bc9b4281aa431b23fdeaa5bc849c331 10.10.193.191:6387 myself,master - 0 0 3 connected 10924-16383</div><div class="line">f5a309bc0a4389957414a8b3f1576fd7be84c186 10.10.79.150:6407 master - 0 1514874266380 0 connected</div><div class="line">513cdf2216e36081d0dff5d7a24f184aa2444b4b 10.10.193.192:6387 master - 0 1514874265379 4 connected 5462-10923</div><div class="line">45d14d1a39ecbe3e9fac8f766e77f3c647087da3 10.10.79.150:6404 master - 0 1514874263876 7 connected 0-10</div><div class="line">a8e71895f24ea5608f010e84afdda0532dc568a3 10.10.79.150:6398 master - 0 1514874266880 6 connected 11-5461</div><div class="line">localhos:~ chenshi$ redis-cli -h 10.10.193.192 -p 6387 cluster nodes | grep master</div><div class="line">513cdf2216e36081d0dff5d7a24f184aa2444b4b 10.10.193.192:6387 myself,master - 0 0 4 connected 5462-10923</div><div class="line">45d14d1a39ecbe3e9fac8f766e77f3c647087da3 10.10.79.150:6404 master - 0 1514874269666 7 connected 0-10</div><div class="line">f5a309bc0a4389957414a8b3f1576fd7be84c186 10.10.79.150:6407 master - 0 1514874269166 0 connected</div><div class="line">a8e71895f24ea5608f010e84afdda0532dc568a3 10.10.79.150:6398 master - 0 1514874273173 6 connected 11-5461</div><div class="line">c5f97a653bc9b4281aa431b23fdeaa5bc849c331 10.10.193.191:6387 master - 0 1514874271169 3 connected 10924-16383</div></pre></td></tr></table></figure>
+<h4 id="键迁移成功-但集群状态仍不一致"><a href="#键迁移成功-但集群状态仍不一致" class="headerlink" title="键迁移成功,但集群状态仍不一致"></a>键迁移成功,但集群状态仍不一致</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"># 1.查看10.10.79.150:6398节点集群信息</div><div class="line"># 1.1) 10.10.79.150:6404节点槽slot 0-10</div><div class="line">localhos:~ chenshi$ redis-cli -h 10.10.79.150 -p 6398 cluster nodes | grep master</div><div class="line">45d14d1a39ecbe3e9fac8f766e77f3c647087da3 10.10.79.150:6404 master - 0 1514874367681 7 connected 0-10</div><div class="line">f5a309bc0a4389957414a8b3f1576fd7be84c186 10.10.79.150:6407 master - 0 1514874370684 0 connected</div><div class="line">513cdf2216e36081d0dff5d7a24f184aa2444b4b 10.10.193.192:6387 master - 0 1514874370184 4 connected 5462-10923</div><div class="line">a8e71895f24ea5608f010e84afdda0532dc568a3 10.10.79.150:6398 myself,master - 0 0 6 connected 11-5461</div><div class="line">c5f97a653bc9b4281aa431b23fdeaa5bc849c331 10.10.193.191:6387 master - 0 1514874369184 3 connected 10924-16383</div><div class="line"># 2.查看10.10.79.150:6404节点集群信息</div><div class="line"># 2.1) 10.10.79.150:6404节点槽slot 1-10 , 0为imporing导入状态，未结束(由a8e71895f24ea5608f010e84afdda0532dc568a3 10.10.79.150:6398迁移)</div><div class="line">localhos:~ chenshi$ redis-cli -h 10.10.79.150 -p 6404 cluster nodes | grep master</div><div class="line">a8e71895f24ea5608f010e84afdda0532dc568a3 10.10.79.150:6398 master - 0 1514874380104 6 connected 0 11-5461</div><div class="line">513cdf2216e36081d0dff5d7a24f184aa2444b4b 10.10.193.192:6387 master - 0 1514874377105 4 connected 5462-10923</div><div class="line">f5a309bc0a4389957414a8b3f1576fd7be84c186 10.10.79.150:6407 master - 0 1514874375105 0 connected</div><div class="line">45d14d1a39ecbe3e9fac8f766e77f3c647087da3 10.10.79.150:6404 myself,master - 0 0 7 connected 1-10 [0-&lt;-a8e71895f24ea5608f010e84afdda0532dc568a3]</div><div class="line">c5f97a653bc9b4281aa431b23fdeaa5bc849c331 10.10.193.191:6387 master - 0 1514874376605 3 connected 10924-16383</div><div class="line"># 2.2）查看slot 0 是否已经migrate key成功</div><div class="line">localhos:~ chenshi$ redis-cli -h 10.10.79.150 -p 6404</div><div class="line">10.10.79.150:6404&gt; CLUSTER GETKEYSINSLOT 0 10</div><div class="line"> 1) &quot;key23269&quot;</div><div class="line"> 2) &quot;key32228&quot;</div><div class="line"> 3) &quot;key3444&quot;</div><div class="line"> 4) &quot;key48851&quot;</div><div class="line"> 5) &quot;key56187&quot;</div><div class="line"> 6) &quot;key59810&quot;</div><div class="line"> 7) &quot;key60636&quot;</div><div class="line"> 8) &quot;key6336&quot;</div><div class="line"> 9) &quot;key65144&quot;</div><div class="line">10) &quot;key71677&quot;</div><div class="line"># 2.3) 发现键已全部迁移，这个时候 未对当前节点做bind slot，需要用到命令 cluster setslot $&#123;slot&#125; node $&#123;nodeid&#125;</div><div class="line"> 10.10.79.150:6404&gt; CLUSTER SETSLOT 0 node 45d14d1a39ecbe3e9fac8f766e77f3c647087da3</div><div class="line">OK</div><div class="line"># 2.4）集群状态一致</div><div class="line">localhos:~ chenshi$ redis-cli -h 10.10.79.150 -p 6404 cluster nodes | grep master</div><div class="line">a8e71895f24ea5608f010e84afdda0532dc568a3 10.10.79.150:6398 master - 0 1514874532324 6 connected 11-5461</div><div class="line">513cdf2216e36081d0dff5d7a24f184aa2444b4b 10.10.193.192:6387 master - 0 1514874529319 4 connected 5462-10923</div><div class="line">f5a309bc0a4389957414a8b3f1576fd7be84c186 10.10.79.150:6407 master - 0 1514874533325 0 connected</div><div class="line">45d14d1a39ecbe3e9fac8f766e77f3c647087da3 10.10.79.150:6404 myself,master - 0 0 7 connected 0-10</div><div class="line">c5f97a653bc9b4281aa431b23fdeaa5bc849c331 10.10.193.191:6387 master - 0 1514874532824 3 connected 10924-16383</div></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>需要及时和客户端进行沟通，快速解决问题，不好解决的，先想办法保证客户端可用(客户端先迁移到备用集群上过渡)，避免过长故障时间。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/redis/" rel="tag">#redis</a>
+          
+            <a href="/tags/redis-bug/" rel="tag">#redis bug</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/28/goal/jedis常见问题/jedis工具命令分析/" rel="next" title="jedis工具命令分析">
+                <i class="fa fa-chevron-left"></i> jedis工具命令分析
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/02/goal/redis运维/操作系统swap和redis性能关系/" rel="prev" title="redis数据对象倾斜">
+                redis数据对象倾斜 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/metor.ico"
+               alt="Pedestrian" />
+          <p class="site-author-name" itemprop="name">Pedestrian</p>
+          <p class="site-description motion-element" itemprop="description">study for goal</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/yanan0628" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://carlosfu.github.io/" target="_blank" title="fudada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  fudada
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://jolinzhangg.github.io/" target="_blank" title="xiaodada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  xiaodada
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题描述"><span class="nav-number">1.</span> <span class="nav-text">问题描述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#迁移状态"><span class="nav-number">1.1.</span> <span class="nav-text">迁移状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#客户端异常-（重试全部失败）"><span class="nav-number">1.2.</span> <span class="nav-text">客户端异常:（重试全部失败）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis-cli直连"><span class="nav-number">1.3.</span> <span class="nav-text">redis-cli直连</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cc迁移日志"><span class="nav-number">1.4.</span> <span class="nav-text">cc迁移日志</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#目标节点集群状态"><span class="nav-number">1.5.</span> <span class="nav-text">目标节点集群状态</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题分析"><span class="nav-number">2.</span> <span class="nav-text">问题分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#集群节点状态变化"><span class="nav-number">2.1.</span> <span class="nav-text">集群节点状态变化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#集群migrate迁移过程"><span class="nav-number">2.2.</span> <span class="nav-text">集群migrate迁移过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重新获取集群所有master节点"><span class="nav-number">2.3.</span> <span class="nav-text">重新获取集群所有master节点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#快速恢复集群状态"><span class="nav-number">2.4.</span> <span class="nav-text">快速恢复集群状态</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#单元测试"><span class="nav-number">3.</span> <span class="nav-text">单元测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#准备集群节点"><span class="nav-number">3.1.</span> <span class="nav-text">准备集群节点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运行测试，结果分析"><span class="nav-number">3.2.</span> <span class="nav-text">运行测试，结果分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cluster-setslot相关命令"><span class="nav-number">4.</span> <span class="nav-text">cluster setslot相关命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#命令种类"><span class="nav-number">4.1.</span> <span class="nav-text">命令种类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#集群状态一致性恢复"><span class="nav-number">4.2.</span> <span class="nav-text">集群状态一致性恢复</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#键未开始迁移-还原集群状态一致"><span class="nav-number">4.2.1.</span> <span class="nav-text">键未开始迁移,还原集群状态一致</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#键迁移成功-但集群状态仍不一致"><span class="nav-number">4.2.2.</span> <span class="nav-text">键迁移成功,但集群状态仍不一致</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pedestrian</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+                            
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').mousedown(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+  
+
+  
+
+  
+
+</body>
+</html>

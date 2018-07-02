@@ -1,0 +1,865 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="redis," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="准备实例 实例节点,3主3从  1234master			slave127.0.0.1:6380	127.0.0.1:6383127.0.0.1:6381	127.0.0.1:6384127.0.0.1:6382	127.0.0.1:6385  集群node-slot状态  1234567localhos:conf chenshi$ redis-cli -p 6380 cluster nodesc">
+<meta name="keywords" content="redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis集群故障转移">
+<meta property="og:url" content="/2017/12/26/goal/redis集群原理/redis集群故障转移/index.html">
+<meta property="og:site_name" content="Meteor">
+<meta property="og:description" content="准备实例 实例节点,3主3从  1234master			slave127.0.0.1:6380	127.0.0.1:6383127.0.0.1:6381	127.0.0.1:6384127.0.0.1:6382	127.0.0.1:6385  集群node-slot状态  1234567localhos:conf chenshi$ redis-cli -p 6380 cluster nodesc">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://i2.itc.cn/20180124/aac_bb1302a9_5eeb_caf4_a560_75b2ea1b097a_1.png">
+<meta property="og:image" content="http://i1.itc.cn/20180124/aac_bb1302a9_5eeb_caf4_a560_75b2ea1b097a_2.png">
+<meta property="og:image" content="http://i1.itc.cn/20180126/aac_bb7dd04a_ec2d_a8ef_1101_9a6008545176_1.png">
+<meta property="og:updated_time" content="2018-01-26T06:21:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="redis集群故障转移">
+<meta name="twitter:description" content="准备实例 实例节点,3主3从  1234master			slave127.0.0.1:6380	127.0.0.1:6383127.0.0.1:6381	127.0.0.1:6384127.0.0.1:6382	127.0.0.1:6385  集群node-slot状态  1234567localhos:conf chenshi$ redis-cli -p 6380 cluster nodesc">
+<meta name="twitter:image" content="http://i2.itc.cn/20180124/aac_bb1302a9_5eeb_caf4_a560_75b2ea1b097a_1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> redis集群故障转移 | Meteor </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Meteor</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                redis集群故障转移
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-26T00:00:00+08:00" content="2017-12-26">
+              2017-12-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/redis集群原理/" itemprop="url" rel="index">
+                    <span itemprop="name">redis集群原理</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="准备实例"><a href="#准备实例" class="headerlink" title="准备实例"></a>准备实例</h2><ul>
+<li>实例节点,3主3从</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">master			slave</div><div class="line">127.0.0.1:6380	127.0.0.1:6383</div><div class="line">127.0.0.1:6381	127.0.0.1:6384</div><div class="line">127.0.0.1:6382	127.0.0.1:6385</div></pre></td></tr></table></figure>
+<ul>
+<li>集群node-slot状态</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">localhos:conf chenshi$ redis-cli -p 6380 cluster nodes</div><div class="line">cf72552afe5d06c2d9e7abe439ddfb3edb4256ea 127.0.0.1:6381 master - 0 1516616940282 2 connected 5461-10922</div><div class="line">77afe1231f6ddba989e67e218d6312a718a1ddde 127.0.0.1:6385 slave cecbd5a15feeea9c6fbcb71bd8403d0c58984473 0 1516616939273 6 connected</div><div class="line">6881455d67198a0f80f6ac665bedc13d8170b4ae 127.0.0.1:6383 slave 11db081a0e4cfd2485ca299be2194f0a34c8c39f 0 1516616941292 4 connected</div><div class="line">7c189c81d8e083069585cdcd12f23a34f80e85c5 127.0.0.1:6384 slave cf72552afe5d06c2d9e7abe439ddfb3edb4256ea 0 1516616940788 5 connected</div><div class="line">11db081a0e4cfd2485ca299be2194f0a34c8c39f 127.0.0.1:6380 myself,master - 0 0 1 connected 0-5460</div><div class="line">cecbd5a15feeea9c6fbcb71bd8403d0c58984473 127.0.0.1:6382 master - 0 1516616942301 3 connected 10923-16383</div></pre></td></tr></table></figure>
+<h2 id="故障转移基本原理"><a href="#故障转移基本原理" class="headerlink" title="故障转移基本原理"></a>故障转移基本原理</h2><p>当集群内某个节点出现问题时，需要通过一种健壮的方式识别出节点是否故障.故障发现也是通过gossip的消息传播机制实现，主要环节包括:主观下线(pfail)和客观下线(fail)。</p>
+<ul>
+<li><p><code>主观下线</code>:指某个节点认为另一个节点不可用进入下线状态，这个状态并不是最终的故障判定，只能代表一个节点的意见，可能存在误判情况。</p>
+</li>
+<li><p><code>客观下线</code>:指标记一个节点真正的下线，集群内多个节点达成共识的结果，如果是持有槽的主节点故障，需要为该节点进行故障转移。</p>
+</li>
+</ul>
+<p>通过gossip消息传播，集群内节点不断收集到故障节点的下线报告。当半数以上持有槽的主节点都标记某个节点是主观下线时触发客观下线流程。这里有两个问题:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">1.为什么必须是负责槽的主节点参与故障发现决策?</div><div class="line">	因为集群模式下只有处理槽的主节点才负责读写请求和维护槽等关键信息，而从节点只进行主节点数据</div><div class="line">	和状态信息的复制。</div><div class="line"></div><div class="line">2. 为什么半数以上处理槽的主节点?</div><div class="line">	必须半数以上是为了应对网络分区等原因造成的集群分割情况，被分割的小集群因为无法完成从主观下</div><div class="line">	线到客观下线这一关键过程，从而防止小集群完成故障转移之后继续对外提供服务。</div></pre></td></tr></table></figure>
+<h3 id="主观下线"><a href="#主观下线" class="headerlink" title="主观下线"></a>主观下线</h3><blockquote>
+<p>主观下线流程</p>
+</blockquote>
+<p><img src="http://i2.itc.cn/20180124/aac_bb1302a9_5eeb_caf4_a560_75b2ea1b097a_1.png" width="300"></p>
+<ul>
+<li>1).节点1发送ping消息给节点2，如果通信正常将接收到pong消息，节点1更新对节点2的最后一次通信时间.</li>
+<li>2).如果节点1与节点2通信出现问题则断开连接，下次会进行重连。如果一直通信失败，则节点1记录的与节点2最后通信时间将无法更新。</li>
+<li>3).节点1内的定时任务检测到与节点2最后通信时间超高cluster-node-timeout时，更新本地对节点2的状态为主观下线(pfail)。</li>
+</ul>
+<h3 id="客观下线"><a href="#客观下线" class="headerlink" title="客观下线"></a>客观下线</h3><blockquote>
+<p>客观下线流程</p>
+</blockquote>
+<p><img src="http://i1.itc.cn/20180124/aac_bb1302a9_5eeb_caf4_a560_75b2ea1b097a_2.png" width="250"></p>
+<p>流程说明:<br>1).首先统计有效的下线报告数量,如果小于集群内持有槽的主节点总数的一半则退出。<br>2).当下线报告大于槽节点总数一半时，标记对应故障节点为客观下线状态。<br>3).向集群广播一条fail消息，通知所有的节点将故障节点标记为客观下线，fail消息的内容只有故障节点的ID。</p>
+<blockquote>
+<p>广播fail消息</p>
+</blockquote>
+<p>是客观下线的最后一步，它承担着非常重要的职责:<br>1).通知集群内所有的节点标记故障节点为客观下线状态并立刻生效。<br>2).通知故障节点的从节点触发故障转移流程。  </p>
+<h2 id="故障转移测试"><a href="#故障转移测试" class="headerlink" title="故障转移测试"></a>故障转移测试</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">master			slave</div><div class="line">127.0.0.1:6380	127.0.0.1:6383</div><div class="line">127.0.0.1:6381	127.0.0.1:6384</div><div class="line">127.0.0.1:6382	127.0.0.1:6385</div><div class="line"></div><div class="line">下线6382节点nodeid：cecbd5a15feeea9c6fbcb71bd8403d0c58984473</div></pre></td></tr></table></figure>
+<h3 id="影响集群的参数"><a href="#影响集群的参数" class="headerlink" title="影响集群的参数"></a>影响集群的参数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">cluster-enabled：yes是否开启集群模式</div><div class="line">cluster-node-timeout：集群节点超时时间,默认15秒</div><div class="line">cluster-require-full-coverage：节点部分失败期间,其他节点是否继续工作，默认是丢slot集群不工作</div></pre></td></tr></table></figure>
+<h3 id="时间点-18-31-02-kill-6382进程pid"><a href="#时间点-18-31-02-kill-6382进程pid" class="headerlink" title="时间点:18:31:02 kill 6382进程pid"></a>时间点:18:31:02 kill 6382进程pid</h3><p><strong>1).主观|客观下线流程</strong></p>
+<p>6380,6381和6382在15s内不能连接成功后 标记失败，投票大于一半(3个master节点&gt;1即可)，cf72552afe5d06c2d9e7abe439ddfb3edb4256ea(6381节点)开始广播(6382节点)fail消息，各个节点更新node.conf集群配置。</p>
+<p><strong>2).故障转移前提</strong></p>
+<p>故障主节点也算在投票数内，假设集群内节点规模是3主3从，其中有2个主节点部署在一台机器上，当这台机器宕机时，由于从节点无法收集到3/2+1个主节点选票将导致故障转移失败。这个问题也适用于故障发现环节。因此部署集群时所有主节点最少需要部署在3台物理机上才能避免单点问题。</p>
+<p><img src="http://i1.itc.cn/20180126/aac_bb7dd04a_ec2d_a8ef_1101_9a6008545176_1.png" width="300"></p>
+<p><strong>3).相关master节点日志</strong></p>
+<blockquote>
+<p>master节点:6380.log</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">// 2.标记6382主节点下线,集群不可用状态更新</div><div class="line">90931:M 22 Jan 18:31:17.364 * Marking node </div><div class="line">cecbd5a15feeea9c6fbcb71bd8403d0c58984473 as failing (quorum reached).</div><div class="line">90931:M 22 Jan 18:31:17.364 # Cluster state changed: fail</div><div class="line">// 5.更新从节点晋升配置纪元，更新集群状态正常</div><div class="line">90931:M 22 Jan 18:31:18.071 # Failover auth granted to 77afe1231f6ddba989e67e218d6312a718a1ddde for epoch 7</div><div class="line">90931:M 22 Jan 18:31:18.073 # Cluster state changed: ok</div></pre></td></tr></table></figure>
+<blockquote>
+<p>master节点:6381.log</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">// 2.标记6382主节点下线,集群不可用状态更新</div><div class="line">90936:M 22 Jan 18:31:17.362 * Marking node cecbd5a15feeea9c6fbcb71bd8403d0c58984473 as failing (quorum reached).</div><div class="line">90936:M 22 Jan 18:31:17.362 # Cluster state changed: fail</div><div class="line">// 5.更新从节点晋升配置纪元，更新集群状态正常</div><div class="line">90936:M 22 Jan 18:31:18.071 # Failover auth granted to 77afe1231f6ddba989e67e218d6312a718a1ddde for epoch 7</div><div class="line">90936:M 22 Jan 18:31:18.073 # Cluster state changed: ok</div></pre></td></tr></table></figure>
+<blockquote>
+<p>slave节点:6385.log</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">// 1.与主节点连接失败</div><div class="line">90965:S 22 Jan 18:31:02.719 * Connecting to MASTER 127.0.0.1:6382</div><div class="line">90965:S 22 Jan 18:31:02.719 * MASTER &lt;-&gt; SLAVE sync started</div><div class="line">90965:S 22 Jan 18:31:02.719 # Error condition on socket for SYNC: Connection refused</div><div class="line">90965:S 22 Jan 18:31:03.726 * Connecting to MASTER 127.0.0.1:6382</div><div class="line">90965:S 22 Jan 18:31:03.727 * MASTER &lt;-&gt; SLAVE sync started</div><div class="line">90965:S 22 Jan 18:31:03.728 # Error condition on socket for SYNC: Connection refused</div><div class="line">...</div><div class="line">90965:S 22 Jan 18:31:16.856 * Connecting to MASTER 127.0.0.1:6382</div><div class="line">90965:S 22 Jan 18:31:16.856 * MASTER &lt;-&gt; SLAVE sync started</div><div class="line">90965:S 22 Jan 18:31:16.857 # Error condition on socket for SYNC: Connection refused</div><div class="line">// 3.cf72552afe5d06c2d9e7abe439ddfb3edb4256ea节点广播下线节点fail消息</div><div class="line">90965:S 22 Jan 18:31:17.364 * FAIL message received from cf72552afe5d06c2d9e7abe439ddfb3edb4256ea about cecbd5a15feeea9c6fbcb71bd8403d0c58984473</div><div class="line">90965:S 22 Jan 18:31:17.364 # Cluster state changed: fail</div><div class="line">// 4.从节点识别正在复制的主节点进入客观下线后准备选举时间，选举延迟964毫秒后执行和当前从节点复制偏移量</div><div class="line">90965:S 22 Jan 18:31:17.463 # Start of election delayed for 518 milliseconds (rank #0, offset 183).</div><div class="line">// 发起全量复制失败</div><div class="line">90965:S 22 Jan 18:31:17.867 * Connecting to MASTER 127.0.0.1:6382</div><div class="line">90965:S 22 Jan 18:31:17.867 * MASTER &lt;-&gt; SLAVE sync started</div><div class="line">90965:S 22 Jan 18:31:17.867 # Error condition on socket for SYNC: Connection refused</div><div class="line">// 5.更新当前从节点配置纪元，更新集群状态正常</div><div class="line">90965:S 22 Jan 18:31:18.070 # Starting a failover election for epoch 7.</div><div class="line">90965:S 22 Jan 18:31:18.071 # Failover election won: I&apos;m the new master.</div><div class="line">90965:S 22 Jan 18:31:18.071 # configEpoch set to 7 after successful failover</div><div class="line">90965:M 22 Jan 18:31:18.071 * Discarding previously cached master state.</div><div class="line">90965:M 22 Jan 18:31:18.072 # Cluster state changed: ok</div></pre></td></tr></table></figure>
+<h3 id="集群故障转移后变化"><a href="#集群故障转移后变化" class="headerlink" title="集群故障转移后变化"></a>集群故障转移后变化</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">master			slave</div><div class="line">127.0.0.1:6380	127.0.0.1:6383</div><div class="line">127.0.0.1:6381	127.0.0.1:6384</div><div class="line">127.0.0.1:6385</div></pre></td></tr></table></figure>
+<h3 id="时间点18-34-41重启6382节点"><a href="#时间点18-34-41重启6382节点" class="headerlink" title="时间点18:34:41重启6382节点"></a>时间点18:34:41重启6382节点</h3><p><strong>1).重启从节点流程</strong></p>
+<blockquote>
+<p>master节点:6380.log</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">// 2.集群内其它节点接收到6382发来的PING消息，清空客观下线状态</div><div class="line">90931:M 22 Jan 18:34:41.875 * Clear FAIL state for node </div><div class="line">cecbd5a15feeea9c6fbcb71bd8403d0c58984473: master without slots is reachable again.</div></pre></td></tr></table></figure>
+<blockquote>
+<p>master节点:6381.log</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">// 2.集群内其它节点接收到6382发来的PING消息，清空客观下线状态</div><div class="line">90931:M 22 Jan 18:34:41.875 * Clear FAIL state for node </div><div class="line">cecbd5a15feeea9c6fbcb71bd8403d0c58984473: master without slots is reachable again.</div></pre></td></tr></table></figure>
+<blockquote>
+<p>master节点:6385.log</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">// 2.集群内其它节点接收到6382发来的PING消息，清空客观下线状态</div><div class="line">90931:M 22 Jan 18:34:41.875 * Clear FAIL state for node </div><div class="line">cecbd5a15feeea9c6fbcb71bd8403d0c58984473: master without slots is reachable again.</div></pre></td></tr></table></figure>
+<blockquote>
+<p>slave节点:6382.log </p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line">91047:M 22 Jan 18:34:41.868 * Increased maximum number of open files to 10032 (it was originally set to 4864).</div><div class="line">91047:M 22 Jan 18:34:41.870 * Node configuration loaded, I&apos;m cecbd5a15feeea9c6fbcb71bd8403d0c58984473</div><div class="line">                _._</div><div class="line">           _.-``__ &apos;&apos;-._</div><div class="line">      _.-``    `.  `_.  &apos;&apos;-._           Redis 3.0.7 (00000000/0) 64 bit</div><div class="line">  .-`` .-```.  ```\/    _.,_ &apos;&apos;-._</div><div class="line"> (    &apos;      ,       .-`  | `,    )     Running in cluster mode</div><div class="line"> |`-._`-...-` __...-.``-._|&apos;` _.-&apos;|     Port: 6382</div><div class="line"> |    `-._   `._    /     _.-&apos;    |     PID: 91047</div><div class="line">  `-._    `-._  `-./  _.-&apos;    _.-&apos;</div><div class="line"> |`-._`-._    `-.__.-&apos;    _.-&apos;_.-&apos;|</div><div class="line"> |    `-._`-._        _.-&apos;_.-&apos;    |           http://redis.io</div><div class="line">  `-._    `-._`-.__.-&apos;_.-&apos;    _.-&apos;</div><div class="line"> |`-._`-._    `-.__.-&apos;    _.-&apos;_.-&apos;|</div><div class="line"> |    `-._`-._        _.-&apos;_.-&apos;    |</div><div class="line">  `-._    `-._`-.__.-&apos;_.-&apos;    _.-&apos;</div><div class="line">      `-._    `-.__.-&apos;    _.-&apos;</div><div class="line">          `-._        _.-&apos;</div><div class="line">              `-.__.-&apos;</div><div class="line"></div><div class="line">91047:M 22 Jan 18:34:41.870 # Server started, Redis version 3.0.7</div><div class="line">91047:M 22 Jan 18:34:41.871 * The server is now ready to accept connections on port 6382</div><div class="line">// 1.发现自己负责的槽指派给另一个节点，以现有集群配置为准，变为新主节点6386的从节点</div><div class="line">91047:M 22 Jan 18:34:41.876 # Configuration change detected. Reconfiguring myself as a replica of 77afe1231f6ddba989e67e218d6312a718a1ddde</div><div class="line">91047:S 22 Jan 18:34:41.876 # Cluster state changed: ok</div><div class="line">// 3.变为6385节点的从节点，并且full sync</div><div class="line">91047:S 22 Jan 18:34:42.882 * Connecting to MASTER 127.0.0.1:6385</div><div class="line">91047:S 22 Jan 18:34:42.882 * MASTER &lt;-&gt; SLAVE sync started</div><div class="line">91047:S 22 Jan 18:34:42.883 * Non blocking connect for SYNC fired the event.</div><div class="line">91047:S 22 Jan 18:34:42.883 * Master replied to PING, replication can continue...</div><div class="line">91047:S 22 Jan 18:34:42.883 * Partial resynchronization not possible (no cached master)</div><div class="line">91047:S 22 Jan 18:34:42.885 * Full resync from master: c8f54466ff3fedb66a5c0672e75f3b346144d279:1</div><div class="line">91047:S 22 Jan 18:34:42.889 * MASTER &lt;-&gt; SLAVE sync: receiving 18 bytes from master</div><div class="line">91047:S 22 Jan 18:34:42.889 * MASTER &lt;-&gt; SLAVE sync: Flushing old data</div><div class="line">91047:S 22 Jan 18:34:42.890 * MASTER &lt;-&gt; SLAVE sync: Loading DB in memory</div><div class="line">91047:S 22 Jan 18:34:42.890 * MASTER &lt;-&gt; SLAVE sync: Finished with success</div><div class="line">91047:S 22 Jan 18:34:42.890 * Background append only file rewriting started by pid 91049</div><div class="line">91047:S 22 Jan 18:34:42.915 * AOF rewrite child asks to stop sending diffs.</div><div class="line">91049:C 22 Jan 18:34:42.915 * Parent agreed to stop sending diffs. Finalizing AOF...</div><div class="line">91049:C 22 Jan 18:34:42.915 * Concatenating 0.00 MB of AOF diff received from parent.</div><div class="line">91049:C 22 Jan 18:34:42.916 * SYNC append only file rewrite performed</div></pre></td></tr></table></figure>
+<p><strong>2).集群最后状态</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">master			slave</div><div class="line">127.0.0.1:6380	127.0.0.1:6383</div><div class="line">127.0.0.1:6381	127.0.0.1:6384</div><div class="line">127.0.0.1:6385	127.0.0.1:6382</div></pre></td></tr></table></figure>
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/redis/" rel="tag">#redis</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/25/goal/redis集群原理文章汇总/" rel="next" title="redis集群原理文章汇总">
+                <i class="fa fa-chevron-left"></i> redis集群原理文章汇总
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/26/goal/redis集群使用/带密码redis在migrate迁移slot问题/" rel="prev" title="带密码redis在migrate迁移slot问题">
+                带密码redis在migrate迁移slot问题 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/metor.ico"
+               alt="Pedestrian" />
+          <p class="site-author-name" itemprop="name">Pedestrian</p>
+          <p class="site-description motion-element" itemprop="description">study for goal</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/yanan0628" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://carlosfu.github.io/" target="_blank" title="fudada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  fudada
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://jolinzhangg.github.io/" target="_blank" title="xiaodada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  xiaodada
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#准备实例"><span class="nav-number">1.</span> <span class="nav-text">准备实例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#故障转移基本原理"><span class="nav-number">2.</span> <span class="nav-text">故障转移基本原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#主观下线"><span class="nav-number">2.1.</span> <span class="nav-text">主观下线</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#客观下线"><span class="nav-number">2.2.</span> <span class="nav-text">客观下线</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#故障转移测试"><span class="nav-number">3.</span> <span class="nav-text">故障转移测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#影响集群的参数"><span class="nav-number">3.1.</span> <span class="nav-text">影响集群的参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#时间点-18-31-02-kill-6382进程pid"><span class="nav-number">3.2.</span> <span class="nav-text">时间点:18:31:02 kill 6382进程pid</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#集群故障转移后变化"><span class="nav-number">3.3.</span> <span class="nav-text">集群故障转移后变化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#时间点18-34-41重启6382节点"><span class="nav-number">3.4.</span> <span class="nav-text">时间点18:34:41重启6382节点</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pedestrian</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+                            
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').mousedown(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+  
+
+  
+
+  
+
+</body>
+</html>

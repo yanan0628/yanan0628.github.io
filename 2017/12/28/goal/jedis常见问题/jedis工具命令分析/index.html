@@ -1,0 +1,803 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="jedis常见问题," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="网络分析tcpdump抓包磁盘io 1.是否有fsync阻塞 2.删log导致io阻塞/其他服务写磁盘服务/实例多集中aof重写、rdb 3.vm 是否开启swap  ssd是一般硬盘的2倍速度，普通硬盘速度 100MB/s,ssd 速度 200M/s.固态硬盘，以主流的OCZ Vertex2为例，读取220M，写入200M，存取时间0.01ms（1ms=100000ns）固态硬盘都是2.5寸及P">
+<meta name="keywords" content="jedis常见问题">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jedis工具命令分析">
+<meta property="og:url" content="/2017/12/28/goal/jedis常见问题/jedis工具命令分析/index.html">
+<meta property="og:site_name" content="Meteor">
+<meta property="og:description" content="网络分析tcpdump抓包磁盘io 1.是否有fsync阻塞 2.删log导致io阻塞/其他服务写磁盘服务/实例多集中aof重写、rdb 3.vm 是否开启swap  ssd是一般硬盘的2倍速度，普通硬盘速度 100MB/s,ssd 速度 200M/s.固态硬盘，以主流的OCZ Vertex2为例，读取220M，写入200M，存取时间0.01ms（1ms=100000ns）固态硬盘都是2.5寸及P">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-12-29T03:28:35.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="jedis工具命令分析">
+<meta name="twitter:description" content="网络分析tcpdump抓包磁盘io 1.是否有fsync阻塞 2.删log导致io阻塞/其他服务写磁盘服务/实例多集中aof重写、rdb 3.vm 是否开启swap  ssd是一般硬盘的2倍速度，普通硬盘速度 100MB/s,ssd 速度 200M/s.固态硬盘，以主流的OCZ Vertex2为例，读取220M，写入200M，存取时间0.01ms（1ms=100000ns）固态硬盘都是2.5寸及P">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> jedis工具命令分析 | Meteor </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Meteor</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                jedis工具命令分析
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-28T00:00:00+08:00" content="2017-12-28">
+              2017-12-28
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/jedis常见问题/" itemprop="url" rel="index">
+                    <span itemprop="name">jedis常见问题</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="网络分析"><a href="#网络分析" class="headerlink" title="网络分析"></a>网络分析</h2><h3 id="tcpdump抓包"><a href="#tcpdump抓包" class="headerlink" title="tcpdump抓包"></a>tcpdump抓包</h3><h2 id="磁盘io"><a href="#磁盘io" class="headerlink" title="磁盘io"></a>磁盘io</h2><ul>
+<li>1.是否有fsync阻塞</li>
+<li>2.删log导致io阻塞/其他服务写磁盘服务/实例多集中aof重写、rdb</li>
+<li>3.vm 是否开启swap</li>
+</ul>
+<p>ssd是一般硬盘的2倍速度，普通硬盘速度 100MB/s,ssd 速度 200M/s.<br>固态硬盘，以主流的OCZ Vertex2为例，读取220M，写入200M，存取时间0.01ms（1ms=100000ns）<br>固态硬盘都是2.5寸及PCI-E接口的，速度在200~500不等，PCI-E接口的速度在450~3500不等，固态硬盘的随机读写是机械硬盘的数千乃至数万倍。<br>机械硬盘，一般的7200转的台式机硬盘来说读取110M写入90M，存取时间14ms（1ms=100000ns）</p>
+<h3 id="iostat"><a href="#iostat" class="headerlink" title="iostat"></a>iostat</h3><p>iostat -d -k 5 10 （5秒执行收集一次 磁盘读写情况 KB）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">Device:            tps    kB_read/s    kB_wrtn/s    kB_read    kB_wrtn</div><div class="line">sda              29.40         0.00       261.60          0       1308</div><div class="line">sda1              0.80         0.00        22.40          0        112</div><div class="line">sda2              0.00         0.00         0.00          0          0</div><div class="line">sda3              2.20         0.00        16.00          0         80</div><div class="line">sda4              0.00         0.00         0.00          0          0</div><div class="line">sda5              0.40         0.00         7.20          0         36</div><div class="line">sda6             26.00         0.00       216.00          0       1080</div><div class="line"></div><div class="line">tps：该设备每秒的传输次数（Indicate the number of transfers per second that were issued to the device.）。&quot;一次传输&quot;意思是&quot;一次I/O请求&quot;。多个逻辑请求可能会被合并为&quot;一次I/O请求&quot;。&quot;一次传输&quot;请求的大小是未知的。</div><div class="line">kB_read/s：每秒从设备（drive expressed）读取的数据量；</div><div class="line">kB_wrtn/s：每秒向设备（drive expressed）写入的数据量；</div><div class="line">kB_read：读取的总数据量；</div><div class="line">kB_wrtn：写入的总数量数据量；这些单位都为Kilobytes。</div><div class="line"></div><div class="line">[@oracle_79_150 ~]# iostat -d -x -k 2 10</div><div class="line">Linux 2.6.18-274.el5 (oracle_79_150) 	10/11/2017</div><div class="line"></div><div class="line">Device:         rrqm/s   wrqm/s   r/s   w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await  svctm  %util</div><div class="line">sda               0.00   343.59  0.00 40.90     0.03  1538.00    75.20     0.02    0.60   0.21   0.86</div><div class="line">sda1              0.00     2.84  0.00  0.68     0.00    14.08    41.51     0.02   35.49  12.19   0.83</div><div class="line">sda2              0.00     0.00  0.00  0.00     0.00     0.00    86.75     0.00   10.76   7.09   0.00</div><div class="line">sda3              0.00     2.08  0.00  2.89     0.01    19.89    13.75     0.03   11.15   8.29   2.40</div><div class="line">sda4              0.00     0.00  0.00  0.00     0.00     0.00     2.00     0.00    6.75   6.75   0.00</div><div class="line">sda5              0.00     1.25  0.00  0.68     0.01     7.76    22.66     0.02   31.47  10.11   0.69</div><div class="line">sda6              0.00   337.41  0.00 36.65     0.00  1496.27    81.65     0.02    0.42   0.48   1.76</div></pre></td></tr></table></figure>
+<h3 id="iotop"><a href="#iotop" class="headerlink" title="iotop"></a>iotop</h3><p>安装命令:yum install iotop</p>
+<p>iotop查看各个进程io占用情况:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">Total DISK READ: 0.00 B/s | Total DISK WRITE: 310.03 K/s</div><div class="line">  TID  PRIO  USER     DISK READ  DISK WRITE  SWAPIN     IO&gt;    COMMAND</div><div class="line"> 3254 be/3 root        0.00 B/s   22.69 K/s  0.00 % 23.68 % [kjournald]</div><div class="line"> 3175 be/4 cacheclo    0.00 B/s    0.00 B/s  0.00 %  0.66 % redis-server *:6389 [cluster]</div><div class="line">22771 be/4 cacheclo    0.00 B/s    0.00 B/s  0.00 %  0.38 % redis-server *:6393 [cluster]</div><div class="line">   17 rt/3 root        0.00 B/s    0.00 B/s  0.00 %  0.19 % [migration/5]</div><div class="line">18230 be/4 cacheclo    0.00 B/s    0.00 B/s  0.00 %  0.19 % redis-server *:6384 [cluster]</div><div class="line"> 3258 be/3 root        0.00 B/s    0.00 B/s 23.68 %  0.09 % [kjournald]</div><div class="line">20452 be/4 cacheclo    0.00 B/s    0.00 B/s  0.00 %  0.09 % redis-server *:6385 [cluster]</div><div class="line">19555 be/4 cacheclo    0.00 B/s    0.00 B/s  0.00 %  0.09 % redis-server *:6381 [cluster]</div><div class="line">23211 be/4 root        0.00 B/s    0.00 B/s  0.00 %  0.00 % keepalived start</div><div class="line">14201 be/4 root        0.00 B/s    0.00 B/s  0.00 %  0.00 % lsi_mrdsnmpagent -c /etc/snmp/snmpd.conf</div><div class="line">20450 be/4 cacheclo    0.00 B/s    7.56 K/s  0.00 %  0.00 % redis-server *:6385 [cluster]</div><div class="line">13729 be/4 root        0.00 B/s    0.00 B/s  0.00 %  0.00 % dsm_sa_eventmgrd</div><div class="line"> 8507 be/4 root        0.00 B/s    0.00 B/s  0.00 %  0.00 % python /usr/bin/iotop</div><div class="line">19251 be/4 root        0.00 B/s    0.00 B/s  0.00 %  0.00 % sohumon</div><div class="line">21170 be/4 cacheclo    0.00 B/s    0.00 B/s  0.00 %  0.00 % redis-server *:6392</div><div class="line">...</div><div class="line">``` </div><div class="line"></div><div class="line">### lsof</div><div class="line"></div><div class="line">lsof（list open files）是一个列出当前系统打开文件的工具。在linux环境下，任何事物都以文件的形式存在，通过文件不仅仅可以访问常规数据，还可以访问网络连接和硬件。</div><div class="line">lsof可以查看当前盘符，文件占用磁盘情况。</div></pre></td></tr></table></figure>
+<p>[@oracle_79_150 ~]# lsof /dev/sda6<br>COMMAND     PID       USER   FD   TYPE DEVICE       SIZE      NODE NAME<br>redis-ser  2443 cachecloud  cwd    DIR    8,6       4096 303300613 /opt/cachecloud/data<br>redis-ser  2443 cachecloud    1w   REG    8,6      40701 303301418 /opt/cachecloud/logs/redis-6386-201506151729.log<br>redis-ser  2443 cachecloud    2w   REG    8,6      40701 303301418 /opt/cachecloud/logs/redis-6386-201506151729.log<br>redis-ser  2443 cachecloud   20u   REG    8,6   29368116 303301409 /opt/cachecloud/data/appendonly-6386.aof<br>redis-ser  3173 cachecloud  cwd    DIR    8,6       4096 303300613 /opt/cachecloud/data<br>redis-ser  3173 cachecloud    1w   REG    8,6    1833751 303301368 /opt/cachecloud/logs/redis-6389-201506151731.log<br>redis-ser  3173 cachecloud    2w   REG    8,6    1833751 303301368 /opt/cachecloud/logs/redis-6389-201506151731.log<br>redis-ser  3173 cachecloud    7wW  REG    8,6       2321 303301403 /opt/cachecloud/data/nodes-6389.conf<br>redis-ser  3173 cachecloud  953u   REG    8,6 1739533256 303301430 /opt/cachecloud/data/appendonly-6389.aof</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">## 连接池相关</div><div class="line"></div><div class="line">### ss -s</div><div class="line"></div><div class="line">### netstat</div><div class="line"></div><div class="line">### client list</div><div class="line"></div><div class="line">- 1.查看client list每个客户端ip连接数</div><div class="line"></div><div class="line">**命令：**可查看瞬间当前redis的客户端ip连接数情况</div><div class="line">`redis-cli -h $&#123;host&#125; -p $&#123;port&#125; client list | awk -F &quot;addr=&quot; &apos;&#123;print $2&#125;&apos; | awk -F &quot;:&quot; &apos;&#123;print $1&#125;&apos; | sort | uniq -c | sort -nr -k 1`</div></pre></td></tr></table></figure>
+<p>[@hbase99 logs]# redis-cli -h 10.10.81.99 -p 6385 client list | awk -F “addr=” ‘{print $2}’ | awk -F “:” ‘{print $1}’ | sort | uniq -c | sort -nr -k 1<br>     58 10.16.51.102<br>     57 10.10.22.18<br>     57 10.10.22.104<br>     57 10.10.22.101<br>     56 10.16.12.134<br>     56 10.10.22.103<br>     53 10.16.12.132<br>     52 10.16.12.135<br>     52 10.10.22.17<br>     51 10.16.51.105<br>     51 10.16.12.133<br>     51 10.10.22.11<br>     51 10.10.22.102<br>     43 10.10.22.100<br>     40 10.18.18.128<br>     40 10.18.18.127<br>     40 10.18.18.126<br>     ….<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">### ops/流量相关</div><div class="line"></div><div class="line">- 1.查看redis机器ops(operation per second)</div><div class="line"></div><div class="line">**命令:**查看集群的QPS</div><div class="line">`redis-cli -h $&#123;host&#125; -p $&#123;port&#125; info | grep instantaneous_ops_per_sec`</div></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">- 2.查看redis机器瞬间流量</div><div class="line"></div><div class="line">普通的百兆网卡理论传输速度为100Mbps(bit)，实际换算后极限下载速度12.5MB/s，而千兆网卡的理论传输速度则为125MB/s.</div><div class="line">千兆网卡最大传输字节数:125MB/s.</div><div class="line"></div><div class="line">**命令:**查看集群瞬间流量/s </div><div class="line">`redis-cli -h $&#123;host&#125; -p $&#123;port&#125; info | grep instantaneous`</div></pre></td></tr></table></figure>
+<p>[@hbase99 logs]# redis-cli -h 10.10.81.99 -p 6385 info | grep instantaneous<br>instantaneous_ops_per_sec:1295    // ops<br>instantaneous_input_kbps:162.85    //输入流量<br>instantaneous_output_kbps:621.56  //输出流量<br>```</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/jedis常见问题/" rel="tag">#jedis常见问题</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/28/goal/jedis常见问题文章汇总/" rel="next" title="jedis常见问题文章汇总">
+                <i class="fa fa-chevron-left"></i> jedis常见问题文章汇总
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/02/goal/redis集群使用/带密码redis在migrate迁移slot问题(2)/" rel="prev" title="带密码redis在migrate迁移slot问题">
+                带密码redis在migrate迁移slot问题 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/metor.ico"
+               alt="Pedestrian" />
+          <p class="site-author-name" itemprop="name">Pedestrian</p>
+          <p class="site-description motion-element" itemprop="description">study for goal</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/yanan0628" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://carlosfu.github.io/" target="_blank" title="fudada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  fudada
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://jolinzhangg.github.io/" target="_blank" title="xiaodada">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  xiaodada
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#网络分析"><span class="nav-number">1.</span> <span class="nav-text">网络分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#tcpdump抓包"><span class="nav-number">1.1.</span> <span class="nav-text">tcpdump抓包</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#磁盘io"><span class="nav-number">2.</span> <span class="nav-text">磁盘io</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#iostat"><span class="nav-number">2.1.</span> <span class="nav-text">iostat</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#iotop"><span class="nav-number">2.2.</span> <span class="nav-text">iotop</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pedestrian</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+                            
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').mousedown(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -267,8 +267,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/10/26/goal/redis运维/redis热点key问题排查/" itemprop="url">
-                  redis 热点key排查
+                <a class="post-title-link" href="/2017/12/26/goal/redis集群使用/带密码redis在migrate迁移slot问题/" itemprop="url">
+                  带密码redis在migrate迁移slot问题
                 </a>
               
             
@@ -281,8 +281,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-10-26T11:00:35+08:00" content="2017-10-26">
-              2017-10-26
+            <time itemprop="dateCreated" datetime="2017-12-26T00:00:00+08:00" content="2017-12-26">
+              2017-12-26
             </time>
           </span>
 
@@ -307,8 +307,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/redis运维/" itemprop="url" rel="index">
-                    <span itemprop="name">redis运维</span>
+                  <a href="/categories/redis/redis集群/" itemprop="url" rel="index">
+                    <span itemprop="name">redis集群</span>
                   </a>
                 </span>
 
@@ -342,78 +342,19 @@
       
         
           
-            <h2 id="网络输入-输出流量问题排查"><a href="#网络输入-输出流量问题排查" class="headerlink" title="网络输入/输出流量问题排查"></a>网络输入/输出流量问题排查</h2><h3 id="流量影响"><a href="#流量影响" class="headerlink" title="流量影响"></a>流量影响</h3><p>现在公司用的是千兆网卡(bit)，换算流量最大阈值125MB左右，如果当前机器网络流量过大(redis在数据流入/流出会消耗大量流量)，当出现打满机器的网卡流量，就会造成当前机器的丢包或拥塞。会影响当前机器所有redis实例的访问和结果返回。</p>
-<p>有以下几种情况:</p>
-<ul>
-<li>bigkey大对象,慢查询分析.比如:每秒50次get操作1M的对象（输出流量 50M/s）</li>
-<li>ops暴增，比如:正常ops get操作200次,突然增到2000甚至更高,流量*10倍</li>
-<li>ops增长不明显,慢查询也没有.可能有热点key流量都访问该redis实例(检查ops和instantaneous_output_kbps情况)</li>
-</ul>
-<h3 id="排查步骤"><a href="#排查步骤" class="headerlink" title="排查步骤"></a>排查步骤</h3><ul>
-<li>1.先看应用是否有慢查询,大对象访问造成流量过高  </li>
-<li>2.当前redis命令ops(如果是cluster 对比其他master节点)  </li>
-<li>3.热点key分析  到服务器本地执行最近1分钟monitor命令  </li>
-<li>4.facebook工具或脚本分析当前 热点command以及热点key</li>
-<li>5.按ip 频次 key进行排序</li>
-<li>6.计算每个ip key 对应流量 value*频次 </li>
-<li>7.提供给客户端排查key 客户端ip 占用流量情况</li>
-</ul>
-<h3 id="工具排查"><a href="#工具排查" class="headerlink" title="工具排查"></a>工具排查</h3><ul>
-<li><p>执行monitor命令导出文件</p>
-</li>
-<li><p>执行facebook脚本</p>
-</li>
-</ul>
-<p><code>redis-faina.py</code>脚本:<a href="https://github.com/facebookarchive/redis-faina" target="_blank" rel="external">redis-faina使用方法</a></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line">localhos:log chenshi$ ./redis-faina.py 78.41:6382.log</div><div class="line">Overall Stats</div><div class="line">========================================</div><div class="line">Lines Processed  	33072</div><div class="line">Commands/Sec     	1203.72</div><div class="line"></div><div class="line">Top Prefixes</div><div class="line">========================================</div><div class="line">m             	9480	(28.66%)</div><div class="line">p             	7963	(24.08%)</div><div class="line">pcl           	4511	(13.64%)</div><div class="line">card          	3468	(10.49%)</div><div class="line">catecodeinfo  	1698	(5.13%)</div><div class="line">pclcates      	257 	(0.78%)</div><div class="line">pcluser       	150 	(0.45%)</div><div class="line">pclcatef      	129 	(0.39%)</div><div class="line"></div><div class="line">Top Keys</div><div class="line">========================================</div><div class="line">m:pcl:pad:fircate:73  	8159	(24.67%)</div><div class="line">catecodeinfo:tag:v2   	1698	(5.13%)</div><div class="line">card:56:92655095,2    	1007	(3.04%)</div><div class="line">card:56:92400031,2    	879 	(2.66%)</div><div class="line">pcl:pad:seccate:60    	578 	(1.75%)</div><div class="line">pcl:pad:seccate:82    	541 	(1.64%)</div><div class="line">p:v:ee:92469530,2     	518 	(1.57%)</div><div class="line">p:s:sort:20171025:22  	426 	(1.29%)</div><div class="line"></div><div class="line">Top Commands</div><div class="line">========================================</div><div class="line">GET      	29435	(89.00%)</div><div class="line">SETEX    	3411 	(10.31%)</div><div class="line">TTL      	217  	(0.66%)</div><div class="line">HGETALL  	8    	(0.02%)</div><div class="line"></div><div class="line">Command Time (microsecs)</div><div class="line">========================================</div><div class="line">Median  	432.75</div><div class="line">75%     	1079.0</div><div class="line">90%     	2150.0</div><div class="line">99%     	5313.0</div><div class="line"></div><div class="line">Heaviest Commands (microsecs)</div><div class="line">========================================</div><div class="line">GET      	23233082.75</div><div class="line">SETEX    	3999394.75</div><div class="line">TTL      	229730.25</div><div class="line">HGETALL  	12561.25</div><div class="line"></div><div class="line">Slowest Calls</div><div class="line">========================================</div><div class="line">17639.0   	&quot;GET&quot; &quot;RVF#93579800,2&quot;</div><div class="line">16154.0   	&quot;SETEX&quot; &quot;p:v:ms:90570158,2&quot; &quot;86400&quot; &quot;2.5&quot;</div><div class="line">16146.0   	&quot;GET&quot; &quot;m:pcl:pad:topic:12540&quot;</div><div class="line">15166.0   	&quot;SETEX&quot; &quot;RG#93445677#2&quot; &quot;86400&quot; &quot;[&#123;\&quot;name\&quot;:\&quot;93445677,2\&quot;,\&quot;score\&quot;:0.01129842,\&quot;tag\&quot;:\&quot;\xe6\xbe\xa1\xe5\xa0\x82\&quot;&#125;]&quot;</div><div class="line">14765.0   	&quot;GET&quot; &quot;m:pcl:pad:fircate:73&quot;</div><div class="line">14495.0   	&quot;GET&quot; &quot;catecodeinfo:tag:v2&quot;</div><div class="line">12783.0   	&quot;GET&quot; &quot;p:v:ee:93842379,2&quot;</div><div class="line">11970.25  	&quot;GET&quot; &quot;m:pcl:pad:fircate:73&quot;</div></pre></td></tr></table></figure>
-<ul>
-<li>commands比例和top keys需要重点排查</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">Top Commands</div><div class="line">========================================</div><div class="line">GET      	29435	(89.00%)</div><div class="line"></div><div class="line">Top Keys</div><div class="line">========================================</div><div class="line">m:pcl:pad:fircate:73  	8159	(24.67%)</div><div class="line">catecodeinfo:tag:v2   	1698	(5.13%)</div><div class="line">card:56:92655095,2    	1007	(3.04%)</div><div class="line">card:56:92400031,2    	879 	(2.66%)</div><div class="line">pcl:pad:seccate:60    	578 	(1.75%)</div><div class="line">pcl:pad:seccate:82    	541 	(1.64%)</div><div class="line">p:v:ee:92469530,2     	518 	(1.57%)</div><div class="line">p:s:sort:20171025:22  	426 	(1.29%)</div></pre></td></tr></table></figure>
-<ul>
-<li>get命令top20</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cat 78.41:6382.log | grep GET | awk &apos;&#123;print $5&#125;&apos;  | sort | uniq -c | sort -rn | head -20</div></pre></td></tr></table></figure>
-<ul>
-<li>debug object查看key值大小</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">*.*.78.41:6382&gt; DEBUG OBJECT catecodeinfo:tag:v2</div><div class="line">Value at:0x7fa68584e230 refcount:1 encoding:raw serializedlength:840478 lru:15826073 lru_seconds_idle:549</div></pre></td></tr></table></figure>
-<ul>
-<li>客户端ip调用情况</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cat 78.41:6382.log | grep GET | awk &apos;&#123;print $3&quot;=&gt;&quot;$5&#125;&apos; | grep &quot;catecodeinfo:tag:v2&quot; | sort | uniq -c | sort -rn | head -20</div></pre></td></tr></table></figure>
-<h2 id="案例分析1-流量报警"><a href="#案例分析1-流量报警" class="headerlink" title="案例分析1:流量报警"></a>案例分析1:流量报警</h2><h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><ul>
-<li><strong>redis报警信息</strong></li>
-</ul>
-<p><img src="http://i3.itc.cn/20171026/aac_a468f656_656f_f25f_0ff6_7493b7f9956d_1.png" alt=""></p>
-<ul>
-<li><strong>info stat快照</strong>(*.78.41 <code>redis实例流量报警快照</code>)</li>
-</ul>
-<p><img src="http://i1.itc.cn/20171026/aac_a468f656_656f_f25f_0ff6_7493b7f9956d_2.png" alt=""></p>
-<p>当前ops：1637 当前网络输出流量:67.4M (千兆网卡流量120MB/s)</p>
-<ul>
-<li><strong>info stat快照</strong>(*.78.41 <code>redis正常时间实例流量快照</code>)</li>
-</ul>
-<p><img src="http://i1.itc.cn/20171026/aac_a468f656_656f_f25f_0ff6_7493b7f9956d_3.png" alt=""></p>
-<h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><ul>
-<li>1.快照分析 </li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">1.通过分析正常/流量报警快照，redis实例的基础统计信息 ops/instantaneous_output_kbps</div><div class="line">2.流量高的时候也可以对比下其他master节点的ops/instantaneous_output_kbps</div><div class="line">3.正常时候ops更高，但输出流量更小。ops低的时候流量高反而流量大，但并没有产生慢查询(&gt;10ms请求)</div><div class="line">4.基本确定有大对象访问</div></pre></td></tr></table></figure>
-<ul>
-<li>2.执行minitor导出文件</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">1.上redis服务器执行monitor(报警期间)最近一分钟/最近10000执行命令分析。</div><div class="line">redis-cli -p 6382 -a *** monitor | head -n 100000 &gt; 78.41:6382.log</div></pre></td></tr></table></figure>
-<ul>
-<li>3.分析当前command操作占比以及top20情况</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">get调用占比较高</div><div class="line">Top Commands</div><div class="line">========================================</div><div class="line">GET      	29435	(89.00%)</div><div class="line">SETEX    	3411 	(10.31%)</div><div class="line">TTL      	217  	(0.66%)</div><div class="line">HGETALL  	8    	(0.02%)</div><div class="line"></div><div class="line">localhos:log chenshi$ cat 78.41:6382.log | grep GET | awk &apos;&#123;print $5&#125;&apos;  | sort | uniq -c | sort -rn | head -20</div><div class="line">8159 &quot;m:pcl:pad:fircate:73&quot;</div><div class="line">1698 &quot;catecodeinfo:tag:v2&quot;</div><div class="line">1007 &quot;card:56:92655095,2&quot;</div><div class="line"> 879 &quot;card:56:92400031,2&quot;</div><div class="line"> 578 &quot;pcl:pad:seccate:60&quot;</div><div class="line"> 541 &quot;pcl:pad:seccate:82&quot;</div><div class="line"> 518 &quot;p:v:ee:92469530,2&quot;</div><div class="line"> 375 &quot;p:v:ee:92760970,2&quot;</div><div class="line"> 264 &quot;p:v:ee:92414925,2&quot;</div><div class="line"> 264 &quot;card:56:92785886,2&quot;</div><div class="line"> 213 &quot;p:s:sort:20171025:22&quot;</div><div class="line"> 163 &quot;pcl:pad:user:306132492&quot;</div><div class="line"> 161 &quot;p:v:ee:92200421,2&quot;</div><div class="line"> 149 &quot;pcl:pad:topic:12540&quot;</div><div class="line"> 149 &quot;pcl:pad:topic:12020&quot;</div><div class="line"> 149 &quot;m:pcl:pad:topic:12540&quot;</div><div class="line"> 134 &quot;pclcates:56:10080:1&quot;</div><div class="line"> 132 &quot;pcl:pad:seccate:11531&quot;</div><div class="line"> 120 &quot;pcl:pad:topic:10228&quot;</div><div class="line"> 120 &quot;m:pcl:pad:topic:10228&quot;</div><div class="line">``` </div><div class="line"> </div><div class="line">- 4.key产生流量分析,找出大对象</div></pre></td></tr></table></figure>
-<p>扫描结果如下：<br>card:56:92785886,2: 264(次)<em>106(字节) =27 kb<br>p:v:ee:92469530,2: 518(次)</em>33(字节) =17 kb<br>p:v:ee:92414925,2: 264(次)<em>34(字节) =8 kb<br>card:56:92655095,2: 1007(次)</em>106(字节) =106 kb<br>card:56:92400031,2: 879(次)<em>106(字节) =93 kb<br>p:v:ee:92760970,2: 375(次)</em>32(字节) =12 kb<br>pclcates:56:10080:1: 134(次)<em>629(字节) =84 kb<br>catecodeinfo:tag:v2: 1698(次)</em>840478(字节) =1427131 kb<br>p:v:ee:92200421,2: 161(次)<em>33(字节) =5 kb<br>p:s:sort:20171025:22: 213(次)</em>16(字节) =3 kb</p>
-<p><em>.</em>.78.41:6382&gt; DEBUG OBJECT catecodeinfo:tag:v2<br>Value at:0x7fa5be68c0a0 refcount:1 encoding:raw serializedlength:840844 lru:15816789 lru_seconds_idle:165<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">- 5.分析大对象key所有客户端ip执行GET调用情况</div></pre></td></tr></table></figure></p>
-<p>localhos:log chenshi$ cat 78.41:6382.log | grep GET | awk ‘{print $3”=&gt;”$5}’ | grep “catecodeinfo:tag:v2” | sort | uniq -c | sort -rn | head -20<br> 420 10.23.194.5:37363]=&gt;”catecodeinfo:tag:v2”<br> 377 10.23.194.6:41135]=&gt;”catecodeinfo:tag:v2”<br> 132 192.168.42.26:35184]=&gt;”catecodeinfo:tag:v2”<br>  64 10.23.194.2:37984]=&gt;”catecodeinfo:tag:v2”<br>  60 10.23.194.6:33715]=&gt;”catecodeinfo:tag:v2”<br>  56 10.23.194.3:48388]=&gt;”catecodeinfo:tag:v2”<br>  54 192.168.42.30:42056]=&gt;”catecodeinfo:tag:v2”<br>  54 10.23.194.2:52091]=&gt;”catecodeinfo:tag:v2”<br>  50 10.23.194.4:37498]=&gt;”catecodeinfo:tag:v2”<br>  46 10.23.194.5:59113]=&gt;”catecodeinfo:tag:v2”<br>  42 192.168.42.23:57718]=&gt;”catecodeinfo:tag:v2”<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">## 案例分析1:OPS报警</div><div class="line"></div><div class="line">### 现象</div><div class="line"></div><div class="line">![](http://i3.itc.cn/20171109/aac_f0c5e218_4428_a7d2_8517_1f997b6246ca_1.png)</div><div class="line"></div><div class="line">检查应用报警节点和其他节点</div><div class="line">![](http://i3.itc.cn/20171109/aac_ea19aacd_829b_8723_3eba_7276b59af8aa_2.jpg)</div><div class="line"></div><div class="line">cachecloud调用量情况：(调用量峰值qpm：1700w/min)</div><div class="line">![](http://i3.itc.cn/20171109/aac_3b5ea243_d14c_7b45_1491_3d508ffb8d06_1.png)</div><div class="line">![](http://i3.itc.cn/20171109/aac_ea19aacd_829b_8723_3eba_7276b59af8aa_1.jpg)</div><div class="line"></div><div class="line"></div><div class="line">### 分析</div><div class="line"></div><div class="line">由于10.10.53.184:6393实例 ops总是在5w-6w左右，可能会有热点key</div><div class="line"></div><div class="line">- 执行monitor</div></pre></td></tr></table></figure></p>
-<p>执行几秒的monitor命令(服务器上执行)<br>redis-cli -p 6393 monitor &gt; 6393.log.1204<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">- 并发量主要分析GET操作</div></pre></td></tr></table></figure></p>
-<p>[@zw-53-184 opt]# cat 6393.log.1204 | grep GET | awk ‘{print $5}’ | sort | uniq -c | sort -rn | head -10<br> 153179 “RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>    520 “rrh:a:312813498”<br>    353 “pclcates:56:10080:0”<br>     80 “card:56:92801540,2”<br>     75 “p:v:ee:92399947,2”<br>     39 “card:56:91840554,2”<br>     36 “p:s:version:20171109:122”<br>     33 “CATEGORYCF_V1#4#11682”<br>     25 “m:pcl:pad:fircate:83”<br>     25 “card:56:92845925,2”<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"> 153179/6s 近似 3w左右调用</div><div class="line"></div><div class="line">- 断定热点key影响,分析客户端调用ip</div><div class="line"></div><div class="line">调用次数 客户端ip  key</div></pre></td></tr></table></figure></p>
-<p>[@zw-53-184 opt]# cat 6393.log.1204 | grep GET | awk ‘{print $3”=&gt;”$5}’ | grep ‘RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9’ | sort | uniq -c | sort -rn | head -20<br>   1040 192.168.42.40:11081]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1035 192.168.42.40:11593]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1034 192.168.42.40:11637]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1034 192.168.42.40:11557]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1033 192.168.42.40:11683]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1033 192.168.42.40:11662]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1033 192.168.42.40:11539]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1032 192.168.42.40:11664]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1032 192.168.42.40:11646]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1029 192.168.42.41:57043]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1028 192.168.42.40:11658]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1028 192.168.42.40:11581]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1025 192.168.42.40:11598]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1025 192.168.42.40:11425]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1023 192.168.42.41:57297]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1023 192.168.42.40:11663]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1023 192.168.42.40:11537]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1022 192.168.42.40:11645]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1021 192.168.42.40:11544]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>   1013 192.168.42.40:11599]=&gt;”RG#\xe8\x88\x9e\xe5\x87\xba\xe7\xb2\xbe\xe5\xbd\xa9”<br>```</p>
-
+            <h2 id="1-slot键迁移问题"><a href="#1-slot键迁移问题" class="headerlink" title="1.slot键迁移问题"></a>1.slot键迁移问题</h2><p><strong>appid=10511(含密码Redis节点)</strong> cachecloud在测试水平迁移slot过程，发现migrate过程中抛出异常，无法进行迁移slot 键。不含密码的redis节点迁移slot没有问题。<br><img src="http://i0.itc.cn/20180105/aac_c59021b9_5e7f_0a77_fd81_e49c04925c18_1.png" height="" width=""></p>
+<h3 id="异常信息"><a href="#异常信息" class="headerlink" title="异常信息"></a>异常信息</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">2017-12-26 17:11:10.465 ERROR 19599 --- [eshard-thread-6] c.s.cache.redis.RedisClusterReshard$4    : ERR Target instance replied with error: NOAUTH Authentication required.</div><div class="line">redis.clients.jedis.exceptions.JedisConnectionException: ERR Target instance replied with error: NOAUTH Authentication required.</div><div class="line">    at redis.clients.jedis.Protocol.processError(Protocol.java:131)</div><div class="line">    at redis.clients.jedis.Protocol.process(Protocol.java:167)</div><div class="line">    at redis.clients.jedis.Protocol.read(Protocol.java:221)</div><div class="line">    at redis.clients.jedis.Connection.readProtocolWithCheckingBroken(Connection.java:328)</div><div class="line">    at redis.clients.jedis.Connection.getStatusCodeReply(Connection.java:250)</div><div class="line">    at redis.clients.jedis.Jedis.migrate(Jedis.java:3195)</div><div class="line">    at com.sohu.cache.redis.RedisClusterReshard$4.execute(RedisClusterReshard.java:309)</div><div class="line">    at com.sohu.cache.util.IdempotentConfirmer.run(IdempotentConfirmer.java:27)</div><div class="line">    at com.sohu.cache.redis.RedisClusterReshard.moveSlotData(RedisClusterReshard.java:313)</div><div class="line">    at com.sohu.cache.redis.RedisClusterReshard.migrateSlotData(RedisClusterReshard.java:399)</div><div class="line">    at com.sohu.cache.redis.RedisClusterReshard.migrateSlot(RedisClusterReshard.java:255)</div><div class="line">    at com.sohu.cache.stats.app.impl.AppDeployCenterImpl$1.run(AppDeployCenterImpl.java:823)</div><div class="line">    at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)</div><div class="line">    at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)</div><div class="line">    at java.lang.Thread.run(Thread.java:745)</div></pre></td></tr></table></figure>
+<h3 id="迁移代码定位"><a href="#迁移代码定位" class="headerlink" title="迁移代码定位"></a>迁移代码定位</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">//遍历槽中所有键，一个个迁移</div><div class="line">...</div><div class="line">for (final String key : keys) &#123;</div><div class="line">    // 幂等操作重试</div><div class="line">    boolean isKeyMigrate = new IdempotentConfirmer() &#123;</div><div class="line">        // 失败后，迁移时限加倍</div><div class="line">    private int migrateTimeOutFactor = 1;</div><div class="line"> </div><div class="line">    @Override</div><div class="line">    public boolean execute() &#123;</div><div class="line">            // 执行migrate操作迁移slot键，抛出异常</div><div class="line">            String response = source.migrate(target.getClient().getHost(), target.getClient().getPort(),</div><div class="line">                key, 0, migrateTimeout * (migrateTimeOutFactor++));</div><div class="line">            return response != null &amp;&amp; (response.equalsIgnoreCase(&quot;OK&quot;) || response.equalsIgnoreCase(&quot;NOKEY&quot;));</div><div class="line">        &#125;</div><div class="line">    &#125;.run();</div><div class="line">    if (!isKeyMigrate) &#123;</div><div class="line">        throw new RuntimeException(&quot;migrate key=&quot; + key + failedInfo(source, slot));</div><div class="line">    &#125; else &#123;</div><div class="line">        num++;</div><div class="line">    logger.info(&quot;migrate key=&#123;&#125;;response=OK&quot;, key);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">....</div></pre></td></tr></table></figure>
+<p><code>代码这里抛出异常:source.migrate(target.getClient().getHost(), target.getClient().getPort(),key, 0, migrateTimeout * (migrateTimeOutFactor++));</code></p>
+<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>redis在使用migrate进行键迁移 ，如果涉及到带密码的redis，目前暂时不支持，会抛出异常:ERR Target instance replied with error: NOAUTH Authentication required.</p>
+<h3 id="jedis客户端migrate-api"><a href="#jedis客户端migrate-api" class="headerlink" title="jedis客户端migrate api"></a>jedis客户端migrate api</h3><p>jedis.migrate(),jedis自身为带密码连接也不可以，api也没有支持传password。<br><img src="http://i1.itc.cn/20180105/aac_db043e47_20db_b0ba_63fa_6ab4c425891b_1.png" height="" width=""></p>
+<h3 id="redis官方migrate支持"><a href="#redis官方migrate支持" class="headerlink" title="redis官方migrate支持"></a>redis官方migrate支持</h3><p>官方:<a href="https://redis.io/commands/migrate" target="_blank" rel="external">https://redis.io/commands/migrate</a> </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">MIGRATE host port key|&quot;&quot; destination-db timeout[COPY] [REPLACE] [KEYS key [key ...]]</div></pre></td></tr></table></figure>
+<h3 id="redis-github问题"><a href="#redis-github问题" class="headerlink" title="redis github问题"></a>redis github问题</h3><p>redis3.2 issue ：<a href="https://github.com/antirez/redis/pull/4240" target="_blank" rel="external">https://github.com/antirez/redis/pull/4240</a></p>
+<p>关于redis-trib.rb migrate issue：<a href="https://github.com/antirez/redis/pull/4410" target="_blank" rel="external">https://github.com/antirez/redis/pull/4410</a></p>
+<h3 id="redis4-0-6-migrate命令"><a href="#redis4-0-6-migrate命令" class="headerlink" title="redis4.0.6 migrate命令"></a>redis4.0.6 migrate命令</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">/* MIGRATE host port key dbid timeout [COPY | REPLACE]</div><div class="line"> *</div><div class="line"> * On in the multiple keys form:</div><div class="line"> *</div><div class="line"> * MIGRATE host port &quot;&quot; dbid timeout [COPY | REPLACE] KEYS key1 key2 ... keyN */</div><div class="line">void migrateCommand(client *c) &#123;</div><div class="line">    migrateCachedSocket *cs;</div><div class="line">    int copy, replace, j;</div><div class="line">    long timeout;</div><div class="line">    long dbid;</div><div class="line">    robj **ov = NULL; /* Objects to migrate. */</div><div class="line">    robj **kv = NULL; /* Key names. */</div><div class="line">    robj **newargv = NULL; /* Used to rewrite the command as DEL ... keys ... */</div><div class="line">    rio cmd, payload;</div><div class="line">    int may_retry = 1;</div><div class="line">    int write_error = 0;</div><div class="line">    int argv_rewritten = 0;</div><div class="line"> </div><div class="line">    /* To support the KEYS option we need the following additional state. */</div><div class="line">    int first_key = 3; /* Argument index of the first key. */</div><div class="line">    int num_keys = 1;  /* By default only migrate the &apos;key&apos; argument. */</div><div class="line">...</div></pre></td></tr></table></figure>
+<h2 id="测试用例"><a href="#测试用例" class="headerlink" title="测试用例"></a>测试用例</h2><h3 id="redis-3-0-7-3-2-10版本migrate测试"><a href="#redis-3-0-7-3-2-10版本migrate测试" class="headerlink" title="redis 3.0.7|3.2.10版本migrate测试"></a>redis 3.0.7|3.2.10版本migrate测试</h3><p>将源 6380节点 slot=0 迁移到目标 6383节点上：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div></pre></td><td class="code"><pre><div class="line"># redis版本 3.0.7</div><div class="line">localhos:conf chenshi$ redis-server -v</div><div class="line">Redis server v=3.0.7 sha=00000000:0 malloc=libc bits=64 build=fb816918fe2492c2</div><div class="line"># redis密码默认为123</div><div class="line"># 查看redis进程</div><div class="line">lolocalhos:conf chenshi$ ps -ef | grep redis</div><div class="line">  501 21142     1   0  5:56下午 ??         0:03.15 redis-server *:6380 [cluster]</div><div class="line">  501 21145     1   0  5:56下午 ??         0:03.08 redis-server *:6381 [cluster]</div><div class="line">  501 21147     1   0  5:56下午 ??         0:03.07 redis-server *:6382 [cluster]</div><div class="line">  501 21149     1   0  5:56下午 ??         0:03.07 redis-server *:6383 [cluster]</div><div class="line"># 直连验证密码</div><div class="line">localhos:conf chenshi$ redis-cli -p 6380</div><div class="line">127.0.0.1:6380&gt; get test</div><div class="line">(error) NOAUTH Authentication required.</div><div class="line">127.0.0.1:6380&gt; auth 123</div><div class="line">OK</div><div class="line"># 查看集群节点slot情况</div><div class="line">127.0.0.1:6380&gt; cluster nodes</div><div class="line">12c14b8474e0e3b1e5fcb3347fecce6114587c1a 127.0.0.1:6382 master - 0 1514281279963 3 connected 12288-16383</div><div class="line">bc56af114f1a51968bf890264ec67e083ed5e3e6 127.0.0.1:6381 master - 0 1514281280974 2 connected 6827-10922</div><div class="line">110ef7ea822f6eebdb866c852a6f862c2d313e8a 127.0.0.1:6383 master - 0 1514281284001 5 connected 2-1464 5561-6826 10923-12287</div><div class="line">cefa08a1d5da0650d25a4bba112a36a9a3578d3e 127.0.0.1:6380 myself,master - 0 0 6 connected 0-1 1465-5560</div><div class="line">127.0.0.1:6380&gt;</div><div class="line"># 1.目标节点导入槽</div><div class="line">localhos:conf chenshi$ redis-cli -p 6383 -a 123</div><div class="line">127.0.0.1:6383&gt; CLUSTER SETSLOT 0 importing cefa08a1d5da0650d25a4bba112a36a9a3578d3e</div><div class="line">OK</div><div class="line">127.0.0.1:6383&gt; cluster nodes</div><div class="line">110ef7ea822f6eebdb866c852a6f862c2d313e8a 127.0.0.1:6383 myself,master - 0 0 5 connected 2-1464 5561-6826 10923-12287 [0-&lt;-cefa08a1d5da0650d25a4bba112a36a9a3578d3e]</div><div class="line">bc56af114f1a51968bf890264ec67e083ed5e3e6 127.0.0.1:6381 master - 0 1514281328392 2 connected 6827-10922</div><div class="line">12c14b8474e0e3b1e5fcb3347fecce6114587c1a 127.0.0.1:6382 master - 0 1514281330405 3 connected 12288-16383</div><div class="line">cefa08a1d5da0650d25a4bba112a36a9a3578d3e 127.0.0.1:6380 master - 0 1514281329398 6 connected 0-1 1465-5560</div><div class="line">127.0.0.1:6383&gt;</div><div class="line"># 2.源节点槽准备迁移</div><div class="line">localhos:conf chenshi$ redis-cli -p 6380 -a 123</div><div class="line">127.0.0.1:6380&gt; CLUSTER SETSLOT 0 migrating 110ef7ea822f6eebdb866c852a6f862c2d313e8a</div><div class="line">OK</div><div class="line">127.0.0.1:6380&gt; cluster nodes</div><div class="line">12c14b8474e0e3b1e5fcb3347fecce6114587c1a 127.0.0.1:6382 master - 0 1514281373748 3 connected 12288-16383</div><div class="line">bc56af114f1a51968bf890264ec67e083ed5e3e6 127.0.0.1:6381 master - 0 1514281375764 2 connected 6827-10922</div><div class="line">110ef7ea822f6eebdb866c852a6f862c2d313e8a 127.0.0.1:6383 master - 0 1514281376775 5 connected 2-1464 5561-6826 10923-12287</div><div class="line">cefa08a1d5da0650d25a4bba112a36a9a3578d3e 127.0.0.1:6380 myself,master - 0 0 6 connected 0-1 1465-5560 [0-&gt;-110ef7ea822f6eebdb866c852a6f862c2d313e8a]</div><div class="line"># 3.源节点slot=0 槽准备遍历键 迁移</div><div class="line">127.0.0.1:6380&gt; CLUSTER GETKEYSINSLOT 0 5</div><div class="line">1) &quot;key104884&quot;</div><div class="line">2) &quot;key126806&quot;</div><div class="line">3) &quot;key129191&quot;</div><div class="line">4) &quot;key137847&quot;</div><div class="line">5) &quot;key188656&quot;</div><div class="line"># 4.migrate 键异常</div><div class="line">127.0.0.1:6380&gt; migrate 10.10.79.150 6404 &quot;&quot;  0 2000 keys key104884</div><div class="line">(error) ERR Target instance replied with error: NOAUTH Authentication required.</div></pre></td></tr></table></figure>
           
         
       
@@ -462,8 +403,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/10/24/9.8)redis多路复用技术/" itemprop="url">
-                  redis  I/O 多路复用
+                <a class="post-title-link" href="/2017/12/26/goal/redis集群原理/redis集群故障转移/" itemprop="url">
+                  redis集群故障转移
                 </a>
               
             
@@ -476,8 +417,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-10-24T10:33:00+08:00" content="2017-10-24">
-              2017-10-24
+            <time itemprop="dateCreated" datetime="2017-12-26T00:00:00+08:00" content="2017-12-26">
+              2017-12-26
             </time>
           </span>
 
@@ -502,8 +443,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/多路复用/" itemprop="url" rel="index">
-                    <span itemprop="name">多路复用</span>
+                  <a href="/categories/redis/redis集群原理/" itemprop="url" rel="index">
+                    <span itemprop="name">redis集群原理</span>
                   </a>
                 </span>
 
@@ -537,32 +478,81 @@
       
         
           
-            <blockquote>
-<p>参考：<br><a href="https://zhuanlan.zhihu.com/p/24252862?refer=belief" target="_blank" rel="external">Redis 和 I/O 多路复用</a><br><a href="https://www.zhihu.com/question/28594409" target="_blank" rel="external">多路复用-知乎</a><br><a href="https://segmentfault.com/a/1190000003063859#articleHeader6" target="_blank" rel="external">liunx的I/O模型</a><br><a href="https://github.com/antirez/redis" target="_blank" rel="external">redis官方wiki</a></p>
+            <h2 id="准备实例"><a href="#准备实例" class="headerlink" title="准备实例"></a>准备实例</h2><ul>
+<li>实例节点,3主3从</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">master			slave</div><div class="line">127.0.0.1:6380	127.0.0.1:6383</div><div class="line">127.0.0.1:6381	127.0.0.1:6384</div><div class="line">127.0.0.1:6382	127.0.0.1:6385</div></pre></td></tr></table></figure>
+<ul>
+<li>集群node-slot状态</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">localhos:conf chenshi$ redis-cli -p 6380 cluster nodes</div><div class="line">cf72552afe5d06c2d9e7abe439ddfb3edb4256ea 127.0.0.1:6381 master - 0 1516616940282 2 connected 5461-10922</div><div class="line">77afe1231f6ddba989e67e218d6312a718a1ddde 127.0.0.1:6385 slave cecbd5a15feeea9c6fbcb71bd8403d0c58984473 0 1516616939273 6 connected</div><div class="line">6881455d67198a0f80f6ac665bedc13d8170b4ae 127.0.0.1:6383 slave 11db081a0e4cfd2485ca299be2194f0a34c8c39f 0 1516616941292 4 connected</div><div class="line">7c189c81d8e083069585cdcd12f23a34f80e85c5 127.0.0.1:6384 slave cf72552afe5d06c2d9e7abe439ddfb3edb4256ea 0 1516616940788 5 connected</div><div class="line">11db081a0e4cfd2485ca299be2194f0a34c8c39f 127.0.0.1:6380 myself,master - 0 0 1 connected 0-5460</div><div class="line">cecbd5a15feeea9c6fbcb71bd8403d0c58984473 127.0.0.1:6382 master - 0 1516616942301 3 connected 10923-16383</div></pre></td></tr></table></figure>
+<h2 id="故障转移基本原理"><a href="#故障转移基本原理" class="headerlink" title="故障转移基本原理"></a>故障转移基本原理</h2><p>当集群内某个节点出现问题时，需要通过一种健壮的方式识别出节点是否故障.故障发现也是通过gossip的消息传播机制实现，主要环节包括:主观下线(pfail)和客观下线(fail)。</p>
+<ul>
+<li><p><code>主观下线</code>:指某个节点认为另一个节点不可用进入下线状态，这个状态并不是最终的故障判定，只能代表一个节点的意见，可能存在误判情况。</p>
+</li>
+<li><p><code>客观下线</code>:指标记一个节点真正的下线，集群内多个节点达成共识的结果，如果是持有槽的主节点故障，需要为该节点进行故障转移。</p>
+</li>
+</ul>
+<p>通过gossip消息传播，集群内节点不断收集到故障节点的下线报告。当半数以上持有槽的主节点都标记某个节点是主观下线时触发客观下线流程。这里有两个问题:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">1.为什么必须是负责槽的主节点参与故障发现决策?</div><div class="line">	因为集群模式下只有处理槽的主节点才负责读写请求和维护槽等关键信息，而从节点只进行主节点数据</div><div class="line">	和状态信息的复制。</div><div class="line"></div><div class="line">2. 为什么半数以上处理槽的主节点?</div><div class="line">	必须半数以上是为了应对网络分区等原因造成的集群分割情况，被分割的小集群因为无法完成从主观下</div><div class="line">	线到客观下线这一关键过程，从而防止小集群完成故障转移之后继续对外提供服务。</div></pre></td></tr></table></figure>
+<h3 id="主观下线"><a href="#主观下线" class="headerlink" title="主观下线"></a>主观下线</h3><blockquote>
+<p>主观下线流程</p>
 </blockquote>
-<h2 id="为什么-Redis-中要使用-I-O-多路复用这种技术呢？"><a href="#为什么-Redis-中要使用-I-O-多路复用这种技术呢？" class="headerlink" title="为什么 Redis 中要使用 I/O 多路复用这种技术呢？"></a>为什么 Redis 中要使用 I/O 多路复用这种技术呢？</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">I/O多路复用(又被称为“事件驱动”):即是多个网路连接共享同一个线程。</div><div class="line">当你的某个socket可读或者可写的时候，它可以给你一个通知。操作系统的这个功能通过select/poll</div><div class="line">/epoll/kqueue之类的系统调用函数来使用，这些函数都可以同时监视多个描述符的读写就绪状况，这</div><div class="line">样，多个描述符的I/O操作都能在一个线程内并发交替地顺序完成，这就叫I/O多路复用，这里的“复用”指</div><div class="line">的是复用同一个线程。</div><div class="line">Linux环境下，Redis数据库服务器大部分时间以单进程单线程模式运行(执行持久化BGSAVE任务时会开</div><div class="line">启子进程)，即非阻塞的socket文件描述符号加上监控这些描述符的I/O多路复用机制（在Linux下可以使用select/poll/epoll系统调用命令）,使用reactor模式时间监听模式：文件事件和时间事件。</div><div class="line">文件事件指的是socket文件描述符的读写就绪情况，时间事件分为一次性定时器和周期性定时器。</div></pre></td></tr></table></figure>
-<p>I/O 多路复用模块：</p>
-<p><img src="https://pic4.zhimg.com/v2-93c716f502a769042cd26f357972b687_b.jpgs" alt=""></p>
-<p>mutliplex io好处:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">1.线程是有内存开销的，1个线程可能需要512K（或2M）存放栈，那么1000个线程就要512M（或2G）</div><div class="line">内存。redis单线程节省大量开销。</div><div class="line">2.线程的切换，或者说上下文切换是有CPU开销的，当大量时间花在上下文切换的时候，分配给真正的操</div><div class="line">作的CPU就要少很多。redis单线程避免了线程切换开销。(aof重写,rdb fork子进程)</div><div class="line">3.基于事件模型，数据处理的状态 通过selector队列器 监控，一旦状态到达就通知处理。</div></pre></td></tr></table></figure></p>
-<p><strong>redis处理模型:</strong></p>
+<p><img src="http://i2.itc.cn/20180124/aac_bb1302a9_5eeb_caf4_a560_75b2ea1b097a_1.png" width="300"></p>
 <ul>
-<li>建立socket连接(单线程处理多个socket连接，默认maxclient:10000)</li>
-<li>执行redis命令(数据读取过程,事件触发读/写)</li>
+<li>1).节点1发送ping消息给节点2，如果通信正常将接收到pong消息，节点1更新对节点2的最后一次通信时间.</li>
+<li>2).如果节点1与节点2通信出现问题则断开连接，下次会进行重连。如果一直通信失败，则节点1记录的与节点2最后通信时间将无法更新。</li>
+<li>3).节点1内的定时任务检测到与节点2最后通信时间超高cluster-node-timeout时，更新本地对节点2的状态为主观下线(pfail)。</li>
 </ul>
-<p><strong>redis epoll模式：</strong></p>
-<image src="http://i3.itc.cn/20171030/aac_f2bfb40f_f3fb_88bf_94f7_2540ee2b8361_1.png" height="300" width="400">
-
-<h2 id="IO方式"><a href="#IO方式" class="headerlink" title="IO方式"></a>IO方式</h2><h3 id="Blocking-IO"><a href="#Blocking-IO" class="headerlink" title="Blocking IO"></a>Blocking IO</h3><p><img src="https://pic2.zhimg.com/v2-ecdd648dff385412db4aea1014ee1d51_b.png" alt=""></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">当使用 read 或者 write 对某一个文件描述符（File Descriptor 以下简称 FD)进行读写时，如果</div><div class="line">当前 FD 不可读或不可写，整个 Redis 服务就不会对其它的操作作出响应，导致整个服务不可用。</div><div class="line">redis主线程被阻塞。</div></pre></td></tr></table></figure>
-<h3 id="多路复用-IO"><a href="#多路复用-IO" class="headerlink" title="多路复用 IO"></a>多路复用 IO</h3><p>阻塞式的 I/O 模型并不能满足这里的需求，我们需要一种效率更高的 I/O 模型来支撑 Redis 的多个客户（redis-cli），这里涉及的就是 I/O 多路复用模型了。</p>
-<p><img src="https://pic3.zhimg.com/v2-4769dd88e9cf685b052610f36f5e177e_b.png" alt=""></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">解释1:在 I/O 多路复用模型中，最重要的函数调用就是 select，该方法的能够同时监控多个文件描述</div><div class="line">符的可读可写情况，当其中的某些文件描述符可读或者可写时，select 方法就会返回可读以及可写的文</div><div class="line">件描述符个数。</div><div class="line"></div><div class="line">解释2:多路复用是指使用一个线程来检查多个文件描述符（Socket）的就绪状态，比如调用select和</div><div class="line">poll函数，传入多个文件描述符，如果有一个文件描述符就绪，则返回，否则阻塞直到超时。得到就绪</div><div class="line">状态后进行真正的操作可以在同一个线程里执行，也可以启动线程执行（比如使用线程池）。</div></pre></td></tr></table></figure>
-<h3 id="Reactor-设计模式"><a href="#Reactor-设计模式" class="headerlink" title="Reactor 设计模式"></a>Reactor 设计模式</h3><p>Redis 服务采用 Reactor 的方式来实现文件事件处理器（每一个网络连接其实都对应一个文件描述符）</p>
-<p><img src="https://pic3.zhimg.com/v2-4cff43ccb083a587b0e4834acff884fa_b.png" alt=""></p>
-<p>事件类型: accept(socket建立连接事件) + read(数据读事件) + write(数据写事件) + close（关闭事件）</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">文件事件处理器使用 I/O 多路复用模块同时监听多个 FD，当 accept、read、write 和 close </div><div class="line">文件事件产生时，文件事件处理器就会回调 FD 绑定的事件处理器。</div><div class="line">虽然整个文件事件处理器是在单线程上运行的，但是通过 I/O 多路复用模块的引入，实现了同时对多</div><div class="line">个 FD 读写的监控，提高了网络通信模型的性能，同时也可以保证整个 Redis 服务实现的简单.</div></pre></td></tr></table></figure>
-<h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">下面举一个例子，模拟一个tcp服务器处理30个客户socket。</div><div class="line">假设你是一个老师，让30个学生解答一道题目，然后检查学生做的是否正确，你有下面几个选择：</div><div class="line"></div><div class="line">1.第一种选择：按顺序逐个检查，先检查A，然后是B，之后是C、D。。。这中间如果有一个学生卡主，</div><div class="line">全班都会被耽误。这种模式就好比，你用循环挨个处理socket，根本不具有并发能力。</div><div class="line">2.第二种选择：你创建30个分身，每个分身检查一个学生的答案是否正确。 这种类似于为每一个用户创建</div><div class="line">一个进程或者线程处理连接。</div><div class="line">3.第三种选择，你站在讲台上等，谁解答完谁举手。这时C、D举手，表示他们解答问题完毕，你下去依次检查C、D的答案，然后继续回到讲台上等。此时E、A又举手，然后去处理E和A。。。 这种就是IO复用模型，Linux下的select、poll和epoll就是干这个的。将用户socket对应的fd注册进epoll，然后</div><div class="line">epoll帮你监听哪些socket上有消息到达，这样就避免了大量的无用操作。此时的socket应该采用非</div><div class="line">阻塞模式。</div><div class="line"></div><div class="line">这样，整个过程只在调用select、poll、epoll这些调用的时候才会阻塞，收发客户消息是</div><div class="line">不会阻塞的，整个进程或者线程就被充分利用起来，这就是事件驱动，所谓的reactor模式。</div></pre></td></tr></table></figure>
-</image>
+<h3 id="客观下线"><a href="#客观下线" class="headerlink" title="客观下线"></a>客观下线</h3><blockquote>
+<p>客观下线流程</p>
+</blockquote>
+<p><img src="http://i1.itc.cn/20180124/aac_bb1302a9_5eeb_caf4_a560_75b2ea1b097a_2.png" width="250"></p>
+<p>流程说明:<br>1).首先统计有效的下线报告数量,如果小于集群内持有槽的主节点总数的一半则退出。<br>2).当下线报告大于槽节点总数一半时，标记对应故障节点为客观下线状态。<br>3).向集群广播一条fail消息，通知所有的节点将故障节点标记为客观下线，fail消息的内容只有故障节点的ID。</p>
+<blockquote>
+<p>广播fail消息</p>
+</blockquote>
+<p>是客观下线的最后一步，它承担着非常重要的职责:<br>1).通知集群内所有的节点标记故障节点为客观下线状态并立刻生效。<br>2).通知故障节点的从节点触发故障转移流程。  </p>
+<h2 id="故障转移测试"><a href="#故障转移测试" class="headerlink" title="故障转移测试"></a>故障转移测试</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">master			slave</div><div class="line">127.0.0.1:6380	127.0.0.1:6383</div><div class="line">127.0.0.1:6381	127.0.0.1:6384</div><div class="line">127.0.0.1:6382	127.0.0.1:6385</div><div class="line"></div><div class="line">下线6382节点nodeid：cecbd5a15feeea9c6fbcb71bd8403d0c58984473</div></pre></td></tr></table></figure>
+<h3 id="影响集群的参数"><a href="#影响集群的参数" class="headerlink" title="影响集群的参数"></a>影响集群的参数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">cluster-enabled：yes是否开启集群模式</div><div class="line">cluster-node-timeout：集群节点超时时间,默认15秒</div><div class="line">cluster-require-full-coverage：节点部分失败期间,其他节点是否继续工作，默认是丢slot集群不工作</div></pre></td></tr></table></figure>
+<h3 id="时间点-18-31-02-kill-6382进程pid"><a href="#时间点-18-31-02-kill-6382进程pid" class="headerlink" title="时间点:18:31:02 kill 6382进程pid"></a>时间点:18:31:02 kill 6382进程pid</h3><p><strong>1).主观|客观下线流程</strong></p>
+<p>6380,6381和6382在15s内不能连接成功后 标记失败，投票大于一半(3个master节点&gt;1即可)，cf72552afe5d06c2d9e7abe439ddfb3edb4256ea(6381节点)开始广播(6382节点)fail消息，各个节点更新node.conf集群配置。</p>
+<p><strong>2).故障转移前提</strong></p>
+<p>故障主节点也算在投票数内，假设集群内节点规模是3主3从，其中有2个主节点部署在一台机器上，当这台机器宕机时，由于从节点无法收集到3/2+1个主节点选票将导致故障转移失败。这个问题也适用于故障发现环节。因此部署集群时所有主节点最少需要部署在3台物理机上才能避免单点问题。</p>
+<p><img src="http://i1.itc.cn/20180126/aac_bb7dd04a_ec2d_a8ef_1101_9a6008545176_1.png" width="300"></p>
+<p><strong>3).相关master节点日志</strong></p>
+<blockquote>
+<p>master节点:6380.log</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">// 2.标记6382主节点下线,集群不可用状态更新</div><div class="line">90931:M 22 Jan 18:31:17.364 * Marking node </div><div class="line">cecbd5a15feeea9c6fbcb71bd8403d0c58984473 as failing (quorum reached).</div><div class="line">90931:M 22 Jan 18:31:17.364 # Cluster state changed: fail</div><div class="line">// 5.更新从节点晋升配置纪元，更新集群状态正常</div><div class="line">90931:M 22 Jan 18:31:18.071 # Failover auth granted to 77afe1231f6ddba989e67e218d6312a718a1ddde for epoch 7</div><div class="line">90931:M 22 Jan 18:31:18.073 # Cluster state changed: ok</div></pre></td></tr></table></figure>
+<blockquote>
+<p>master节点:6381.log</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">// 2.标记6382主节点下线,集群不可用状态更新</div><div class="line">90936:M 22 Jan 18:31:17.362 * Marking node cecbd5a15feeea9c6fbcb71bd8403d0c58984473 as failing (quorum reached).</div><div class="line">90936:M 22 Jan 18:31:17.362 # Cluster state changed: fail</div><div class="line">// 5.更新从节点晋升配置纪元，更新集群状态正常</div><div class="line">90936:M 22 Jan 18:31:18.071 # Failover auth granted to 77afe1231f6ddba989e67e218d6312a718a1ddde for epoch 7</div><div class="line">90936:M 22 Jan 18:31:18.073 # Cluster state changed: ok</div></pre></td></tr></table></figure>
+<blockquote>
+<p>slave节点:6385.log</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">// 1.与主节点连接失败</div><div class="line">90965:S 22 Jan 18:31:02.719 * Connecting to MASTER 127.0.0.1:6382</div><div class="line">90965:S 22 Jan 18:31:02.719 * MASTER &lt;-&gt; SLAVE sync started</div><div class="line">90965:S 22 Jan 18:31:02.719 # Error condition on socket for SYNC: Connection refused</div><div class="line">90965:S 22 Jan 18:31:03.726 * Connecting to MASTER 127.0.0.1:6382</div><div class="line">90965:S 22 Jan 18:31:03.727 * MASTER &lt;-&gt; SLAVE sync started</div><div class="line">90965:S 22 Jan 18:31:03.728 # Error condition on socket for SYNC: Connection refused</div><div class="line">...</div><div class="line">90965:S 22 Jan 18:31:16.856 * Connecting to MASTER 127.0.0.1:6382</div><div class="line">90965:S 22 Jan 18:31:16.856 * MASTER &lt;-&gt; SLAVE sync started</div><div class="line">90965:S 22 Jan 18:31:16.857 # Error condition on socket for SYNC: Connection refused</div><div class="line">// 3.cf72552afe5d06c2d9e7abe439ddfb3edb4256ea节点广播下线节点fail消息</div><div class="line">90965:S 22 Jan 18:31:17.364 * FAIL message received from cf72552afe5d06c2d9e7abe439ddfb3edb4256ea about cecbd5a15feeea9c6fbcb71bd8403d0c58984473</div><div class="line">90965:S 22 Jan 18:31:17.364 # Cluster state changed: fail</div><div class="line">// 4.从节点识别正在复制的主节点进入客观下线后准备选举时间，选举延迟964毫秒后执行和当前从节点复制偏移量</div><div class="line">90965:S 22 Jan 18:31:17.463 # Start of election delayed for 518 milliseconds (rank #0, offset 183).</div><div class="line">// 发起全量复制失败</div><div class="line">90965:S 22 Jan 18:31:17.867 * Connecting to MASTER 127.0.0.1:6382</div><div class="line">90965:S 22 Jan 18:31:17.867 * MASTER &lt;-&gt; SLAVE sync started</div><div class="line">90965:S 22 Jan 18:31:17.867 # Error condition on socket for SYNC: Connection refused</div><div class="line">// 5.更新当前从节点配置纪元，更新集群状态正常</div><div class="line">90965:S 22 Jan 18:31:18.070 # Starting a failover election for epoch 7.</div><div class="line">90965:S 22 Jan 18:31:18.071 # Failover election won: I&apos;m the new master.</div><div class="line">90965:S 22 Jan 18:31:18.071 # configEpoch set to 7 after successful failover</div><div class="line">90965:M 22 Jan 18:31:18.071 * Discarding previously cached master state.</div><div class="line">90965:M 22 Jan 18:31:18.072 # Cluster state changed: ok</div></pre></td></tr></table></figure>
+<h3 id="集群故障转移后变化"><a href="#集群故障转移后变化" class="headerlink" title="集群故障转移后变化"></a>集群故障转移后变化</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">master			slave</div><div class="line">127.0.0.1:6380	127.0.0.1:6383</div><div class="line">127.0.0.1:6381	127.0.0.1:6384</div><div class="line">127.0.0.1:6385</div></pre></td></tr></table></figure>
+<h3 id="时间点18-34-41重启6382节点"><a href="#时间点18-34-41重启6382节点" class="headerlink" title="时间点18:34:41重启6382节点"></a>时间点18:34:41重启6382节点</h3><p><strong>1).重启从节点流程</strong></p>
+<blockquote>
+<p>master节点:6380.log</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">// 2.集群内其它节点接收到6382发来的PING消息，清空客观下线状态</div><div class="line">90931:M 22 Jan 18:34:41.875 * Clear FAIL state for node </div><div class="line">cecbd5a15feeea9c6fbcb71bd8403d0c58984473: master without slots is reachable again.</div></pre></td></tr></table></figure>
+<blockquote>
+<p>master节点:6381.log</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">// 2.集群内其它节点接收到6382发来的PING消息，清空客观下线状态</div><div class="line">90931:M 22 Jan 18:34:41.875 * Clear FAIL state for node </div><div class="line">cecbd5a15feeea9c6fbcb71bd8403d0c58984473: master without slots is reachable again.</div></pre></td></tr></table></figure>
+<blockquote>
+<p>master节点:6385.log</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">// 2.集群内其它节点接收到6382发来的PING消息，清空客观下线状态</div><div class="line">90931:M 22 Jan 18:34:41.875 * Clear FAIL state for node </div><div class="line">cecbd5a15feeea9c6fbcb71bd8403d0c58984473: master without slots is reachable again.</div></pre></td></tr></table></figure>
+<blockquote>
+<p>slave节点:6382.log </p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line">91047:M 22 Jan 18:34:41.868 * Increased maximum number of open files to 10032 (it was originally set to 4864).</div><div class="line">91047:M 22 Jan 18:34:41.870 * Node configuration loaded, I&apos;m cecbd5a15feeea9c6fbcb71bd8403d0c58984473</div><div class="line">                _._</div><div class="line">           _.-``__ &apos;&apos;-._</div><div class="line">      _.-``    `.  `_.  &apos;&apos;-._           Redis 3.0.7 (00000000/0) 64 bit</div><div class="line">  .-`` .-```.  ```\/    _.,_ &apos;&apos;-._</div><div class="line"> (    &apos;      ,       .-`  | `,    )     Running in cluster mode</div><div class="line"> |`-._`-...-` __...-.``-._|&apos;` _.-&apos;|     Port: 6382</div><div class="line"> |    `-._   `._    /     _.-&apos;    |     PID: 91047</div><div class="line">  `-._    `-._  `-./  _.-&apos;    _.-&apos;</div><div class="line"> |`-._`-._    `-.__.-&apos;    _.-&apos;_.-&apos;|</div><div class="line"> |    `-._`-._        _.-&apos;_.-&apos;    |           http://redis.io</div><div class="line">  `-._    `-._`-.__.-&apos;_.-&apos;    _.-&apos;</div><div class="line"> |`-._`-._    `-.__.-&apos;    _.-&apos;_.-&apos;|</div><div class="line"> |    `-._`-._        _.-&apos;_.-&apos;    |</div><div class="line">  `-._    `-._`-.__.-&apos;_.-&apos;    _.-&apos;</div><div class="line">      `-._    `-.__.-&apos;    _.-&apos;</div><div class="line">          `-._        _.-&apos;</div><div class="line">              `-.__.-&apos;</div><div class="line"></div><div class="line">91047:M 22 Jan 18:34:41.870 # Server started, Redis version 3.0.7</div><div class="line">91047:M 22 Jan 18:34:41.871 * The server is now ready to accept connections on port 6382</div><div class="line">// 1.发现自己负责的槽指派给另一个节点，以现有集群配置为准，变为新主节点6386的从节点</div><div class="line">91047:M 22 Jan 18:34:41.876 # Configuration change detected. Reconfiguring myself as a replica of 77afe1231f6ddba989e67e218d6312a718a1ddde</div><div class="line">91047:S 22 Jan 18:34:41.876 # Cluster state changed: ok</div><div class="line">// 3.变为6385节点的从节点，并且full sync</div><div class="line">91047:S 22 Jan 18:34:42.882 * Connecting to MASTER 127.0.0.1:6385</div><div class="line">91047:S 22 Jan 18:34:42.882 * MASTER &lt;-&gt; SLAVE sync started</div><div class="line">91047:S 22 Jan 18:34:42.883 * Non blocking connect for SYNC fired the event.</div><div class="line">91047:S 22 Jan 18:34:42.883 * Master replied to PING, replication can continue...</div><div class="line">91047:S 22 Jan 18:34:42.883 * Partial resynchronization not possible (no cached master)</div><div class="line">91047:S 22 Jan 18:34:42.885 * Full resync from master: c8f54466ff3fedb66a5c0672e75f3b346144d279:1</div><div class="line">91047:S 22 Jan 18:34:42.889 * MASTER &lt;-&gt; SLAVE sync: receiving 18 bytes from master</div><div class="line">91047:S 22 Jan 18:34:42.889 * MASTER &lt;-&gt; SLAVE sync: Flushing old data</div><div class="line">91047:S 22 Jan 18:34:42.890 * MASTER &lt;-&gt; SLAVE sync: Loading DB in memory</div><div class="line">91047:S 22 Jan 18:34:42.890 * MASTER &lt;-&gt; SLAVE sync: Finished with success</div><div class="line">91047:S 22 Jan 18:34:42.890 * Background append only file rewriting started by pid 91049</div><div class="line">91047:S 22 Jan 18:34:42.915 * AOF rewrite child asks to stop sending diffs.</div><div class="line">91049:C 22 Jan 18:34:42.915 * Parent agreed to stop sending diffs. Finalizing AOF...</div><div class="line">91049:C 22 Jan 18:34:42.915 * Concatenating 0.00 MB of AOF diff received from parent.</div><div class="line">91049:C 22 Jan 18:34:42.916 * SYNC append only file rewrite performed</div></pre></td></tr></table></figure>
+<p><strong>2).集群最后状态</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">master			slave</div><div class="line">127.0.0.1:6380	127.0.0.1:6383</div><div class="line">127.0.0.1:6381	127.0.0.1:6384</div><div class="line">127.0.0.1:6385	127.0.0.1:6382</div></pre></td></tr></table></figure>
           
         
       
@@ -611,8 +601,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/10/24/9.6) jedispool连接池总结/" itemprop="url">
-                  jedispool连接池总结
+                <a class="post-title-link" href="/2017/12/25/goal/redis集群原理文章汇总/" itemprop="url">
+                  redis集群原理文章汇总
                 </a>
               
             
@@ -625,8 +615,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-10-24T10:33:00+08:00" content="2017-10-24">
-              2017-10-24
+            <time itemprop="dateCreated" datetime="2017-12-25T00:00:00+08:00" content="2017-12-25">
+              2017-12-25
             </time>
           </span>
 
@@ -651,8 +641,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/连接池/" itemprop="url" rel="index">
-                    <span itemprop="name">连接池</span>
+                  <a href="/categories/redis/redis集群原理/" itemprop="url" rel="index">
+                    <span itemprop="name">redis集群原理</span>
                   </a>
                 </span>
 
@@ -685,11 +675,279 @@
 
       
         
-          <p>apache对象池:<a href="http://commons.apache.org/proper/commons-pool/" target="_blank" rel="external">对象池</a></p>
-<h2 id="对象池"><a href="#对象池" class="headerlink" title="对象池"></a>对象池</h2><p>我们常用的池子像 数据库连接池、jedis连接池、线程池等，查看源码会发现这些池管理类都是继承于GenericObjectPool<t>，所以我们需要了解下GenericObjectPool的工作机制。</t></p>
-<p>对象池的类图:<br><img src="http://img.blog.csdn.net/20160501212832585?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="类图"></p>
+          
+            <h2 id="Redis集群原理文章汇总"><a href="#Redis集群原理文章汇总" class="headerlink" title="Redis集群原理文章汇总"></a>Redis集群原理文章汇总</h2><ul>
+<li>1.[Redis集群架构]</li>
+<li>2.<a href="http://index.tv.sohuno.com/confluence/pages/viewpage.action?pageId=5965466" target="_blank" rel="external">Redis集群数据分布</a></li>
+<li>3.<a href="http://index.tv.sohuno.com/confluence/pages/viewpage.action?pageId=5965475" target="_blank" rel="external">Redis集群节点通讯</a></li>
+<li>4.<a href="http://index.tv.sohuno.com/confluence/pages/viewpage.action?pageId=5965482" target="_blank" rel="external">Redis集群路由规则</a></li>
+<li>5.<a href="./redis集群原理/redis集群故障转移.md">Redis集群故障转移</a></li>
+</ul>
+<blockquote>
+<p><a href="./root.md">学习总目录</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/12/25/goal/Redis分布式特性文章汇总/" itemprop="url">
+                  redis分布式特性文章汇总
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-25T00:00:00+08:00" content="2017-12-25">
+              2017-12-25
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/redis分布式特性/" itemprop="url" rel="index">
+                    <span itemprop="name">redis分布式特性</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Redis分布式特性文章汇总"><a href="#Redis分布式特性文章汇总" class="headerlink" title="Redis分布式特性文章汇总"></a>Redis分布式特性文章汇总</h2><ul>
+<li>1.[复制]</li>
+<li>2.[持久化]</li>
+<li>3.<a href="./redis分布式特性/Gossip流言协议.md">Gossip流言协议</a></li>
+<li>3.[故障转移]</li>
+<li>4.[pubsub特性]</li>
+<li>5.[Pipeline管道]</li>
+</ul>
+<blockquote>
+<p><a href="./root.md">学习总目录</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/12/22/goal/redis集群使用/redis在migrate批量键迁移存在bug/" itemprop="url">
+                  redis在migrate批量键迁移存在bug
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-22T00:00:00+08:00" content="2017-12-22">
+              2017-12-22
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/redis集群/" itemprop="url" rel="index">
+                    <span itemprop="name">redis集群</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="redis批量键操作bug"><a href="#redis批量键操作bug" class="headerlink" title="redis批量键操作bug"></a>redis批量键操作bug</h2><h3 id="jedis-migrate的api"><a href="#jedis-migrate的api" class="headerlink" title="jedis migrate的api"></a>jedis migrate的api</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> String <span class="title">migrate</span><span class="params">(<span class="keyword">final</span> String host, <span class="keyword">final</span> <span class="keyword">int</span> port, <span class="keyword">final</span> String key,</span></span></div><div class="line"><span class="function"><span class="params">    <span class="keyword">final</span> <span class="keyword">int</span> destinationDb, <span class="keyword">final</span> <span class="keyword">int</span> timeout)</span> </span>&#123;</div><div class="line">  checkIsInMultiOrPipeline();</div><div class="line">  client.migrate(host, port, key, destinationDb, timeout);</div><div class="line">  <span class="keyword">return</span> client.getStatusCodeReply();</div><div class="line">&#125;</div><div class="line"> </div><div class="line"><span class="function"><span class="keyword">public</span> String <span class="title">migrate</span><span class="params">(<span class="keyword">final</span> String host, <span class="keyword">final</span> <span class="keyword">int</span> port,</span></span></div><div class="line"><span class="function"><span class="params">        <span class="keyword">final</span> <span class="keyword">int</span> destinationDb, <span class="keyword">final</span> <span class="keyword">int</span> timeout, <span class="keyword">final</span> String... keys)</span> </span>&#123;</div><div class="line">    checkIsInMultiOrPipeline();</div><div class="line">    client.migrate(host, port, destinationDb, timeout, keys);</div><div class="line">    <span class="keyword">return</span> client.getStatusCodeReply();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>首先注意现在使用的redis版本是3.0.7 ，cc在水平迁移键的时候 是循环 每次对单个key做迁移，而没有使用批量迁移?这里产生疑问，批量操作的可以减少网络开销、迁移耗时 ，然而其实在redis 3.0.7 批量键操作是有问题。下面具体分析下这个问题。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2017/10/24/9.6) jedispool连接池总结/#more" rel="contents">
+            <a class="btn" href="/2017/12/22/goal/redis集群使用/redis在migrate批量键迁移存在bug/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -740,8 +998,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/08/29/goal/redis运维/redis客户端超时问题/" itemprop="url">
-                  redis客户端超时分析
+                <a class="post-title-link" href="/2017/12/22/goal/cachecloud/服务器初始化安装/" itemprop="url">
+                  服务器初始化安装
                 </a>
               
             
@@ -754,8 +1012,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-08-29T09:37:35+08:00" content="2017-08-29">
-              2017-08-29
+            <time itemprop="dateCreated" datetime="2017-12-22T00:00:00+08:00" content="2017-12-22">
+              2017-12-22
             </time>
           </span>
 
@@ -768,8 +1026,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
+                  <a href="/categories/cachecloud/" itemprop="url" rel="index">
+                    <span itemprop="name">cachecloud</span>
                   </a>
                 </span>
 
@@ -780,8 +1038,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/redis运维/" itemprop="url" rel="index">
-                    <span itemprop="name">redis运维</span>
+                  <a href="/categories/cachecloud/cachecloud运维/" itemprop="url" rel="index">
+                    <span itemprop="name">cachecloud运维</span>
                   </a>
                 </span>
 
@@ -814,9 +1072,294 @@
 
       
         
-          <h1 id="常见的redis超时分析"><a href="#常见的redis超时分析" class="headerlink" title="常见的redis超时分析"></a>常见的redis超时分析</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">(1). 网络原因：比如是否存在跨机房、网络割接等等。</div><div class="line">(2). 慢查询，因为redis是单线程，如果有慢查询的话，会阻塞住之后的操作。 </div><div class="line">(3). value值过大？比如value几十兆，当然这种情况比较少，其实也可以看做是慢查询的一种</div><div class="line">(4). aof重写/rdb fork发生？瞬间会堵一下Redis服务器。</div><div class="line">(5). redis自身阻塞（swap fsync 磁盘io hugePage内存页未关闭）</div><div class="line">(5). 其他..................</div></pre></td></tr></table></figure>
+          
+            <h2 id="服务器初始化安装"><a href="#服务器初始化安装" class="headerlink" title="服务器初始化安装"></a>服务器初始化安装</h2><h3 id="cachecloud依赖"><a href="#cachecloud依赖" class="headerlink" title="cachecloud依赖"></a>cachecloud依赖</h3><ul>
+<li><a href="https://redis.io/download" target="_blank" rel="external">redis</a></li>
+<li>机器ssh协议</li>
+<li><a href="https://cachecloud.github.io/2017/02/16/Redis%E7%9A%84Linux%E7%B3%BB%E7%BB%9F%E4%BC%98%E5%8C%96/" target="_blank" rel="external">liunx系统参数优化</a></li>
+</ul>
+<h3 id="服务器初始化"><a href="#服务器初始化" class="headerlink" title="服务器初始化"></a>服务器初始化</h3><blockquote>
+<p>考虑问题:</p>
+</blockquote>
+<ul>
+<li><p>redis版本一致性</p>
+<p>  目前安装版本统一在3.0.7，redis高低版本差异较大安装在不同服务器，容易引起cachecloud在分配集群或添加节点过程容易失败。存在rdb无限复制、rdb文件解析问题、redis配置参数不兼容等问题。</p>
+</li>
+<li><p>机器磁盘空间</p>
+<p>  cachecloud目前默认安装在/opt目录下，不同服务器分配/opt空间不一致，如果/opt过下 需要将数据目录做一个软连。如果机器部署较多redis节点，在运维期间 aof文件、rdb文件都会占用较多磁盘空间，如果磁盘满，会导致aof重写失败、rdb无限复制等问题</p>
+</li>
+<li><p>系统配置优化</p>
+<p>  内存页优化；内存分配；tcpbacklog等优化，参见小节:常见的系统配置优化</p>
+</li>
+</ul>
+<h3 id="磁盘空间脚本"><a href="#磁盘空间脚本" class="headerlink" title="磁盘空间脚本"></a>磁盘空间脚本</h3><p>安装过程中查看目录空间，运行脚本。</p>
+<h3 id="常见的系统配置优化"><a href="#常见的系统配置优化" class="headerlink" title="常见的系统配置优化"></a>常见的系统配置优化</h3><p>安装过程中执行参数配置脚本，如果是docker机器需要找运维去配置。</p>
+<p>启动redis查看log日志：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">3150:M 19 Apr 10:58:45.703 # WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.</div><div class="line">3150:M 19 Apr 10:58:45.703 # Server started, Redis version 3.0.7</div><div class="line">3150:M 19 Apr 10:58:45.703 # WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add &apos;vm.overcommit_memory = 1&apos; to /etc/sysctl.conf and then reboot or run the command &apos;sysctl vm.overcommit_memory=1&apos; for this to take effect.</div><div class="line">3150:M 19 Apr 10:58:45.703 # WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command &apos;echo never &gt; /sys/kernel/mm/transparent_hugepage/enabled&apos; as root, and add it to your /etc/rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled.</div></pre></td></tr></table></figure>
+<p>相关参数配置:<a href="(https://cachecloud.github.io/2017/02/16/Redis%E7%9A%84Linux%E7%B3%BB%E7%BB%9F%E4%BC%98%E5%8C%96/">详细参考</a>)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">echo &quot;vm.overcommit_memory = 1&quot; &gt;&gt; /etc/sysctl.conf</div><div class="line">sysctl vm.overcommit_memory=1</div><div class="line"></div><div class="line">echo 511 &gt; /proc/sys/net/core/somaxconn</div><div class="line"></div><div class="line">开启hugePage(影响RDB,AOF重写 共享内存页较大开销)</div><div class="line">echo never &gt;  /sys/kernel/mm/transparent_hugepage/enabled</div><div class="line">echo never &gt;  /sys/kernel/mm/transparent_hugepage/defrag</div><div class="line">echo never &gt; /sys/kernel/mm/redhat_transparent_hugepage/enabled</div><div class="line">echo never &gt; /sys/kernel/mm/redhat_transparent_hugepage/defrag</div></pre></td></tr></table></figure></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/12/22/goal/cachecloud常用运维文章汇总/" itemprop="url">
+                  cachecloud常用运维文章汇总
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-22T00:00:00+08:00" content="2017-12-22">
+              2017-12-22
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/cachecloud/" itemprop="url" rel="index">
+                    <span itemprop="name">cachecloud</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/cachecloud/cachecloud运维/" itemprop="url" rel="index">
+                    <span itemprop="name">cachecloud运维</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="cachecloud常用运维文章汇总"><a href="#cachecloud常用运维文章汇总" class="headerlink" title="cachecloud常用运维文章汇总"></a>cachecloud常用运维文章汇总</h2><ul>
+<li>1.<a href="./cachecloud/服务器初始化安装.md">服务器初始化安装</a></li>
+<li>2.<a href="https://cachecloud.github.io/2016/06/28/Cachecloud%E4%B8%ADRedis%E7%9A%84%E7%9B%B8%E5%85%B3%E9%85%8D%E7%BD%AE/" target="_blank" rel="external">Redis配置模板</a></li>
+<li>3.<a href="">Redis报警阀值配置</a></li>
+<li>4.<a href="https://cachecloud.github.io/2016/05/24/CacheCloud%E7%B3%BB%E7%BB%9F%E9%85%8D%E7%BD%AE%E8%AF%B4%E6%98%8E/" target="_blank" rel="external">CacheCloud系统配置</a></li>
+<li>5.<a href="https://cachecloud.github.io/2016/06/28/1.2.%20%E8%BF%81%E7%A7%BB%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/" target="_blank" rel="external">CacheCloud迁移工具</a></li>
+<li>6.<a href="https://cachecloud.github.io/2016/04/17/%E5%B7%B2%E5%AD%98%E5%9C%A8Redis%E6%8E%A5%E5%85%A5CacheCloud/" target="_blank" rel="external">CacheCloud接入已经存在Redis</a></li>
+<li>7.<a href="./cachecloud/.md"></a></li>
+<li>8.<a href="./cachecloud/.md"></a></li>
+</ul>
+<blockquote>
+<p><a href="./root.md">学习总目录</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/12/22/goal/redis集群使用/jedis代码迁移槽/" itemprop="url">
+                  jedis代码迁移槽
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-22T00:00:00+08:00" content="2017-12-22">
+              2017-12-22
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/redis/redis集群/" itemprop="url" rel="index">
+                    <span itemprop="name">redis集群</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="jedis代码基于槽迁移"><a href="#jedis代码基于槽迁移" class="headerlink" title="jedis代码基于槽迁移"></a>jedis代码基于槽迁移</h2><h3 id="pom依赖"><a href="#pom依赖" class="headerlink" title="pom依赖"></a>pom依赖</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.sohu.tv<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>cachecloud-client-redis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.7.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2017/08/29/goal/redis运维/redis客户端超时问题/#more" rel="contents">
+            <a class="btn" href="/2017/12/22/goal/redis集群使用/jedis代码迁移槽/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -867,8 +1410,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/08/23/goal/redis运维/python工具类使用/" itemprop="url">
-                  redis python工具使用
+                <a class="post-title-link" href="/2017/12/21/goal/redis集群使用/redis-trib.rb工具搭建集群/" itemprop="url">
+                  redis-trib搭建集群
                 </a>
               
             
@@ -881,8 +1424,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-08-23T16:37:35+08:00" content="2017-08-23">
-              2017-08-23
+            <time itemprop="dateCreated" datetime="2017-12-21T00:00:00+08:00" content="2017-12-21">
+              2017-12-21
             </time>
           </span>
 
@@ -907,8 +1450,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/redis运维/" itemprop="url" rel="index">
-                    <span itemprop="name">redis运维</span>
+                  <a href="/categories/redis/redis集群/" itemprop="url" rel="index">
+                    <span itemprop="name">redis集群</span>
                   </a>
                 </span>
 
@@ -941,9 +1484,9 @@
 
       
         
-          <h1 id="redis常用工具"><a href="#redis常用工具" class="headerlink" title="redis常用工具"></a>redis常用工具</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">环境准备:（注:不同redis版本可能会有差异）</div><div class="line"></div><div class="line">1.redis-server -v</div><div class="line">Redis server v=3.0.7 sha=00000000:0 malloc=jemalloc-3.6.0 bits=64 build=fde71d6d37f8bceb</div><div class="line"></div><div class="line">2.python -V </div><div class="line">Python 2.7.3</div><div class="line">下载：wget https://www.python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">3.python redis安装 rediscluster安装</div><div class="line"></div><div class="line">wget https://github.com/andymccurdy/redis-py/archive/2.10.5.zip</div><div class="line">unzip 2.10.5.zip</div><div class="line">cd redis-2.10.5</div><div class="line">python setup.py install</div><div class="line"></div><div class="line">wget https://github.com/Grokzen/redis-py-cluster/releases/download/1.3.4/redis-py-cluster-1.3.4.tar.gz</div><div class="line">tar -xvf redis-py-cluster-1.3.4.tar.gz</div><div class="line">cd redis-py-cluster-1.3.4</div><div class="line">python setup.py install</div><div class="line"></div><div class="line">4. 导入包</div><div class="line"></div><div class="line">import redis</div><div class="line">import rediscluster</div><div class="line">import sys</div></pre></td></tr></table></figure>
+          <h2 id="redis-trib安装"><a href="#redis-trib安装" class="headerlink" title="redis-trib安装"></a>redis-trib安装</h2><p>redis-trib.rb是采用ruby实现的redis集群管理工具。内部通过cluster相关命令帮我们简化集群创建，检查，槽迁移和均衡等常见运维操作。使用之前需要安装ruby依赖环境，redis作者用这个工具有很多我们值得借鉴学习的方法和习惯(像集群水平扩容/缩容 集群创建等可以避免知识误区)。从以下下部分开始使用讲解:</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2017/08/23/goal/redis运维/python工具类使用/#more" rel="contents">
+            <a class="btn" href="/2017/12/21/goal/redis集群使用/redis-trib.rb工具搭建集群/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -994,8 +1537,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/08/22/goal/redis运维/python环境安装/" itemprop="url">
-                  redis python环境安装
+                <a class="post-title-link" href="/2017/12/20/goal/redis集群使用/redis命令搭建集群/" itemprop="url">
+                  redis命令搭建集群
                 </a>
               
             
@@ -1008,8 +1551,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-08-22T10:52:03+08:00" content="2017-08-22">
-              2017-08-22
+            <time itemprop="dateCreated" datetime="2017-12-20T00:00:00+08:00" content="2017-12-20">
+              2017-12-20
             </time>
           </span>
 
@@ -1034,8 +1577,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/redis运维/" itemprop="url" rel="index">
-                    <span itemprop="name">redis运维</span>
+                  <a href="/categories/redis/redis集群/" itemprop="url" rel="index">
+                    <span itemprop="name">redis集群</span>
                   </a>
                 </span>
 
@@ -1068,375 +1611,19 @@
 
       
         
-          <h1 id="redis-python环境安装"><a href="#redis-python环境安装" class="headerlink" title="redis-python环境安装"></a>redis-python环境安装</h1><p>这里使用python脚本主要是为了提供提供redis小工具使用，包括扫描 特定key，空闲key，bigkey,删除相关key 或 热点key等等。这是在使用过程遇到问题，总结一下。</p>
+          <h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><h3 id="相关目录"><a href="#相关目录" class="headerlink" title="相关目录"></a>相关目录</h3><ul>
+<li>redis安装目录:/opt/soft/redis</li>
+<li>redis节点配置目录:/opt/soft/conf </li>
+<li>redis数据日志目录:/opt/soft/data</li>
+<li><p>redis版本:</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">localhos:soft chenshi$ redis-server -v</div><div class="line">Redis server v=3.0.7 sha=00000000:0 malloc=libc bits=64 </div><div class="line">build=fb816918fe2492c2</div></pre></td></tr></table></figure>
+</li>
+</ul>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2017/08/22/goal/redis运维/python环境安装/#more" rel="contents">
+            <a class="btn" href="/2017/12/20/goal/redis集群使用/redis命令搭建集群/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/08/21/goal/redis运维/docker机器篡改用户uid/" itemprop="url">
-                  docker机器篡改用户uid
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-08-21T10:37:35+08:00" content="2017-08-21">
-              2017-08-21
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/redis运维/" itemprop="url" rel="index">
-                    <span itemprop="name">redis运维</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h1 id="docker机器篡改用户uid"><a href="#docker机器篡改用户uid" class="headerlink" title="docker机器篡改用户uid"></a>docker机器篡改用户uid</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">1.原因描述：</div><div class="line">cachecloud管理机器：默认创建用户 cachecloud 内网(cachecloud-open 开源用户)，系统默认分配uid为500以上，位于同一台物理机的容器同样的uid用户太多就会超出用户资源资源超出了，系统就会去修改原来的uid。最好指定下吧，范围最好是500以内的，docker这个用户隔离做的弱。</div><div class="line"></div><div class="line">2.查看用户名的uid</div><div class="line">cat /etc/passwd | grep cachecloud  </div><div class="line">cachecloud:x:504:504::/home/cachecloud:/bin/bash （cachecloud与uid=507绑定）</div><div class="line">启动redis实例 则以cachecloud用户进程启动，ps 查看第一列其实就是以504 uid启动</div><div class="line">[@expon-9 /data/cachecloud]# ps -ef | grep redis</div><div class="line">504       3724     1  0 May25 ?        01:36:07 redis-server 0.0.0.0:6381 [cluster]</div><div class="line">504       4705     1  0 Jun12 ?        01:55:42 redis-server *:6385 [sentinel]</div><div class="line">504       7647     1  0 May25 ?        01:50:45 redis-server 0.0.0.0:6383 [cluster]</div><div class="line">504       7695     1  0 May25 ?        01:57:46 redis-server 0.0.0.0:6384 [cluster]</div><div class="line"></div><div class="line">3.指定uid</div><div class="line">创建指定用户uid:useradd -u $&#123;uid&#125;</div><div class="line">修改指定用户uid:usermod -u $&#123;uid&#125;</div></pre></td></tr></table></figure>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/08/21/goal/redis运维/docker机器篡改用户uid/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/08/11/goal/redis运维/redis在线升级密码运维/" itemprop="url">
-                  cachecloud在线升级密码
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-08-11T16:37:35+08:00" content="2017-08-11">
-              2017-08-11
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/redis/redis运维/" itemprop="url" rel="index">
-                    <span itemprop="name">redis运维</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="cachecloud在线升级密码"><a href="#cachecloud在线升级密码" class="headerlink" title="cachecloud在线升级密码"></a>cachecloud在线升级密码</h1><h2 id="在线升级过程"><a href="#在线升级过程" class="headerlink" title="在线升级过程"></a>在线升级过程</h2><ul>
-<li>1.【cc客户端】1.确认依赖该appid服务升级，可以先逐步升级cachecloud-client-redis 1.7.0-SNAPSHOT版本，不影响客户端正常使用(无密码连接)</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&lt;dependency&gt; </div><div class="line">    &lt;groupId&gt;com.sohu.tv&lt;/groupId&gt; </div><div class="line">    &lt;artifactId&gt;cachecloud-client-redis&lt;/artifactId&gt; </div><div class="line">    &lt;version&gt;1.7.0-SNAPSHOT&lt;/version&gt; </div><div class="line">&lt;/dependency&gt;</div></pre></td></tr></table></figure>
-<ul>
-<li>2.客户端依赖检查</li>
-</ul>
-<p>确保升级版本cachecloud-client-redis 1.7.0-SNAPSHOT,jedis 2.9.0-CC-3-SNAPSHOT,jedis-common 1.2.2-SNAPSHOT,cachecloud-client-basic 1.1-SNAPSHOT</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[INFO]\- com.sohu.tv:cachecloud-client-redis:jar:1.7.0-SNAPSHOT:compile</div><div class="line">[INFO]    +- redis.clients:jedis:jar:2.9.0-CC-3-SNAPSHOT:compile</div><div class="line">[INFO]    |  +- org.apache.commons:commons-pool2:jar:2.4.2:compile</div><div class="line">[INFO]    |  \- com.sohu.tv:jedis-common:jar:1.2.2-SNAPSHOT:compile</div><div class="line">[INFO]    \- com.sohu.tv:cachecloud-client-basic:jar:1.1-SNAPSHOT:compile</div><div class="line">[INFO]       \- com.alibaba:fastjson:jar:1.2.28:compile</div></pre></td></tr></table></figure>
-<ul>
-<li><p>3.【cc客户端】3.如果客户端依赖跨机房redis:请升级cachecloud-client-crossroom-redis到1.3-SNAPSHOT</p>
-</li>
-<li><p>4.【cc客户端】4.提交申请密码配置工单，应用首页-申请修改配置  里注明即可(“申请配置应用密码“)</p>
-</li>
-<li><p>5.【cc后台】5.cachechcloud确认所有客户端最新上报版本以及redis版本，准备配置密码 观察日志</p>
-</li>
-</ul>
-<p>运维对密码修改:<br><img src="http://i2.itc.cn/20170920/aac_68fe4d07_8bee_c0e8_0e16_6f573477609e_1.png" alt=""></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">更新:这个过程是对当前redis所有实例进行密码配置</div><div class="line">校验:这个过程是为校验每个redis实例上密码是否和设置密码一致</div><div class="line"></div><div class="line">密码设置规则: md5(key+&#123;appId&#125;)</div></pre></td></tr></table></figure>
-<ul>
-<li><p>6.【cc后台】6.后台配置密码后,appid对应cluster/sentinel/standalone所有redis节点密码生效，客户端jedis连接异常后会自动重连 拉取埋点密码重试成功(重连成功后为有密码连接)</p>
-</li>
-<li><p>7.客户端可在应用首页查看应用密码<br><img src="http://i0.itc.cn/20170920/aac_68fe4d07_8bee_c0e8_0e16_6f573477609e_2.png" alt=""></p>
-</li>
-</ul>
-<h2 id="jedis源码改造"><a href="#jedis源码改造" class="headerlink" title="jedis源码改造"></a>jedis源码改造</h2><blockquote>
-<p>1.改造Jedis</p>
-</blockquote>
-<p>优点:升级sdk支持在线切换，数据没有丢失。缺点：只支持Jedis，其他接入方式需要手动修改修改密码，密码生成过程固定。</p>
-<ul>
-<li>a.standalone 模式: 改造JeidsPool.makeObject.</li>
-<li>b.cluster 模式: 集群内所有节点使用同一密码，防止failover失败。Jedis改造<br>JedisClusterConnectionHandler.initializeSlotsCache 方法。</li>
-<li>c.sentinel模式:  主从所有节点必须使用同一个密码。改造JedisSentinelPool.initPool </li>
-<li>d.支持失败判定：NOAUTH Authentication required 异常后，中断连接下次重连。</li>
-</ul>
-<blockquote>
-<p>2.RESTful请求携带密码。</p>
-</blockquote>
-<p>优点:不需要改造客户端，密码生成规则灵活 缺点：升级协同困难。</p>
-<ul>
-<li>a.RESTful数据中密码字段使用对称加密，防止直接传输明文。</li>
-<li>b.客户端sdk加入判断是否设置密码功能。</li>
-</ul>
-<blockquote>
-<p>3.在线修改密码:</p>
-</blockquote>
-<ul>
-<li>a.redis客户端连接未使用密码时，修改密码后报错需要重连。</li>
-<li>b.redis客户端连接使用密码连接时，修改密码原有连接继续可用。</li>
-</ul>
-<h2 id="升级过程问题"><a href="#升级过程问题" class="headerlink" title="升级过程问题"></a>升级过程问题</h2><ul>
-<li><ol>
-<li>为什么要升级到cachecloud-client-redis 1.7.0-SNAPSHOT?</li>
-</ol>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">1.jedis客户端相关代码改造以及cachecloud相关依赖改造，需要重新获取依赖，才能支持密码在线升级。</div><div class="line">2.提前埋点到RESTful-API: 可支持无密码/默认密码/动态密码模式。</div></pre></td></tr></table></figure>
-<ul>
-<li><ol>
-<li>如何实现在线升级支持redis密码？</li>
-</ol>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">1.客户端更新服务依赖后重启服务，此时cachecloud-client-redis 1.7.0-SNAPSHOT可以支持密码功能。</div><div class="line">2.cc后台设置密码，appid对应所有redis实例密码生效，此时客户端原来无密码连接报错。</div><div class="line">3.客户端抛出异常后会重试，新建连接会获取埋点默认密码，重新连接redis。</div></pre></td></tr></table></figure>
-<ul>
-<li><ol>
-<li>cachecloud-client-redis已经升级到1.7.0-SNAPSHOT，但是上报cachecloud版本仍然是1.4?</li>
-</ol>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">10.10.193.153 - - [28/Aug/2017:10:58:34 +0800] &quot;GET /cache/client/redis/cluster/10380.json?clientVersion=1.4-SNAPSHOT HTTP/1.1&quot; 200 298 &quot;-&quot; &quot;Java/1.8.0_101&quot; &quot;-&quot; &quot;0.010&quot; &quot;0.011&quot;</div><div class="line">10.10.193.153 - - [28/Aug/2017:14:45:10 +0800] &quot;GET /cache/client/redis/cluster/10380.json?clientVersion=1.4-SNAPSHOT HTTP/1.1&quot; 200 298 &quot;-&quot; &quot;Java/1.8.0_101&quot; &quot;-&quot; &quot;0.010&quot; &quot;0.011&quot;</div><div class="line">10.10.193.153 - - [28/Aug/2017:14:59:16 +0800] &quot;GET /cache/client/redis/cluster/10380.json?clientVersion=1.4-SNAPSHOT HTTP/1.1&quot; 200 298 &quot;-&quot; &quot;Java/1.8.0_101&quot; &quot;-&quot; &quot;0.011&quot; &quot;0.013&quot;</div><div class="line">10.10.193.153 - - [28/Aug/2017:15:57:28 +0800] &quot;GET /cache/client/redis/cluster/10380.json?clientVersion=1.4-SNAPSHOT HTTP/1.1&quot; 200 298 &quot;-&quot; &quot;Java/1.8.0_101&quot; &quot;-&quot; &quot;4.009&quot; &quot;4.010&quot;</div><div class="line"></div><div class="line">a.如果是只是依赖cachecloud-client-redis1.7.0-SNAPSHOT ，确认cachecloud-client-basic</div><div class="line">是否为1.1-SNAPSHOT,不是的话 需要做mvn -U 重新拉取下依赖.</div><div class="line"></div><div class="line">b.如果依赖cachecloud-client-redis1.7.0-SNAPSHOT 还依赖跨机房包cachecloud-client-</div><div class="line">crossroom-redis，会有cachecloud-client-basic包冲突，请检查crossroom-redis版本是否升</div><div class="line">级到1.3-SNAPSHOT</div></pre></td></tr></table></figure>
-<ul>
-<li><ol>
-<li>使用sentinel pool,在线升级密码之后客户端一直抛出jedisConnectionException NOAUTH异常?</li>
-</ol>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">检查客户端使用sentinelPool 关闭连接的方式 确保使用的下面第2种方式：</div><div class="line">try &#123;</div><div class="line">    //获取连接</div><div class="line">    jedis = sentinelPool.getResource();</div><div class="line">    String key = &quot;test&quot;;</div><div class="line">    System.out.println(&quot;get &quot; + key + &quot; ,value =&quot; + jedis.get(key));</div><div class="line">&#125; catch (Exception e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125; finally &#123;</div><div class="line">    // 第1种.不支持中断的归还连接 （问题在这）</div><div class="line">    // jedisSentinelPool.returnResource(jedis);</div><div class="line">    // 第2种.支持中断的归还连接</div><div class="line">    if (jedis != null) &#123;</div><div class="line">        jedis.close();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<ul>
-<li><ol>
-<li>master-slave 主从结构在升级密码期间，会发生什么?</li>
-</ol>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line">master：10.10.193.189:6380  slave:10.10.193.148:6381</div><div class="line"></div><div class="line">a.master设置密码后，slave与master为断开,master redis log:</div><div class="line">27192:M 19 Sep 10:01:36.554 # Disconnecting timedout slave: 10.10.193.148:6381</div><div class="line">27192:M 19 Sep 10:01:36.554 # Connection with slave 10.10.193.148:6381 lost.</div><div class="line">1).master添加密码成功,slave表现为断开状态</div><div class="line">27192:M 19 Sep 10:01:36.982 * Slave 10.10.193.148:6381 asks for synchronization</div><div class="line">27192:M 19 Sep 10:01:36.982 * Unable to partial resync with slave 10.10.193.148:6381 for lack of backlog (Slave request was: 188517104780).</div><div class="line">27192:M 19 Sep 10:01:36.982 # Warning: slave 10.10.193.148:6381 tried to PSYNC with an offset that is greater than the master replication offset.</div><div class="line">4).slave请求同步master,master返回不能进行部分复制,原因是slave复制偏移量大于master偏移量)</div><div class="line">27192:M 19 Sep 10:01:36.982 * Starting BGSAVE for SYNC with target: disk</div><div class="line">27192:M 19 Sep 10:01:37.026 * Background saving started by pid 23211</div><div class="line">7).master做全量复制，fork子进程 开始生成rdb文件</div><div class="line">23211:C 19 Sep 10:01:47.077 * DB saved on disk</div><div class="line">23211:C 19 Sep 10:01:47.118 * RDB: 52 MB of memory used by copy-on-write</div><div class="line">27192:M 19 Sep 10:01:47.181 * Background saving terminated with success</div><div class="line">8).rdb文件生成，copyonwrite内存开销为52M，开始同步</div><div class="line">27192:M 19 Sep 10:01:54.237 * Synchronization with slave 10.10.193.148:6381 succeeded</div><div class="line">10).数据发送slave成功</div><div class="line"></div><div class="line">b.slave密码设置成功,slave redis log:</div><div class="line"></div><div class="line">27928:S 19 Sep 10:01:36.555 # Connection with master lost.</div><div class="line">27928:S 19 Sep 10:01:36.555 * Caching the disconnected master state.</div><div class="line">2).由于slave表现为断开</div><div class="line">27928:S 19 Sep 10:01:36.982 * Connecting to MASTER 10.10.193.189:6380</div><div class="line">27928:S 19 Sep 10:01:36.982 * MASTER &lt;-&gt; SLAVE sync started</div><div class="line">27928:S 19 Sep 10:01:36.982 * Non blocking connect for SYNC fired the event.</div><div class="line">27928:S 19 Sep 10:01:36.983 * Master replied to PING, replication can continue...</div><div class="line">27928:S 19 Sep 10:01:36.983 * Trying a partial resynchronization (request 0434b4b3476903d92c67bdb3615bce8e456afbf3:188517104780).</div><div class="line">3).slave密码设置成功，开始重连master节点,发起部分复制请求</div><div class="line">27928:S 19 Sep 10:01:37.027 * Full resync from master: 0434b4b3476903d92c67bdb3615bce8e456afbf3:188517104247</div><div class="line">27928:S 19 Sep 10:01:37.027 * Discarding previously cached master state.</div><div class="line">6).master返回状态 需要全量复制,master runid offset:0434b4b3476903d92c67bdb3615bce8e456afbf3:188517104247</div><div class="line">27928:S 19 Sep 10:01:47.182 * MASTER &lt;-&gt; SLAVE sync: receiving 538594334 bytes from master</div><div class="line">9).接收master数据:538MB</div><div class="line">27928:S 19 Sep 10:01:54.294 * MASTER &lt;-&gt; SLAVE sync: Flushing old data</div><div class="line">27928:S 19 Sep 10:02:01.721 * MASTER &lt;-&gt; SLAVE sync: Loading DB in memory</div><div class="line">27928:S 19 Sep 10:02:30.924 * MASTER &lt;-&gt; SLAVE sync: Finished with success</div><div class="line">11).加载rdb数据到内存成功</div><div class="line">27928:S 19 Sep 10:02:30.958 * Background append only file rewriting started by pid 31740</div><div class="line">27928:S 19 Sep 10:02:35.288 * AOF rewrite child asks to stop sending diffs.</div><div class="line">31740:C 19 Sep 10:02:35.288 * Parent agreed to stop sending diffs. Finalizing AOF...</div><div class="line">31740:C 19 Sep 10:02:35.288 * Concatenating 0.40 MB of AOF diff received from parent.</div><div class="line">31740:C 19 Sep 10:02:35.289 * SYNC append only file rewrite performed</div><div class="line">31740:C 19 Sep 10:02:35.325 * AOF rewrite: 117 MB of memory used by copy-on-write</div><div class="line">27928:S 19 Sep 10:02:35.472 * Background AOF rewrite terminated with success</div><div class="line">12).fork子进程做bgrewriteAof,重写aof文件</div><div class="line">27928:S 19 Sep 10:02:35.473 * Residual parent diff successfully flushed to the rewritten AOF (0.00 MB)</div><div class="line">27928:S 19 Sep 10:02:35.473 * Background AOF rewrite finished successfully</div><div class="line">13).AOF重写缓冲区增量新数据同步成功(copyonwrite复制技术，子进程只能共享fork操作时的内存数据aof_buffer，增量数据在aof_rewrite_buffer)</div></pre></td></tr></table></figure>
-<p>主从密码升级过程中，slave在添加密码过程，master会做一次全量复制.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Warning: slave 10.10.193.148:6381 tried to PSYNC with an offset that is </div><div class="line">greater than the master replication offset.</div></pre></td></tr></table></figure></p>
-<p>看master日志,slave在请求部分复制失败，master返回全量复制状态，这个问题好像是redis的一个bug,主节点设置完密码后，从节点的slave_repl_offset在自己增长，slave_repl_offset代表slave缓存的主节 点的offset。</p>
-<p>github查下相关问题:<br><a href="https://github.com/antirez/redis/issues/3" target="_blank" rel="external">https://github.com/antirez/redis/issues/3</a> </p>
-<p><a href="https://github.com/antirez/redis/issues/1969" target="_blank" rel="external">https://github.com/antirez/redis/issues/1969</a></p>
-<ul>
-<li>6.在线加密码后，客户端抛出jedisConnectionException NOAUTH异常原因?</li>
-</ul>
-<p><strong>客户端异常信息</strong>:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">2017-09-19 10:00:44,046 [DataComponentCommand.java:65] [ERROR] NOAUTH Authentication required.</div><div class="line">redis.clients.jedis.exceptions.JedisConnectionException: NOAUTH Authentication required.</div><div class="line">        at redis.clients.jedis.Protocol.processError(Protocol.java:131) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.Protocol.process(Protocol.java:167) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.Protocol.read(Protocol.java:221) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.Connection.readProtocolWithCheckingBroken(Connection.java:328) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.Connection.getIntegerReply(Connection.java:274) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.Jedis.hdel(Jedis.java:842) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisCluster$35.execute(JedisCluster.java:445) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisCluster$35.execute(JedisCluster.java:442) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisClusterCommand.runWithRetries(JedisClusterCommand.java:128) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisClusterCommand.runWithRetries(JedisClusterCommand.java:149) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisClusterCommand.runWithRetries(JedisClusterCommand.java:149) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisClusterCommand.runWithRetries(JedisClusterCommand.java:149) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisClusterCommand.runWithRetries(JedisClusterCommand.java:149) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisClusterCommand.run(JedisClusterCommand.java:36) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at redis.clients.jedis.JedisCluster.hdel(JedisCluster.java:447) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div><div class="line">        at com.sohu.tv.cachecloud.client.redis.crossroom.impl.RedisClusterCrossRoomClientImpl$33.writeMinor(RedisClusterCrossRoomClientImpl.java:724) ~[cachecloud-client-crossroo</div><div class="line">m-redis-1.3-20170829.034859-7.jar:na]</div><div class="line">        at com.sohu.tv.cachecloud.client.redis.crossroom.impl.RedisClusterCrossRoomClientImpl$33.writeMinor(RedisClusterCrossRoomClientImpl.java:716) ~[cachecloud-client-crossroo</div><div class="line">m-redis-1.3-20170829.034859-7.jar:na]</div></pre></td></tr></table></figure>
-<blockquote>
-<p>首先需要理解redis通讯过程: 1.建立socket连接 2.发送命名等待返回</p>
-</blockquote>
-<p>大部分客户端使用的redis cluster，以set命令为例:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">public String set(final String key, final String value) &#123;</div><div class="line">    return (String)(new JedisClusterCommand(this.connectionHandler, this.maxAttempts) &#123;</div><div class="line">        public String execute(Jedis connection) &#123;</div><div class="line">            return connection.set(key, value);</div><div class="line">        &#125;</div><div class="line">    &#125;).run(key);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<blockquote>
-<p>过程1:建立socket连接过程 JedisClusterCommand 包一层 执行run</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line">核心代码:</div><div class="line">private T runWithRetries(byte[] key, int attempts, boolean tryRandomNode, boolean asking) &#123;</div><div class="line">    if(attempts &lt;= 0) &#123;</div><div class="line">        JedisClusterMaxRedirectionsException connection1 = new JedisClusterMaxRedirectionsException(&quot;Too many Cluster redirections? key=&quot; + SafeEncoder.encode(key));</div><div class="line">        ....</div><div class="line">        throw connection1;</div><div class="line">    &#125; else &#123;</div><div class="line">    	 // 创建socket connection过程</div><div class="line">        Jedis connection = null;</div><div class="line"></div><div class="line">        Object var7;</div><div class="line">        try &#123;</div><div class="line">            if(asking) &#123;</div><div class="line">                connection = (Jedis)this.askConnection.get();</div><div class="line">                connection.asking();</div><div class="line">                asking = false;</div><div class="line">            &#125; else if(tryRandomNode) &#123;</div><div class="line">                connection = this.connectionHandler.getConnection();</div><div class="line">            &#125; else &#123;</div><div class="line">                connection = this.connectionHandler.getConnectionFromSlot(JedisClusterCRC16.getSlot(key));</div><div class="line">            &#125;</div><div class="line">            Object jre = this.execute(connection);</div><div class="line">            return jre;</div><div class="line">        &#125; catch (JedisNoReachableClusterNodeException var13) &#123;</div><div class="line">            throw var13;</div><div class="line">        &#125; catch (JedisConnectionException var14) &#123;</div><div class="line">            this.releaseConnection(connection);</div><div class="line">            connection = null;</div><div class="line">            if(attempts &lt;= 1) &#123;</div><div class="line">                this.connectionHandler.renewSlotCache();</div><div class="line">                throw var14;</div><div class="line">            &#125;</div><div class="line">            var7 = this.runWithRetries(key, attempts - 1, tryRandomNode, asking);</div><div class="line">        &#125; catch (JedisRedirectionException var15) &#123;</div><div class="line">            .....</div><div class="line">        &#125; finally &#123;</div><div class="line">            this.releaseConnection(connection);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        return var7;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<blockquote>
-<p>过程2:发送命令等待返回：connection.set(key, value);</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">public String set(String key, String value) &#123;</div><div class="line">    this.checkIsInMultiOrPipeline();</div><div class="line">    this.client.set(key, value);</div><div class="line">    return this.client.getStatusCodeReply();</div><div class="line">&#125;</div><div class="line"></div><div class="line">protected Object readProtocolWithCheckingBroken() &#123;</div><div class="line">        Object o = null;</div><div class="line">        boolean var10 = false;</div><div class="line"></div><div class="line">        Object exc;</div><div class="line">        try &#123;</div><div class="line">            // 等待流返回结果</div><div class="line">            var10 = true;</div><div class="line">            o = Protocol.read(this.inputStream);</div><div class="line">            exc = o;</div><div class="line">            var10 = false;</div><div class="line">        &#125; catch (JedisConnectionException var11) &#123;</div><div class="line">           ....</div><div class="line">        &#125; finally &#123;</div><div class="line">            ...</div><div class="line">        &#125;</div><div class="line">        ....</div><div class="line">        return exc;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<blockquote>
-<p>分析原因:</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">redis.clients.jedis.Connection.readProtocolWithCheckingBroken(Connection.java:328) ~[jedis-2.9.0-CC-3-20170821.084013-2.jar:na]</div></pre></td></tr></table></figure>
-<p>根据异常日志，发现连接在建立是没有问题，但是执行命令返回抛出异常，也就是在加密码过程中 过程1 ok ，过程二 执行命令 需要密码报错。<br>过程1:建立socket报错，cluster自身默认5次重试，重试失败抛出Too many Cluster redirections?<br>过程2:建立socket连接，执行命令读取报错，则抛出以上异常信息。</p>
-
-          
         
       
     </div>
@@ -1467,7 +1654,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1508,7 +1695,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-count">35</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1516,7 +1703,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-count">14</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1525,7 +1712,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -1591,7 +1778,7 @@
         <div class="copyright" >
   
   &copy;  2016 - 
-  <span itemprop="copyrightYear">2017</span>
+  <span itemprop="copyrightYear">2018</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
